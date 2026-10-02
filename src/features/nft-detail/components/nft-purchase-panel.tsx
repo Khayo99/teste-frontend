@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { Heart, Share2, Star } from 'lucide-react'
@@ -7,17 +7,23 @@ import { useAuthStore } from '@/features/auth/auth-store'
 import { setFavorite } from '@/features/nft-detail/api/nft-detail-api'
 import { clampQuantity } from '@/features/nft-detail/lib/nft-detail-validation'
 import { Button } from '@/components/ui/button'
+import { useCartStore } from '@/features/cart/cart-store'
+import { queryKeys } from '@/lib/query-keys'
 
 const editionOptions: EditionLabel[] = ['1/1', '1/10', '1/50', 'ABERTA']
+const PENDING_FAVORITE_KEY = 'kurio.pending-favorite'
 
 export function NftPurchasePanel({ nft }: { nft: NftDetail }) {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const { status, token } = useAuthStore()
+  const { status, token, openAuthModal } = useAuthStore()
+  const userId = useAuthStore(state => state.user?.id ?? null)
+  const addItem = useCartStore(state => state.addItem)
   const [quantity, setQuantity] = useState(() =>
     clampQuantity(1, nft.availability)
   )
   const [feedback, setFeedback] = useState<string | null>(null)
+  const favoriteIntentHandled = useRef(false)
   const isSoldOut = nft.availability <= 0
 
   const favoriteMutation = useMutation({
@@ -25,21 +31,72 @@ export function NftPurchasePanel({ nft }: { nft: NftDetail }) {
       if (!token) throw new Error('unauthenticated')
       return setFavorite(nft.id, token, nextIsFavorite)
     },
-    onError: error => {
+    onMutate: async nextIsFavorite => {
+      const key = queryKeys.nft(nft.id, userId)
+      await queryClient.cancelQueries({ queryKey: key })
+      const detail = queryClient.getQueryData<NftDetail>(key)
+      const favoritesKey = userId ? queryKeys.favorites(userId) : null
+      const favorites = favoritesKey
+        ? queryClient.getQueryData<NftDetail[]>(favoritesKey)
+        : undefined
+      queryClient.setQueryData<NftDetail>(key, current =>
+        current ? { ...current, isFavorite: nextIsFavorite } : current
+      )
+      if (favoritesKey)
+        queryClient.setQueryData<NftDetail[]>(favoritesKey, current => {
+          if (nextIsFavorite)
+            return current?.some(item => item.id === nft.id)
+              ? current
+              : [...(current ?? []), { ...nft, isFavorite: true }]
+          return current?.filter(item => item.id !== nft.id) ?? []
+        })
+      return { detail, favorites, key, favoritesKey }
+    },
+    onError: (error, _next, context) => {
+      if (context?.detail) queryClient.setQueryData(context.key, context.detail)
+      if (context?.favoritesKey)
+        queryClient.setQueryData(context.favoritesKey, context.favorites)
       if ((error as Error).message === 'unauthenticated') return
       setFeedback('Não foi possível atualizar o favorito. Tente novamente.')
     },
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['nft-detail', nft.id] })
+    onSuccess: isFavorite => {
+      queryClient.setQueryData<NftDetail>(
+        queryKeys.nft(nft.id, userId),
+        current => (current ? { ...current, isFavorite } : current)
+      )
+    },
+    onSettled: () => {
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.nft(nft.id, userId)
+      })
+      if (userId)
+        void queryClient.invalidateQueries({
+          queryKey: queryKeys.favorites(userId)
+        })
     }
   })
 
+  useEffect(() => {
+    const shouldFavoriteAfterLogin =
+      sessionStorage.getItem(PENDING_FAVORITE_KEY) === nft.id
+
+    if (
+      !shouldFavoriteAfterLogin ||
+      status !== 'authenticated' ||
+      nft.isFavorite ||
+      favoriteIntentHandled.current
+    )
+      return
+
+    favoriteIntentHandled.current = true
+    sessionStorage.removeItem(PENDING_FAVORITE_KEY)
+    favoriteMutation.mutate(true)
+  }, [favoriteMutation, nft.id, nft.isFavorite, status])
+
   const handleFavorite = () => {
     if (status !== 'authenticated') {
-      void navigate({
-        to: '/login',
-        search: { returnTo: `/nft/${nft.id}` }
-      })
+      sessionStorage.setItem(PENDING_FAVORITE_KEY, nft.id)
+      openAuthModal('login', `/nft/${nft.id}`)
       return
     }
     favoriteMutation.mutate(!nft.isFavorite)
@@ -47,9 +104,18 @@ export function NftPurchasePanel({ nft }: { nft: NftDetail }) {
 
   const handleBuy = () => {
     if (isSoldOut) return
-    setFeedback(
-      `${quantity} unidade(s) de ${nft.name} adicionada(s) ao carrinho.`
-    )
+    addItem({
+      id: nft.id,
+      image: nft.image,
+      name: nft.name,
+      tokenId: nft.tokenId,
+      editionId: nft.editionLabel,
+      editionLabel: nft.editionLabel,
+      priceEth: nft.priceEth,
+      quantity,
+      stock: nft.availability
+    })
+    void navigate({ to: '/cart' })
   }
 
   const adjustQuantity = (delta: number) =>
@@ -84,15 +150,23 @@ export function NftPurchasePanel({ nft }: { nft: NftDetail }) {
       </div>
 
       <div className="flex flex-col gap-3">
-        <p className="text-[15px] font-bold leading-4 text-foreground">Sobre este NFT:</p>
+        <p className="text-[15px] font-bold leading-4 text-foreground">
+          Sobre este NFT:
+        </p>
         <p className="max-w-143.5 text-[14px] leading-6 text-text-secondary">
           {nft.description}
         </p>
       </div>
 
       <div className="flex flex-col gap-2">
-        <p className="text-[15px] font-bold leading-4 text-foreground">Edição:</p>
-        <div className="flex flex-wrap gap-1.5" role="group" aria-label="Edição">
+        <p className="text-[15px] font-bold leading-4 text-foreground">
+          Edição:
+        </p>
+        <div
+          className="flex flex-wrap gap-1.5"
+          role="group"
+          aria-label="Edição"
+        >
           {editionOptions.map(option => (
             <span
               className={`grid h-7 place-items-center rounded-full border px-1 text-[14px] leading-4 ${
@@ -183,6 +257,12 @@ export function NftPurchasePanel({ nft }: { nft: NftDetail }) {
           role="status"
         >
           {feedback}
+        </p>
+      )}
+
+      {isSoldOut && (
+        <p className="text-body-14-compact text-text-secondary" role="status">
+          Esta edição está indisponível no momento.
         </p>
       )}
 

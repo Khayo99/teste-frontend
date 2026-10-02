@@ -17,11 +17,15 @@ export async function enableMocking() {
 
   try {
     const { worker } = await import('./browser')
+    const controls = await import('./handlers')
     await withTimeout(
       worker.start({ onUnhandledFrame: 'bypass' }),
       START_TIMEOUT_MS,
       'Inicialização do Mock Service Worker',
     )
+    if (import.meta.env.DEV || import.meta.env.VITE_ENABLE_MSW === 'true') {
+      Object.assign(window, { __KURIO_MOCKS__: { reset: controls.resetMockScenario, updateNft: controls.updateMockNft } })
+    }
   } catch (error) {
     // Nunca deixar uma falha ou travamento do worker impedir a renderização do app.
     console.error(

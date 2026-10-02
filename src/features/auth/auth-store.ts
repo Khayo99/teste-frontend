@@ -18,6 +18,7 @@ type AuthState = {
   setReturnTo: (path: string | null) => void
   openAuthModal: (mode?: 'login' | 'register', returnTo?: string | null) => void
   closeAuthModal: () => void
+  updateUser: (user: AuthUser) => void
   clear: () => void
 }
 
@@ -46,6 +47,14 @@ export const useAuthStore = create<AuthState>(set => ({
 
   closeAuthModal: () =>
     set({ authModal: { open: false, mode: 'login', returnTo: null } }),
+
+  updateUser: user => set(state => {
+    if (state.token) {
+      const saved = storedSession()
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ token: state.token, user, expiresAt: saved?.expiresAt }))
+    }
+    return { user }
+  }),
 
   clear: () => {
     localStorage.removeItem(STORAGE_KEY)

@@ -3,8 +3,11 @@ import { useQuery } from '@tanstack/react-query'
 import type {
   CatalogCategory,
   CatalogQuery,
-  CatalogSort
+  CatalogSearch,
+  CatalogSort,
+  CatalogTab
 } from '@/@types/catalog'
+import { useNavigate, useSearch } from '@tanstack/react-router'
 import { CatalogFilters } from '@/features/catalog/components/catalog-filters'
 import { CatalogPagination } from '@/features/catalog/components/catalog-pagination'
 import { FeaturedNftBanner } from '@/features/catalog/components/featured-nft-banner'
@@ -15,29 +18,45 @@ import toolbarUnderline from '@/assets/catalog/toolbar-underline.svg'
 import { ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Select } from '@/components/ui/select'
+import { queryKeys } from '@/lib/query-keys'
 
-const initialQuery: CatalogQuery = {
-  category: null,
-  maxPrice: 12.3,
-  minPrice: 0.02,
-  network: null,
-  search: '',
-  sort: 'recent'
-}
 const pageSize = 9
-type CatalogTab = 'all' | 'new' | 'trending'
 
 export function HomeCatalog() {
-  const [query, setQuery] = useState<CatalogQuery>(initialQuery)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [activeTab, setActiveTab] = useState<CatalogTab>('all')
+  const search = useSearch({ from: '/' })
+  const navigate = useNavigate({ from: '/' })
   const [isRetrying, setIsRetrying] = useState(false)
+  const query = useMemo<CatalogQuery>(
+    () => ({
+      category: search.category,
+      maxPrice: search.maxPrice,
+      minPrice: search.minPrice,
+      network: search.network,
+      search: search.search,
+      sort: search.sort
+    }),
+    [search]
+  )
+  const currentPage = search.page
+  const activeTab = search.tab
+  const facetQuery = useMemo<CatalogQuery>(
+    () => ({ ...query, category: null }),
+    [query]
+  )
   const {
     data: catalogNfts = [],
     isError,
     isLoading,
     refetch
-  } = useQuery({ queryKey: ['catalog-nfts'], queryFn: getCatalogNfts })
+  } = useQuery({
+    queryKey: queryKeys.catalog(query),
+    queryFn: ({ signal }) => getCatalogNfts(query, signal)
+  })
+  const { data: categoryFacetNfts = [] } = useQuery({
+    queryKey: queryKeys.catalogFacets(facetQuery),
+    queryFn: ({ signal }) => getCatalogNfts(facetQuery, signal),
+    enabled: query.category !== null
+  })
   const visibleNfts = useMemo(
     () => filterCatalog(catalogNfts, query),
     [catalogNfts, query]
@@ -54,8 +73,8 @@ export function HomeCatalog() {
     )
   }, [activeTab, visibleNfts])
   const categoryCounts = useMemo(() => {
-    const queryWithoutCategory = { ...query, category: null }
-    const nftsForFacets = filterCatalog(catalogNfts, queryWithoutCategory)
+    const nftsForFacets =
+      query.category === null ? catalogNfts : categoryFacetNfts
 
     return nftsForFacets.reduce<Record<CatalogCategory, number>>(
       (counts, nft) => {
@@ -74,20 +93,38 @@ export function HomeCatalog() {
         Utilidade: 0
       }
     )
-  }, [catalogNfts, query])
+  }, [catalogNfts, categoryFacetNfts, query.category])
   const pageCount = Math.ceil(tabbedNfts.length / pageSize)
+  const safeCurrentPage = Math.min(currentPage, Math.max(pageCount, 1))
   const paginatedNfts = tabbedNfts.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
+    (safeCurrentPage - 1) * pageSize,
+    safeCurrentPage * pageSize
   )
   const handleQueryChange = (nextQuery: CatalogQuery) => {
-    setQuery(nextQuery)
-    setCurrentPage(1)
+    void navigate({
+      search: (previous: CatalogSearch) => ({
+        ...previous,
+        ...nextQuery,
+        page: 1
+      }),
+      resetScroll: false
+    })
   }
   const handleTabChange = (nextTab: CatalogTab) => {
-    setActiveTab(nextTab)
-    setCurrentPage(1)
+    void navigate({
+      search: (previous: CatalogSearch) => ({
+        ...previous,
+        tab: nextTab,
+        page: 1
+      }),
+      resetScroll: false
+    })
   }
+  const handlePageChange = (page: number) =>
+    void navigate({
+      search: (previous: CatalogSearch) => ({ ...previous, page }),
+      resetScroll: false
+    })
   const handleRetry = async () => {
     setIsRetrying(true)
     try {
@@ -195,7 +232,7 @@ export function HomeCatalog() {
               {isRetrying ? 'Tentando novamente...' : 'Tentar novamente'}
             </Button>
           </div>
-        ) : visibleNfts.length > 0 ? (
+        ) : tabbedNfts.length > 0 ? (
           <div className="grid grid-cols-1 gap-y-catalog-row-gap sm:grid-cols-2 sm:gap-x-8 lg:grid-cols-catalog lg:justify-between">
             {paginatedNfts.map(nft => (
               <NftCard key={nft.id} nft={nft} />
@@ -209,8 +246,8 @@ export function HomeCatalog() {
 
         <div className="w-full flex justify-end">
           <CatalogPagination
-            currentPage={currentPage}
-            onPageChange={setCurrentPage}
+            currentPage={safeCurrentPage}
+            onPageChange={handlePageChange}
             pageCount={pageCount}
           />
         </div>

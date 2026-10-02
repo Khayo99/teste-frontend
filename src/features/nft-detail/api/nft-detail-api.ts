@@ -22,10 +22,11 @@ function normalizeError(error: unknown) {
   return new NftDetailApiError("Não foi possível concluir a operação.");
 }
 
-export async function getNftDetail(nftId: string, token: string | null) {
+export async function getNftDetail(nftId: string, token: string | null, signal?: AbortSignal) {
   try {
     const response = await api.get<{ nft: NftDetail }>(`/nfts/${nftId}`, {
       headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      signal,
     });
     return response.data.nft;
   } catch (error) {
@@ -51,5 +52,17 @@ export async function setFavorite(
     return response.data.isFavorite;
   } catch (error) {
     throw normalizeError(error);
+  }
+}
+
+export async function getFavorites(token: string, signal?: AbortSignal) {
+  try {
+    const response = await api.get<{ nfts: NftDetail[] }>('/favorites', {
+      headers: { Authorization: `Bearer ${token}` }, signal,
+    })
+    if (!Array.isArray(response.data?.nfts)) throw new Error('Resposta de favoritos inválida.')
+    return response.data.nfts
+  } catch (error) {
+    throw normalizeError(error)
   }
 }

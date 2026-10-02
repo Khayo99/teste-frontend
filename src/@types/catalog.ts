@@ -34,6 +34,13 @@ export type CatalogQuery = {
   sort: CatalogSort
 }
 
+export type CatalogTab = 'all' | 'new' | 'trending'
+
+export type CatalogSearch = CatalogQuery & {
+  page: number
+  tab: CatalogTab
+}
+
 export type CatalogFiltersProps = {
   categoryCounts: Record<CatalogCategory, number>
   onChange: (query: CatalogQuery) => void

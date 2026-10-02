@@ -89,6 +89,10 @@ A sessão deve ser recuperável após refresh. Trate expiração durante a naveg
 
 Valide os formulários de cadastro, perfil, senha e carteiras, incluindo erros retornados pela API. Alterações confirmadas devem permanecer após refresh. Use credenciais fictícias e não armazene senhas em claro.
 
+### Perfil do colecionador e carteiras
+
+O acesso a `/profile` e `/wallets` exige sessão. No header, o botão **Entrar** é mantido após a autenticação e passa a levar o usuário para `/profile`; o encerramento de sessão fica exclusivamente na área de perfil. O perfil permite editar dados e senha, enquanto as carteiras permitem cadastrar e editar a carteira principal. Os dois fluxos usam os endpoints simulados, apresentam validação e preservam alterações após recarregar a página.
+
 ## 4. Integração e estado
 
 Use TanStack Router nas rotas, parâmetros de busca e proteção dos fluxos privados. Use TanStack Query nas consultas, mutations e sincronização do cache. As chamadas REST devem passar pelo Axios.

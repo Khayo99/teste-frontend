@@ -1,12 +1,32 @@
 import { Menu, Search, ShoppingCart } from 'lucide-react'
-import { useLocation } from '@tanstack/react-router'
+import { useLocation, useNavigate } from '@tanstack/react-router'
 import { useAuthStore } from '@/features/auth/auth-store'
 import { Button } from '@/components/ui/button'
+import { useCartStore } from '@/features/cart/cart-store'
+import { Input } from '@/components/ui/input'
+import type { CatalogSearch } from '@/@types/catalog'
+import { useState } from 'react'
 
 export function Header() {
   const location = useLocation()
-  const { status, user, clear, openAuthModal } = useAuthStore()
+  const { status, user, openAuthModal } = useAuthStore()
+  const navigate = useNavigate()
+  const itemCount = useCartStore(state => state.items.reduce((total, item) => total + item.quantity, 0))
   const isNftDetailPage = location.pathname.startsWith('/nft/')
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [catalogSearch, setCatalogSearch] = useState('')
+
+  const submitSearch = () => {
+    void navigate({
+      to: '/',
+      search: (previous: CatalogSearch) => ({
+        ...previous,
+        search: catalogSearch.trim(),
+        page: 1
+      })
+    })
+    setSearchOpen(false)
+  }
 
   return (
     <header className="relative h-header-height border-b border-border">
@@ -54,44 +74,59 @@ export function Header() {
           </a>
         </nav>
         <div className="flex h-header-actions items-center gap-7 text-foreground">
-          <Button
-            aria-label="Buscar"
-            className="grid size-5 place-items-center p-0"
-            variant="ghost"
-            type="button"
-          >
-            <Search className="size-icon-md stroke-icon" />
-          </Button>
+          {searchOpen ? (
+            <form
+              className="flex items-center gap-2"
+              onSubmit={event => {
+                event.preventDefault()
+                submitSearch()
+              }}
+            >
+              <Input
+                aria-label="Buscar NFTs"
+                autoFocus
+                className="h-8 w-40 px-2 text-sm"
+                onChange={event => setCatalogSearch(event.target.value)}
+                placeholder="Buscar NFTs"
+                value={catalogSearch}
+              />
+              <Button className="h-8 px-2 text-sm" type="submit" variant="ghost">
+                Buscar
+              </Button>
+            </form>
+          ) : (
+            <Button
+              aria-label="Buscar"
+              className="grid size-5 place-items-center p-0"
+              onClick={() => setSearchOpen(true)}
+              variant="ghost"
+              type="button"
+            >
+              <Search className="size-icon-md stroke-icon" />
+            </Button>
+          )}
           <Button
             aria-label="Carrinho"
             className="relative grid size-5 place-items-center p-0"
+            onClick={() => void navigate({ to: '/cart' })}
             variant="ghost"
             type="button"
           >
             <ShoppingCart className="size-icon-md stroke-icon" />
-            <span className="absolute -right-2 -top-1 grid size-4 place-items-center rounded-full bg-primary text-tiny-medium text-ink">
-              6
+            <span aria-label={`${itemCount} itens no carrinho`} className="absolute -right-2 -top-1 grid size-4 place-items-center rounded-full bg-primary text-tiny-medium text-ink">
+              {itemCount}
             </span>
           </Button>
-          {status === 'authenticated' ? (
-            <Button
-              className="grid h-header-actions rounded-md border border-primary px-3 text-xs text-primary"
-              variant="ghost"
-              type="button"
-              onClick={clear}
-              aria-label="Sair da conta"
-            >
-              Sair{user ? ` · ${user.name}` : ''}
-            </Button>
-          ) : (
-            <Button
-              className="hidden h-header-actions w-login-width place-items-center rounded-md bg-primary text-body-16-medium text-ink transition-colors hover:bg-primary-light sm:grid"
-              variant="primary"
-              onClick={() => openAuthModal('login', location.pathname)}
-            >
-              Entrar
-            </Button>
-          )}
+          <Button
+            className="hidden h-header-actions w-login-width place-items-center rounded-md bg-primary text-body-16-medium text-ink transition-colors hover:bg-primary-light sm:grid"
+            variant="primary"
+            onClick={() => {
+              if (status === 'authenticated') void navigate({ to: '/profile' })
+              else openAuthModal('login', location.pathname)
+            }}
+          >
+            {status === 'authenticated' && user ? user.name : 'Entrar'}
+          </Button>
           <Button
             aria-label="Abrir navegação"
             className="grid size-5 place-items-center p-0 md:hidden"

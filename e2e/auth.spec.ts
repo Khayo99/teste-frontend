@@ -8,7 +8,7 @@ test('faz login e mantém a sessão após refresh', async ({ page }) => {
   await page.getByRole('dialog').getByRole('button', { name: 'Entrar' }).click()
   await expect(page).toHaveURL('/')
   await page.reload()
-  await expect(page.getByRole('button', { name: /Sair/ })).toBeAttached()
+  await expect(page.getByRole('banner').getByRole('button', { name: 'Demo Kurio' })).toBeAttached()
 })
 
 test('protege checkout e retorna ao destino após autenticar', async ({ page }) => {
@@ -48,9 +48,9 @@ test('cria e persiste um novo usuário após refresh', async ({ page }) => {
   await page.getByLabel('Confirmar senha').fill('senha-segura-123')
   await page.getByRole('dialog').getByRole('button', { name: 'Criar conta' }).click()
   await expect(page).toHaveURL('/')
-  await expect(page.getByRole('button', { name: /Sair/ })).toBeAttached()
+  await expect(page.getByRole('banner').getByRole('button', { name: 'Pessoa Persistida' })).toBeAttached()
   await page.reload()
-  await expect(page.getByRole('button', { name: /Sair/ })).toBeAttached()
+  await expect(page.getByRole('banner').getByRole('button', { name: 'Pessoa Persistida' })).toBeAttached()
 })
 
 test('abre o login sobre a tela atual sem remover o conteúdo', async ({ page }) => {

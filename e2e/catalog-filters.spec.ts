@@ -13,4 +13,5 @@ test('collection filters expose fixture counts and update the listing', async ({
   await expect(catalog.getByText('Emerald Ape #042')).toBeVisible()
   await expect(catalog.getByText('Cosmic Bloom #118')).toBeVisible()
   await expect(catalog.getByText('Sage Nomad #009')).not.toBeVisible()
+  await expect(catalog.getByRole('button', { name: 'Música' })).toContainText('(65)')
 })

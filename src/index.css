@@ -3,3 +3,13 @@
 @import '@fontsource/roboto-mono/latin-700.css';
 @import 'tailwindcss';
 @import './styles/design-system.css';
+
+/* Keeps the unlabeled secondary-wallet input on the baseline of the address
+   input beside it, as specified by the desktop wallet frame. */
+input[placeholder='ENS ou carteira secundária (opcional)'] {
+  margin-top: 23px;
+}
+
+button {
+  white-space: nowrap;
+}

@@ -6,10 +6,11 @@ import { NftGallery } from "@/features/nft-detail/components/nft-gallery";
 import { NftPurchasePanel } from "@/features/nft-detail/components/nft-purchase-panel";
 import { NftInfoTabs } from "@/features/nft-detail/components/nft-info-tabs";
 import { RelatedNftsCarousel } from "@/features/nft-detail/components/related-nfts-carousel";
+import { queryKeys } from '@/lib/query-keys'
 
 export function NftDetailPage() {
   const { nftId } = useParams({ from: "/nft/$nftId" });
-  const { token } = useAuthStore();
+  const { token, user } = useAuthStore();
   const {
     data: nft,
     isLoading,
@@ -17,8 +18,8 @@ export function NftDetailPage() {
     error,
     refetch,
   } = useQuery({
-    queryKey: ["nft-detail", nftId, token],
-    queryFn: () => getNftDetail(nftId, token),
+    queryKey: queryKeys.nft(nftId, user?.id ?? null),
+    queryFn: ({ signal }) => getNftDetail(nftId, token, signal),
   });
 
   if (isLoading) {
@@ -93,7 +94,7 @@ export function NftDetailPage() {
             gallery={nft.gallery}
             name={`${nft.name} ${nft.tokenId}`}
           />
-          <NftPurchasePanel nft={nft} />
+          <NftPurchasePanel key={nft.id} nft={nft} />
         </div>
       </div>
       <NftInfoTabs nft={nft} />
