@@ -1,4 +1,4 @@
-import nextArrow from '@/assets/catalog/pagination-next.svg'
+import { ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 type CatalogPaginationProps = {
@@ -7,22 +7,36 @@ type CatalogPaginationProps = {
   pageCount: number
 }
 
-export function CatalogPagination({ currentPage, onPageChange, pageCount }: CatalogPaginationProps) {
+export function CatalogPagination({
+  currentPage,
+  onPageChange,
+  pageCount
+}: CatalogPaginationProps) {
   if (pageCount <= 1) return null
-  const visiblePages = pageCount <= 4
-    ? Array.from({ length: pageCount }, (_, index) => index + 1)
-    : currentPage <= 2
-      ? [1, 2, 3, 4]
-      : [1, currentPage, Math.min(currentPage + 1, pageCount), Math.min(currentPage + 2, pageCount)]
-  const uniquePages = [...new Set(visiblePages)]
+  const pageWindowStart = Math.min(
+    Math.max(1, currentPage - 2),
+    Math.max(1, pageCount - 3)
+  )
+  const visiblePages = Array.from(
+    { length: Math.min(4, pageCount) },
+    (_, index) => pageWindowStart + index
+  )
 
   return (
-    <nav aria-label="Paginação do catálogo" className="mt-12 flex items-center gap-2">
-      {uniquePages.map(page => (
+    <nav
+      aria-label="Paginação do catálogo"
+      className="mt-12 flex items-center gap-2"
+    >
+      {visiblePages.map(page => (
         <Button
           aria-current={page === currentPage ? 'page' : undefined}
           aria-label={`Página ${page}`}
-          className={page === currentPage ? 'border-primary bg-primary font-bold text-ink' : undefined}
+          variant="pagination"
+          className={
+            page === currentPage
+              ? 'border-primary bg-primary font-bold text-ink'
+              : undefined
+          }
           key={page}
           onClick={() => onPageChange(page)}
           type="button"
@@ -36,8 +50,9 @@ export function CatalogPagination({ currentPage, onPageChange, pageCount }: Cata
         disabled={currentPage === pageCount}
         onClick={() => onPageChange(currentPage + 1)}
         type="button"
+        variant="pagination"
       >
-        <img alt="" className="block max-w-none" src={nextArrow} />
+        <ChevronRight aria-hidden="true" size={18} strokeWidth={1.8} />
       </Button>
     </nav>
   )

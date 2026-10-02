@@ -5,11 +5,14 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import { queryClient } from '@/lib/query-client'
 import { enableMocking } from '@/mocks/enable'
-import { realtimeClient } from '@/lib/realtime'
 import { router } from '@/router'
+import { getSession } from '@/features/auth/api/auth-api'
+import { storedSession, useAuthStore } from '@/features/auth/auth-store'
 
-void enableMocking().finally(() => {
-  realtimeClient.connect()
+void enableMocking().then(async () => {
+  const stored = storedSession()
+  if (!stored) useAuthStore.getState().clear()
+  else { try { useAuthStore.getState().setSession(await getSession(stored.token)) } catch { useAuthStore.getState().clear() } }
   createRoot(document.getElementById('root')!).render(
     <StrictMode>
       <QueryClientProvider client={queryClient}>

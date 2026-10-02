@@ -264,3 +264,7 @@ Documente os contratos REST e eventos, a política de sessão, o estado do carri
 Disponibilize comandos para desenvolvimento com mocks, build, preview, verificação de tipos, lint, testes Playwright e auditoria Lighthouse.
 
 A entrega deve executar a partir de um checkout limpo, sem depender de serviços privados ou do backend de produção.
+
+## Autenticação simulada
+
+As telas `/login` e `/register` usam somente a API MSW. A credencial fictícia padrão é `demo@kurio.test` / `kurio-demo`. Usuários criados são persistidos no cenário MSW em `localStorage` com senha transformada em hash simulado; o token opaco também é persistido para sobreviver ao refresh. Senha nunca é armazenada ou registrada em claro. As rotas `/checkout`, `/profile`, `/wallets`, `/favorites` e `/orders` exigem sessão e preservam `returnTo`. Logout limpa sessão, cache privado e listeners realtime. Valide com `npm run test:e2e -- e2e/auth.spec.ts`.

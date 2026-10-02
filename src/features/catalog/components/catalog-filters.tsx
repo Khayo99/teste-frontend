@@ -19,7 +19,11 @@ const categories: CatalogCategory[] = [
 ]
 const networks: CatalogNetwork[] = ['Ethereum', 'Polygon', 'Solana']
 
-export function CatalogFilters({ categoryCounts, onChange, query }: CatalogFiltersProps) {
+export function CatalogFilters({
+  categoryCounts,
+  onChange,
+  query
+}: CatalogFiltersProps) {
   const updateQuery = (updates: Partial<CatalogQuery>) =>
     onChange({ ...query, ...updates })
 
@@ -92,7 +96,9 @@ export function CatalogFilters({ categoryCounts, onChange, query }: CatalogFilte
 function FilterSection({ children, title }: FilterSectionProps) {
   return (
     <section className="mb-10">
-      <h2 className="mb-3 text-body-18-bold-compact text-text-primary">{title}</h2>
+      <h2 className="mb-3 text-body-18-bold-compact text-text-primary">
+        {title}
+      </h2>
       {children}
     </section>
   )

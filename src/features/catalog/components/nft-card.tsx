@@ -39,8 +39,12 @@ export function NftCard({ nft }: NftCardProps) {
           </button>
         </div>
       </div>
-      <h3 className="mt-3 text-body-16-compact text-text-primary">{nft.name} {nft.tokenId}</h3>
-      <p className="mt-3 text-body-18-bold-compact text-text-accent">{nft.priceEth} ETH</p>
+      <h3 className="mt-3 text-body-16-compact text-text-primary">
+        {nft.name} {nft.tokenId}
+      </h3>
+      <p className="mt-3 text-body-18-bold-compact text-text-accent">
+        {nft.priceEth} ETH
+      </p>
     </article>
   )
 }
