@@ -272,3 +272,9 @@ A entrega deve executar a partir de um checkout limpo, sem depender de serviços
 ## Autenticação simulada
 
 As telas `/login` e `/register` usam somente a API MSW. A credencial fictícia padrão é `demo@kurio.test` / `kurio-demo`. Usuários criados são persistidos no cenário MSW em `localStorage` com senha transformada em hash simulado; o token opaco também é persistido para sobreviver ao refresh. Senha nunca é armazenada ou registrada em claro. As rotas `/checkout`, `/profile`, `/wallets`, `/favorites` e `/orders` exigem sessão e preservam `returnTo`. Logout limpa sessão, cache privado e listeners realtime. Valide com `npm run test:e2e -- e2e/auth.spec.ts`.
+
+## Pagamento
+
+O checkout em `/checkout` exige sessão. Entre com `demo@kurio.test` e `kurio-demo`, revise a cotação atual, escolha uma carteira simulada e confirme. A cotação usa valores ETH como strings decimais; o recibo confirmado preserva o snapshot e sua referência de transação simulada.
+
+O cenário padrão confirma o pagamento. Para reproduzir recusas, pendências ou timeout após criação do pedido, inicie com `VITE_MOCK_SCENARIO=payment-declined`, `payment-pending` ou `order-timeout`. Os handlers MSW seguem como única fonte de dados e eventos Socket.IO locais. Validação: `npm run typecheck`, `npm run lint`, `npm run build` e `npm run test:e2e -- e2e/checkout.spec.ts --workers=1`.

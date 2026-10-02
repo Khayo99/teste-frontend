@@ -1,8 +1,9 @@
 <!--
 Sync Impact Report
-- Version change: template → 1.0.0
-- Modified principles: none (initial adoption)
-- Added sections: Non-Negotiable Product Constraints; Delivery Workflow and Quality Gates
+- Version change: 1.0.0 → 1.1.0
+- Modified principles: none
+- Added principles: VI. Eliminatory Compliance Gate
+- Added sections: none
 - Removed sections: none
 - Follow-up TODOs: none
 -->
@@ -42,6 +43,13 @@ outcomes, including failure and recovery when the brief requires them. Real-time
 through `socket.io-client`; REST tests MUST travel through MSW handlers. Changes MUST pass
 type-checking, linting, build, relevant E2E tests, and visual regression checks before completion.
 
+### VI. Eliminatory Compliance Gate (HIGHEST PRIORITY)
+The project MUST follow this constitution and the mandatory stack with the highest priority. The
+following failures are eliminatory and MUST block acceptance regardless of visual quality or partial
+feature completion: absence of effective use of the mandatory stack, main flows that are merely
+visual, a purchase confirmed without a response from the simulation, exposure of data between users,
+events simulated directly in the UI, or absence of executable E2E tests.
+
 ## Non-Negotiable Product Constraints
 
 Blockchain providers, browser wallet extensions, and payment gateways are simulated only. A confirmed
@@ -78,4 +86,4 @@ rationale, an updated Sync Impact Report, and a semantic version bump: MAJOR for
 governance changes, MINOR for a new or materially expanded requirement, and PATCH for clarification.
 Compliance exceptions require explicit user approval and documentation in `ARCHITECTURE.md`.
 
-**Version**: 1.0.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-01
+**Version**: 1.1.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-02

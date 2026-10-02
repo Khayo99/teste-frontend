@@ -112,7 +112,7 @@ const loginRoute = createRoute({
   validateSearch: (search: Record<string, unknown>) => ({
     returnTo: typeof search.returnTo === 'string' ? search.returnTo : undefined
   }),
-  component: () => <AuthPage mode="login" />
+  component: () => <AuthPage mode="login" background={false} />
 })
 
 const registerRoute = createRoute({
@@ -121,7 +121,7 @@ const registerRoute = createRoute({
   validateSearch: (search: Record<string, unknown>) => ({
     returnTo: typeof search.returnTo === 'string' ? search.returnTo : undefined
   }),
-  component: () => <AuthPage mode="register" />
+  component: () => <AuthPage mode="register" background={false} />
 })
 
 const routeTree = rootRoute.addChildren([

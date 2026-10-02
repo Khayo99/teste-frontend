@@ -13,6 +13,7 @@ export function Header() {
   const navigate = useNavigate()
   const itemCount = useCartStore(state => state.items.reduce((total, item) => total + item.quantity, 0))
   const isNftDetailPage = location.pathname.startsWith('/nft/')
+  const isMarketPage = isNftDetailPage || location.pathname === '/cart'
   const [searchOpen, setSearchOpen] = useState(false)
   const [catalogSearch, setCatalogSearch] = useState('')
 
@@ -39,9 +40,9 @@ export function Header() {
           className="hidden h-header-inner items-start gap-10 text-body-16 text-foreground md:flex xl:absolute xl:left-header-nav-offset"
         >
           <a
-            aria-current={!isNftDetailPage ? 'page' : undefined}
+            aria-current={!isMarketPage ? 'page' : undefined}
             className={
-              !isNftDetailPage
+              !isMarketPage
                 ? 'h-header-height border-b-2 border-text-accent font-bold text-text-accent'
                 : 'transition-colors hover:text-text-accent'
             }
@@ -50,9 +51,9 @@ export function Header() {
             Início
           </a>
           <a
-            aria-current={isNftDetailPage ? 'page' : undefined}
+            aria-current={isMarketPage ? 'page' : undefined}
             className={
-              isNftDetailPage
+              isMarketPage
                 ? 'h-header-height border-b-2 border-text-accent font-bold text-text-accent'
                 : 'transition-colors hover:text-text-accent'
             }

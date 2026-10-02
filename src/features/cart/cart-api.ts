@@ -2,7 +2,7 @@ import axios from 'axios'
 import type { CartItem } from '@/features/cart/cart-store'
 import { api } from '@/lib/api'
 
-export type CartQuoteItem = Pick<CartItem, 'editionId' | 'id'> & { availability: number; priceEth: string }
+export type CartQuoteItem = Pick<CartItem, 'editionId' | 'id'> & { availability: number; priceEth: string; quantity: number }
 export type CartQuote = {
   coupon: { code: string; discountEth: string } | null
   items: CartQuoteItem[]

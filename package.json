@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@fontsource/roboto-mono": "^5.3.0",
-    "@mswjs/socket.io-binding": "file:../../../../private/tmp/socket.io-binding-0.2.0.tgz",
+    "@mswjs/socket.io-binding": "^0.2.0",
     "@tanstack/react-query": "^5.104.0",
     "@tanstack/react-router": "^1.170.41",
     "axios": "^1.20.0",
@@ -24,7 +24,7 @@
     "clsx": "^2.1.1",
     "decimal.js": "^10.6.0",
     "lucide-react": "^1.49.0",
-    "msw": "file:../../../../private/tmp/msw-2.11.3.tgz",
+    "msw": "^2.11.3",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "socket.io-client": "^4.8.4",

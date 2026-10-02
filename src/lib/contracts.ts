@@ -23,6 +23,7 @@ export const orderUpdateEventSchema = z.object({
   version: z.number().int().nonnegative(),
   status: z.enum(['pending', 'confirmed', 'declined']),
   reason: z.string().optional(),
+  transactionReference: z.string().optional(),
 })
 
 export type OrderUpdateEvent = z.infer<typeof orderUpdateEventSchema>

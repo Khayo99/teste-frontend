@@ -18,7 +18,7 @@ const PROFILES_STORAGE_KEY = "kurio.mock.profiles";
 const WALLETS_STORAGE_KEY = "kurio.mock.wallets";
 const ORDERS_STORAGE_KEY = "kurio.mock.orders";
 const CATALOG_STORAGE_KEY = "kurio.mock.catalog";
-type Order = { id: string; userId: string; status: 'pending' | 'confirmed' | 'declined'; version: number; receipt: CartQuote; createdAt: string; reason?: string; idempotencyKey: string; fingerprint: string };
+type Order = { id: string; userId: string; status: 'pending' | 'confirmed' | 'declined'; version: number; receipt: CartQuote; createdAt: string; reason?: string; transactionReference?: string; idempotencyKey: string; fingerprint: string };
 const initialCatalog = catalogNfts.map(nft => ({ ...nft }));
 let mockCatalog = initialCatalog.map(nft => ({ ...nft }));
 const orders = new Map<string, Order>();
@@ -313,7 +313,7 @@ export const handlers = [
     const networkFee = subtotal.isZero() ? new Decimal(0) : new Decimal("0.016");
     return HttpResponse.json({
       coupon: coupon ? { code: coupon, discountEth: discount.toFixed(18) } : null,
-      items: quotedItems.map(({ id, editionId, availability, priceEth }) => ({ id, editionId, availability, priceEth })),
+      items: quotedItems.map(({ id, editionId, availability, priceEth, quantity }) => ({ id, editionId, availability, priceEth, quantity })),
       totals: { subtotalEth: subtotal.toFixed(18), discountEth: discount.toFixed(18), networkFeeEth: networkFee.toFixed(18), totalEth: subtotal.minus(discount).plus(networkFee).toFixed(18) }
     });
   }),
@@ -451,8 +451,10 @@ export const handlers = [
     if (!user) return HttpResponse.json({ message: 'Autenticação necessária.' }, { status: 401 })
     const idempotencyKey = request.headers.get('Idempotency-Key')
     if (!idempotencyKey) return HttpResponse.json({ message: 'A chave de idempotência é obrigatória.' }, { status: 400 })
-    const body = await request.json() as { items?: Array<{ id: string; editionId: string; quantity: number }>; coupon?: string | null; quote?: CartQuote }
-    const fingerprint = JSON.stringify({ items: body.items, coupon: body.coupon ?? null })
+    const body = await request.json() as { items?: Array<{ id: string; editionId: string; quantity: number }>; coupon?: string | null; quote?: CartQuote; checkout?: { displayName?: string; network?: string; walletAddress?: string; walletType?: string; email?: string } }
+    if (body.checkout && (!body.checkout.displayName?.trim() || !body.checkout.network || !body.checkout.walletType || !body.checkout.walletAddress?.match(/^0x[a-fA-F0-9]{8,}$/) || !body.checkout.email?.includes('@')))
+      return HttpResponse.json({ message: 'Revise os dados do colecionador e da carteira.' }, { status: 400 })
+    const fingerprint = JSON.stringify({ items: body.items, coupon: body.coupon ?? null, checkout: body.checkout })
     const previous = ordersFor(user.id).find(order => order.idempotencyKey === idempotencyKey)
     if (previous) {
       if (previous.fingerprint !== fingerprint) return HttpResponse.json({ message: 'Chave de idempotência reutilizada com conteúdo diferente.' }, { status: 409 })
@@ -465,18 +467,18 @@ export const handlers = [
     const total = subtotal.minus(discount).plus(subtotal.isZero() ? 0 : '0.016').toFixed(18)
     if (!body.quote || body.quote.totals.totalEth !== total) return HttpResponse.json({ message: 'O preço ou a taxa mudou. Atualize a cotação antes de confirmar.' }, { status: 409 })
     const status: Order['status'] = scenario === 'payment-declined' ? 'declined' : scenario === 'payment-pending' || scenario === 'order-timeout' ? 'pending' : 'confirmed'
-    const order: Order = { id: `ord-${crypto.randomUUID()}`, userId: user.id, status, version: 1, receipt: body.quote, createdAt: new Date().toISOString(), reason: status === 'declined' ? 'Pagamento recusado pela carteira simulada.' : undefined, idempotencyKey, fingerprint }
+    const order: Order = { id: `ord-${crypto.randomUUID()}`, userId: user.id, status, version: 1, receipt: body.quote, createdAt: new Date().toISOString(), reason: status === 'declined' ? 'Pagamento recusado pela carteira simulada.' : undefined, transactionReference: status === 'confirmed' ? `0x${crypto.randomUUID().replaceAll('-', '')}` : undefined, idempotencyKey, fingerprint }
     orders.set(order.id, order); persistOrders()
     if (status === 'confirmed') liveItems.forEach(line => { line.nft!.availability -= line.quantity }); persistCatalog()
-    emitToUser(user.id, 'order.updated', { orderId: order.id, userId: user.id, status: order.status, version: order.version, reason: order.reason })
+    emitToUser(user.id, 'order.updated', { orderId: order.id, userId: user.id, status: order.status, version: order.version, reason: order.reason, transactionReference: order.transactionReference })
     if (status === 'confirmed') liveItems.forEach(line => { const version = nextVersion(`nft:${line.nft!.id}`); resourceVersions.set(`nft:${line.nft!.id}`, version); emitToUser(null, 'nft.updated', { nftId: line.nft!.id, userId: null, priceEth: line.nft!.priceEth, availability: line.nft!.availability, version }) })
     if (status === 'pending') setTimeout(() => {
       const active = orders.get(order.id)
       if (!active || active.status !== 'pending') return
-      active.status = 'confirmed'; active.version += 1; persistOrders()
+      active.status = 'confirmed'; active.version += 1; active.transactionReference = `0x${crypto.randomUUID().replaceAll('-', '')}`; persistOrders()
       liveItems.forEach(line => { line.nft!.availability -= line.quantity })
       persistCatalog()
-      emitToUser(user.id, 'order.updated', { orderId: active.id, userId: user.id, status: active.status, version: active.version })
+      emitToUser(user.id, 'order.updated', { orderId: active.id, userId: user.id, status: active.status, version: active.version, transactionReference: active.transactionReference })
       liveItems.forEach(line => { const version = nextVersion(`nft:${line.nft!.id}`); resourceVersions.set(`nft:${line.nft!.id}`, version); emitToUser(null, 'nft.updated', { nftId: line.nft!.id, userId: null, priceEth: line.nft!.priceEth, availability: line.nft!.availability, version }) })
     }, 800)
     if (scenario === 'order-timeout') return HttpResponse.error()

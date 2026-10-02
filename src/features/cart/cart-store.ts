@@ -29,6 +29,7 @@ type CartStore = {
   addItem: (item: CartItem) => void
   removeCoupon: () => void
   removeItem: (id: string, editionId: string) => void
+  removePurchasedQuantity: (id: string, editionId: string, quantity: number) => void
   setCoupon: (coupon: string) => void
   syncQuote: (items: CartQuoteItem[]) => void
   updateQuantity: (id: string, editionId: string, quantity: number) => void
@@ -46,6 +47,11 @@ export const useCartStore = create<CartStore>()(persist(set => ({
   }),
   removeCoupon: () => set({ coupon: null }),
   removeItem: (id, editionId) => set(state => ({ items: state.items.filter(item => item.id !== id || item.editionId !== editionId) })),
+  removePurchasedQuantity: (id, editionId, quantity) => set(state => ({ items: state.items.flatMap(item => {
+    if (item.id !== id || item.editionId !== editionId) return [item]
+    const remaining = item.quantity - Math.max(0, Math.trunc(quantity))
+    return remaining > 0 ? [{ ...item, quantity: remaining }] : []
+  }) })),
   setCoupon: coupon => set({ coupon }),
   syncQuote: quoteItems => set(state => {
     let changed = false

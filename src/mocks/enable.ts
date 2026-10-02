@@ -19,7 +19,7 @@ export async function enableMocking() {
     const { worker } = await import('./browser')
     const controls = await import('./handlers')
     await withTimeout(
-      worker.start({ onUnhandledFrame: 'bypass' }),
+      worker.start({ onUnhandledRequest: 'bypass' }),
       START_TIMEOUT_MS,
       'Inicialização do Mock Service Worker',
     )

@@ -27,3 +27,11 @@ O `AbortSignal` do TanStack Query chega ao Axios para descartar respostas obsole
 ## Autenticação (004-auth-login-register)
 
 `src/features/auth` concentra validação Zod, telas e adaptadores Axios. MSW simula cadastro, login, sessão e logout; o token é opaco e a senha nunca entra em localStorage. Zustand mantém a sessão e TanStack Query permite limpar dados privados no logout. O cliente Socket.IO é desconectado antes da troca de usuário. Guards do TanStack Router preservam a rota solicitada. Os nós Figma informados não estavam disponíveis para extração nesta sessão; a composição usa os tokens/assets já versionados e é responsiva nos breakpoints do projeto.
+
+## Pagamento (006-payment-checkout)
+
+`src/features/orders/checkout-page.tsx` concentra o checkout protegido. Perfil e carteiras são buscados pelos adaptadores Axios existentes e a cotação é recuperada pelo endpoint do carrinho com TanStack Query. A confirmação exige campos válidos, conexão simulada da carteira e reconhecimento explícito da cotação atual; qualquer mudança material invalida esse reconhecimento. O cabeçalho `Idempotency-Key` e a tentativa persistida por usuário permitem recuperar a mesma operação após refresh.
+
+Os handlers MSW validam dados de checkout, isolam pedidos pelo usuário da sessão, preservam o recibo decimal e retornam uma referência de transação simulada somente quando confirmado. Eventos de pedido carregam versão e referência; o componente descarta eventos que não pertencem ao usuário atual.
+
+Proveniência visual: `emerald-ape.png`, `violet-nomad.png` e `ivory-baron.png` são os assets locais usados nas três linhas do recibo, em correspondência com o frame de pagamento do Figma. Os controles de carteira usam rádio nativo estilizado para preservar teclado e foco; eles substituem apenas vetores decorativos indisponíveis localmente.
