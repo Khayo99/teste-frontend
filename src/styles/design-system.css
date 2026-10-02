@@ -1,0 +1,249 @@
+@theme {
+  --font-mono:
+    'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    monospace;
+  --font-sans:
+    'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    monospace;
+
+  --color-primary: #d28a4c;
+  --color-primary-light: #dd9a5f;
+  --color-primary-dark: #c47b3e;
+  --color-amber: #e3a44e;
+  --color-text-coral: #f0805f;
+  --color-foreground: #f5f1eb;
+  --color-background-elevated: #fbfbfb;
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --color-secondary: #b39463;
+  --color-text-muted: #b0916a;
+  --color-surface-card: #241612;
+  --color-surface-raised: #2f1d15;
+  --color-ink: #140d0a;
+  --color-ink-deep: #0e0907;
+  --color-ink-soft: #1c110c;
+  --color-surface-dark: #38220f;
+  --color-border: #3f2319;
+  --color-border-soft: #55321f;
+  --color-gray-light: #ededed;
+  --color-success: #00a66c;
+  --color-error: #ed1b2e;
+  --color-logo-orange: #ff641a;
+  --color-logo-facebook: #3b5999;
+  --color-logo-google-blue: #4086f4;
+  --color-logo-google-green: #59c36a;
+  --color-logo-google-yellow: #ffda2d;
+  --color-logo-blue: #4175df;
+  --color-logo-light-blue: #03a9f4;
+  --color-logo-indigo: #283593;
+  --color-text-primary: #f7f3ec;
+  --color-text-secondary: #cfb28c;
+  --color-text-accent: #e89b55;
+  --color-background: var(--color-ink);
+  --color-muted-foreground: var(--color-text-secondary);
+
+  --spacing-viewport-min: 320px;
+  --spacing-layout-content: 1200px;
+  --spacing-layout-gutter: 120px;
+  --spacing-header-height: 45px;
+  --spacing-header-inner: 44px;
+  --spacing-header-actions: 35px;
+  --spacing-header-nav-offset: 376px;
+  --spacing-login-width: 100px;
+  --spacing-hero-height: 450px;
+  --spacing-hero-mobile-height: 360px;
+  --spacing-hero-gap: 110px;
+  --spacing-hero-copy-width: 600px;
+  --spacing-hero-copy-offset: 43px;
+  --spacing-hero-description-width: 557px;
+  --spacing-hero-cta-width: 140px;
+  --spacing-catalog-sidebar-width: 310px;
+  --spacing-catalog-sidebar-height: 785px;
+  --spacing-catalog-grid-width: 842px;
+  --spacing-catalog-toolbar-height: 18px;
+  --spacing-catalog-sort-width: 191px;
+  --spacing-catalog-row-gap: 72px;
+  --spacing-tab-underline-offset: 7px;
+  --spacing-card-width: 258px;
+  --spacing-card-visual-height: 300px;
+  --spacing-card-artwork: 250px;
+  --spacing-featured-nft-artwork-height: 368px;
+  --spacing-featured-nft-orb-top: 105px;
+  --spacing-featured-nft-orb: 15px;
+  --spacing-range-height: 21px;
+  --spacing-apply-width: 92px;
+  --spacing-icon-sm: 16px;
+  --spacing-icon-md: 18px;
+  --spacing-icon-lg: 21px;
+  --spacing-focus-offset: 3px;
+  --spacing-promotion-card: 192px;
+  --spacing-promotion-artwork: 220px;
+  --spacing-promotion-copy: 320px;
+  --spacing-footer-medallion: 74px;
+  --spacing-footer-newsletter-width: 357px;
+
+  --text-display: 43px;
+  --text-display--line-height: 70px;
+  --text-display--font-weight: 700;
+  --text-heading: 24px;
+  --text-heading--line-height: 32px;
+  --text-heading--font-weight: 700;
+  --text-body-18-bold-compact: 18px;
+  --text-body-18-bold-compact--line-height: 16px;
+  --text-body-18-bold-compact--font-weight: 700;
+  --text-body-18-bold: 18px;
+  --text-body-18-bold--line-height: 24px;
+  --text-body-18-bold--font-weight: 700;
+  --text-body-18: 18px;
+  --text-body-18--line-height: 16px;
+  --text-body-18--font-weight: 400;
+  --text-body-17-bold: 17px;
+  --text-body-17-bold--line-height: 16px;
+  --text-body-17-bold--font-weight: 700;
+  --text-body-16-bold: 16px;
+  --text-body-16-bold--line-height: normal;
+  --text-body-16-bold--font-weight: 700;
+  --text-body-16-bold-compact: 16px;
+  --text-body-16-bold-compact--line-height: 20px;
+  --text-body-16-bold-compact--font-weight: 700;
+  --text-body-16-medium: 16px;
+  --text-body-16-medium--line-height: normal;
+  --text-body-16-medium--font-weight: 500;
+  --text-body-16: 16px;
+  --text-body-16--line-height: normal;
+  --text-body-16--font-weight: 400;
+  --text-body-16-compact: 16px;
+  --text-body-16-compact--line-height: 16px;
+  --text-body-16-compact--font-weight: 400;
+  --text-body-15-bold-list: 15px;
+  --text-body-15-bold-list--line-height: 40px;
+  --text-body-15-bold-list--font-weight: 700;
+  --text-body-15-medium: 15px;
+  --text-body-15-medium--line-height: 16px;
+  --text-body-15-medium--font-weight: 500;
+  --text-body-15: 15px;
+  --text-body-15--line-height: normal;
+  --text-body-15--font-weight: 400;
+  --text-body-15-compact: 15px;
+  --text-body-15-compact--line-height: 16px;
+  --text-body-15-compact--font-weight: 400;
+  --text-body-15-list: 15px;
+  --text-body-15-list--line-height: 40px;
+  --text-body-15-list--font-weight: 400;
+  --text-body-14-brand: 14px;
+  --text-body-14-brand--line-height: normal;
+  --text-body-14-brand--font-weight: 700;
+  --text-body-14-brand--letter-spacing: 0.1em;
+  --text-body-14-label: 14px;
+  --text-body-14-label--line-height: 16px;
+  --text-body-14-label--font-weight: 500;
+  --text-body-14-label--letter-spacing: 0.1em;
+  --text-body-14-medium: 14px;
+  --text-body-14-medium--line-height: 20px;
+  --text-body-14-medium--font-weight: 500;
+  --text-body-14-compact: 14px;
+  --text-body-14-compact--line-height: 16px;
+  --text-body-14-compact--font-weight: 400;
+  --text-body-14-copy: 14px;
+  --text-body-14-copy--line-height: 22px;
+  --text-body-14-copy--font-weight: 400;
+  --text-body-14-relaxed: 14px;
+  --text-body-14-relaxed--line-height: 24px;
+  --text-body-14-relaxed--font-weight: 400;
+  --text-body-14-loose: 14px;
+  --text-body-14-loose--line-height: 30px;
+  --text-body-14-loose--font-weight: 400;
+  --text-caption: 13px;
+  --text-caption--line-height: 22px;
+  --text-caption--font-weight: 400;
+  --text-caption-bold: 12px;
+  --text-caption-bold--line-height: 14px;
+  --text-caption-bold--font-weight: 700;
+  --text-tiny-medium: 10px;
+  --text-tiny-medium--line-height: normal;
+  --text-tiny-medium--font-weight: 500;
+  --text-tiny-bold: 9px;
+  --text-tiny-bold--line-height: normal;
+  --text-tiny-bold--font-weight: 700;
+  --text-tiny-bold--letter-spacing: 0.1px;
+
+  --scale-card-hover: 1.02;
+  --stroke-width-icon: 1.8;
+  --border-width-focus: 2px;
+
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 13px;
+  --radius-2xl: 15px;
+  --radius-3xl: 17px;
+  --radius-4xl: 18px;
+  --radius-5xl: 22px;
+  --radius-6xl: 24px;
+  --radius-7xl: 29px;
+  --radius-8xl: 37px;
+
+  --shadow-design: 0 0 20px rgb(10 6 4 / 45%);
+}
+
+:root {
+  color: var(--color-text-primary);
+  background: var(--color-ink);
+  font-family: var(--font-mono);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--color-ink);
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: var(--spacing-viewport-min);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button,
+select {
+  cursor: pointer;
+}
+
+button:disabled,
+select:disabled {
+  cursor: not-allowed;
+}
+
+::selection {
+  color: var(--color-ink);
+  background: var(--color-primary);
+}
+
+:focus-visible {
+  outline: var(--border-width-focus) solid var(--color-text-accent);
+  outline-offset: var(--spacing-focus-offset);
+}
+
+@utility grid-cols-catalog {
+  grid-template-columns: repeat(3, var(--spacing-card-width));
+}
+
+@utility scale-card-hover {
+  scale: var(--scale-card-hover);
+}
+
+@utility stroke-icon {
+  stroke-width: var(--stroke-width-icon);
+}
