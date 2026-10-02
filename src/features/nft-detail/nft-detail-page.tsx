@@ -1,0 +1,103 @@
+import { useQuery } from "@tanstack/react-query";
+import { Link, useParams } from "@tanstack/react-router";
+import { getNftDetail } from "@/features/nft-detail/api/nft-detail-api";
+import { useAuthStore } from "@/features/auth/auth-store";
+import { NftGallery } from "@/features/nft-detail/components/nft-gallery";
+import { NftPurchasePanel } from "@/features/nft-detail/components/nft-purchase-panel";
+import { NftInfoTabs } from "@/features/nft-detail/components/nft-info-tabs";
+import { RelatedNftsCarousel } from "@/features/nft-detail/components/related-nfts-carousel";
+
+export function NftDetailPage() {
+  const { nftId } = useParams({ from: "/nft/$nftId" });
+  const { token } = useAuthStore();
+  const {
+    data: nft,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["nft-detail", nftId, token],
+    queryFn: () => getNftDetail(nftId, token),
+  });
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col gap-8" aria-label="Carregando NFT">
+        <div className="h-5 w-48 animate-pulse rounded bg-surface-card" />
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
+          <div className="aspect-square animate-pulse rounded-2xl bg-surface-card" />
+          <div className="flex flex-col gap-4">
+            <div className="h-8 w-2/3 animate-pulse rounded bg-surface-card" />
+            <div className="h-24 animate-pulse rounded bg-surface-card" />
+            <div className="h-10 w-1/2 animate-pulse rounded bg-surface-card" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const notFound = isError && (error as { status?: number }).status === 404;
+
+  if (notFound) {
+    return (
+      <div className="flex flex-col items-center gap-4 py-24 text-center">
+        <p className="text-heading text-text-primary">NFT não encontrado</p>
+        <p className="text-body-14-compact text-text-secondary">
+          O NFT que você procura não existe ou foi removido.
+        </p>
+        <Link
+          className="mt-2 rounded-md bg-primary px-5 py-3 text-body-16-bold-compact text-ink"
+          to="/"
+        >
+          Voltar ao catálogo
+        </Link>
+      </div>
+    );
+  }
+
+  if (isError || !nft) {
+    return (
+      <div className="flex flex-col items-center gap-4 py-24 text-center">
+        <p
+          className="text-body-14-compact text-text-secondary"
+          aria-live="polite"
+        >
+          Não foi possível carregar este NFT.
+        </p>
+        <button
+          className="rounded-md bg-primary px-5 py-3 text-body-16-bold-compact text-ink"
+          onClick={() => void refetch()}
+          type="button"
+        >
+          Tentar novamente
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-16">
+      <div className="flex flex-col gap-7">
+        <nav
+          aria-label="Trilha de navegação"
+          className="text-body-15 text-text-secondary"
+        >
+          <Link className="hover:text-text-primary" to="/">
+            Início
+          </Link>{" "}
+          / Mercado
+        </nav>
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
+          <NftGallery
+            gallery={nft.gallery}
+            name={`${nft.name} ${nft.tokenId}`}
+          />
+          <NftPurchasePanel nft={nft} />
+        </div>
+      </div>
+      <NftInfoTabs nft={nft} />
+      <RelatedNftsCarousel relatedNfts={nft.relatedNfts} />
+    </div>
+  );
+}

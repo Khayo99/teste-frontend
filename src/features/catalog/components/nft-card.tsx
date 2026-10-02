@@ -1,10 +1,25 @@
-import { Heart, Search, ShoppingCart } from 'lucide-react'
-import type { NftCardProps } from '@/@types/catalog'
+import { Heart, Search, ShoppingCart } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import type { NftCardProps } from "@/@types/catalog";
+import { Button } from "@/components/ui/button";
 
 export function NftCard({ nft }: NftCardProps) {
+  const navigate = useNavigate();
+  const goToDetail = () =>
+    void navigate({ to: "/nft/$nftId", params: { nftId: nft.id } });
+
   return (
     <article className="group min-w-0 xl:w-card-width">
-      <div className="relative flex h-card-visual-height items-center justify-center overflow-hidden rounded-2xl bg-surface-card">
+      <div
+        className="relative flex h-card-visual-height cursor-pointer items-center justify-center overflow-hidden rounded-2xl bg-surface-card"
+        onClick={goToDetail}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") goToDetail();
+        }}
+        role="link"
+        tabIndex={0}
+        aria-label={`Ver ${nft.name} ${nft.tokenId}`}
+      >
         <img
           alt={`NFT ${nft.name} ${nft.tokenId}`}
           className="size-card-artwork rounded-2xl object-cover transition duration-300 group-hover:scale-card-hover"
@@ -16,35 +31,48 @@ export function NftCard({ nft }: NftCardProps) {
           </span>
         )}
         <div className="absolute inset-x-0 bottom-0 hidden items-center justify-end gap-2 bg-ink/80 p-2 group-hover:flex">
-          <button
+          <Button
             aria-label={`Adicionar ${nft.name} ao carrinho`}
             className="rounded-sm border border-text-secondary p-1 text-text-primary"
+            onClick={(event) => event.stopPropagation()}
+            variant="ghost"
             type="button"
           >
             <ShoppingCart className="size-icon-sm" />
-          </button>
-          <button
+          </Button>
+          <Button
             aria-label={`Favoritar ${nft.name}`}
             className="rounded-sm border border-text-secondary p-1 text-text-primary"
+            onClick={(event) => event.stopPropagation()}
+            variant="ghost"
             type="button"
           >
             <Heart className="size-icon-sm" />
-          </button>
-          <button
+          </Button>
+          <Button
             aria-label={`Ver ${nft.name}`}
             className="rounded-sm border border-text-secondary p-1 text-text-primary"
+            onClick={(event) => {
+              event.stopPropagation();
+              goToDetail();
+            }}
+            variant="ghost"
             type="button"
           >
             <Search className="size-icon-sm" />
-          </button>
+          </Button>
         </div>
       </div>
-      <h3 className="mt-3 text-body-16-compact text-text-primary">
+      <Link
+        className="mt-3 block text-body-16-compact text-text-primary hover:text-text-accent"
+        params={{ nftId: nft.id }}
+        to="/nft/$nftId"
+      >
         {nft.name} {nft.tokenId}
-      </h3>
+      </Link>
       <p className="mt-3 text-body-18-bold-compact text-text-accent">
         {nft.priceEth} ETH
       </p>
     </article>
-  )
+  );
 }

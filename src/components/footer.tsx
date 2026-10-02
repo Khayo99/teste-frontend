@@ -4,6 +4,8 @@ import socialTwo from '@/assets/footer/social-02.svg'
 import socialThree from '@/assets/footer/social-03.svg'
 import socialFour from '@/assets/footer/social-04.svg'
 import socialFive from '@/assets/footer/social-05.svg'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
 const benefits = [
   {
@@ -61,7 +63,7 @@ const socialLinks = [
   { artwork: socialFive, label: 'YouTube' }
 ]
 
-export function HomeFooter() {
+export function Footer() {
   const [email, setEmail] = useState('')
   const [feedback, setFeedback] = useState<'idle' | 'invalid' | 'success'>(
     'idle'
@@ -118,7 +120,7 @@ export function HomeFooter() {
                 E-mail para novidades
               </label>
               <div className="flex h-10 overflow-hidden rounded-md bg-surface-dark shadow-design">
-                <input
+                <Input
                   aria-describedby={
                     feedback === 'invalid' ? 'footer-email-feedback' : undefined
                   }
@@ -133,12 +135,13 @@ export function HomeFooter() {
                   type="email"
                   value={email}
                 />
-                <button
+                <Button
                   className="w-[85px] bg-primary px-1 text-body-18-bold-compact text-ink transition-colors hover:bg-primary-light"
                   type="submit"
+                  variant="primary"
                 >
                   Enviar
-                </button>
+                </Button>
               </div>
               {feedback === 'invalid' && (
                 <p

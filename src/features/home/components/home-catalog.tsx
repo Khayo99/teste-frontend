@@ -13,6 +13,8 @@ import { getCatalogNfts } from '@/features/catalog/api/catalog-api'
 import { filterCatalog } from '@/features/catalog/lib/filter-catalog'
 import toolbarUnderline from '@/assets/catalog/toolbar-underline.svg'
 import { ChevronDown } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Select } from '@/components/ui/select'
 
 const initialQuery: CatalogQuery = {
   category: null,
@@ -117,12 +119,13 @@ export function HomeCatalog() {
               ['new', 'Novos lançamentos'],
               ['trending', 'Em alta']
             ].map(([tab, label]) => (
-              <button
+              <Button
                 aria-selected={activeTab === tab}
                 className={`relative whitespace-nowrap ${activeTab === tab ? 'text-text-accent' : 'text-foreground transition-colors hover:text-text-accent'} ${activeTab === tab && tab !== 'all' ? 'after:absolute after:left-0 after:top-[23px] after:h-0.5 after:w-full after:bg-text-accent' : ''}`}
                 key={tab}
                 onClick={() => handleTabChange(tab as CatalogTab)}
                 role="tab"
+                variant="ghost"
                 type="button"
               >
                 {label}
@@ -133,14 +136,14 @@ export function HomeCatalog() {
                     src={toolbarUnderline}
                   />
                 ) : null}
-              </button>
+              </Button>
             ))}
           </div>
           <div className="relative h-[18px] w-[300px] shrink-0 text-body-15 text-foreground">
             <label className="absolute left-0 top-0" htmlFor="catalog-sort">
               Ordenar por:
             </label>
-            <select
+            <Select
               className="absolute left-[110px] top-0 w-[190px] appearance-none truncate bg-transparent pl-0 pr-5 text-left text-foreground outline-none"
               id="catalog-sort"
               onChange={event =>
@@ -160,7 +163,7 @@ export function HomeCatalog() {
               <option className="bg-surface-card" value="price-desc">
                 Maior preço
               </option>
-            </select>
+            </Select>
             <span className="pointer-events-none absolute left-[278px] top-[2px] flex size-4 items-center justify-center">
               <ChevronDown aria-hidden="true" size={11} strokeWidth={1.5} />
             </span>
@@ -182,14 +185,15 @@ export function HomeCatalog() {
                 ? 'Tentando carregar os NFTs novamente...'
                 : 'Não foi possível carregar os NFTs.'}
             </p>
-            <button
+            <Button
               className="mt-4 rounded-md bg-primary px-4 py-2 text-ink"
               disabled={isRetrying}
               onClick={() => void handleRetry()}
               type="button"
+              variant="primary"
             >
               {isRetrying ? 'Tentando novamente...' : 'Tentar novamente'}
-            </button>
+            </Button>
           </div>
         ) : visibleNfts.length > 0 ? (
           <div className="grid grid-cols-1 gap-y-catalog-row-gap sm:grid-cols-2 sm:gap-x-8 lg:grid-cols-catalog lg:justify-between">

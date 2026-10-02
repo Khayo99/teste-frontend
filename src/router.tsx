@@ -10,12 +10,14 @@ import { HomePage } from '@/features/home/home-page'
 import { AuthPage } from '@/features/auth/auth-page'
 import { ProtectedPage } from '@/features/auth/protected-pages'
 import { AuthenticatedRoute } from '@/components/authenticated-route'
+import { AppLayout } from '@/components/app-layout'
+import { NftDetailPage } from '@/features/nft-detail/nft-detail-page'
 
 const rootRoute = createRootRoute({
   component: () => (
-    <main className="min-h-screen bg-background text-foreground">
+    <AppLayout>
       <Outlet />
-    </main>
+    </AppLayout>
   ),
   notFoundComponent: () => (
     <section className="mx-auto max-w-2xl px-6 py-24 text-center">
@@ -32,6 +34,12 @@ const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
   component: HomePage
+})
+
+const nftDetailRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/nft/$nftId',
+  component: NftDetailPage
 })
 
 const loginRoute = createRoute({
@@ -72,6 +80,7 @@ const protectedRoute = (
 
 const routeTree = rootRoute.addChildren([
   indexRoute,
+  nftDetailRoute,
   loginRoute,
   registerRoute,
   protectedRoute('/checkout', 'Checkout'),

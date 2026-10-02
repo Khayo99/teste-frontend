@@ -88,6 +88,12 @@
   --text-heading: 24px;
   --text-heading--line-height: 32px;
   --text-heading--font-weight: 700;
+  --text-product-title: 28px;
+  --text-product-title--line-height: normal;
+  --text-product-title--font-weight: 700;
+  --text-product-price: 22px;
+  --text-product-price--line-height: 16px;
+  --text-product-price--font-weight: 700;
   --text-body-18-bold-compact: 18px;
   --text-body-18-bold-compact--line-height: 16px;
   --text-body-18-bold-compact--font-weight: 700;
@@ -134,6 +140,9 @@
   --text-body-14-brand--line-height: normal;
   --text-body-14-brand--font-weight: 700;
   --text-body-14-brand--letter-spacing: 0.1em;
+  --text-body-14-bold-compact: 14px;
+  --text-body-14-bold-compact--line-height: 20px;
+  --text-body-14-bold-compact--font-weight: 700;
   --text-body-14-label: 14px;
   --text-body-14-label--line-height: 16px;
   --text-body-14-label--font-weight: 500;

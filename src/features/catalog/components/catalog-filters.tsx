@@ -5,6 +5,8 @@ import type {
   CatalogQuery
 } from '@/@types/catalog'
 import type { FilterSectionProps } from '@/@types/components'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
 const categories: CatalogCategory[] = [
   'Arte digital',
@@ -31,8 +33,9 @@ export function CatalogFilters({
     <aside className="h-catalog-sidebar-height w-catalog-sidebar-width bg-surface-card p-5">
       <FilterSection title="Coleções">
         {categories.map(category => (
-          <button
+          <Button
             className={`flex h-10 w-full items-center justify-between px-3 text-left text-body-15-list ${query.category === category ? 'font-bold text-text-accent' : 'text-text-secondary'}`}
+            variant="ghost"
             key={category}
             onClick={() =>
               updateQuery({
@@ -43,12 +46,12 @@ export function CatalogFilters({
           >
             <span>{category}</span>
             <span aria-hidden="true">({categoryCounts[category]})</span>
-          </button>
+          </Button>
         ))}
       </FilterSection>
       <FilterSection title="Faixa de preço">
         <div className="px-3">
-          <input
+          <Input
             aria-label="Preço máximo"
             className="h-range-height w-full accent-primary"
             max="12.3"
@@ -64,18 +67,20 @@ export function CatalogFilters({
             Preço: {query.minPrice.toFixed(2).replace('.', ',')} -{' '}
             {query.maxPrice.toFixed(2).replace('.', ',')} ETH
           </p>
-          <button
+          <Button
             className="mt-3 h-9 w-apply-width rounded-md bg-primary text-body-16-bold-compact text-ink transition-colors hover:bg-primary-light"
+            variant="primary"
             type="button"
           >
             Aplicar
-          </button>
+          </Button>
         </div>
       </FilterSection>
       <FilterSection title="Rede">
         {networks.map((network, index) => (
-          <button
+          <Button
             className={`flex h-10 w-full items-center justify-between pl-3 text-left text-body-15-list ${query.network === network ? 'font-bold text-text-accent' : 'text-text-secondary'}`}
+            variant="ghost"
             key={network}
             onClick={() =>
               updateQuery({
@@ -86,7 +91,7 @@ export function CatalogFilters({
           >
             <span>{network}</span>
             <span>({[119, 78, 86][index]})</span>
-          </button>
+          </Button>
         ))}
       </FilterSection>
     </aside>
