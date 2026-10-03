@@ -6,16 +6,10 @@ import {
   createRouter,
   redirect
 } from '@tanstack/react-router'
+import { lazy, Suspense, type ReactNode } from 'react'
 import { HomePage } from '@/features/home/home-page'
-import { AuthPage } from '@/features/auth/auth-page'
 import { AuthenticatedRoute } from '@/components/authenticated-route'
 import { AppLayout } from '@/components/app-layout'
-import { NftDetailPage } from '@/features/nft-detail/nft-detail-page'
-import { AccountPage } from '@/features/account/account-page'
-import { CartPage } from '@/features/cart/cart-page'
-import { CheckoutPage } from '@/features/orders/checkout-page'
-import { OrdersPage } from '@/features/orders/orders-page'
-import { FavoritesPage } from '@/features/nft-detail/favorites-page'
 import type {
   CatalogCategory,
   CatalogNetwork,
@@ -23,6 +17,32 @@ import type {
   CatalogSort,
   CatalogTab
 } from '@/@types/catalog'
+
+const AuthPage = lazy(async () => ({
+  default: (await import('@/features/auth/auth-page')).AuthPage
+}))
+const NftDetailPage = lazy(async () => ({
+  default: (await import('@/features/nft-detail/nft-detail-page')).NftDetailPage
+}))
+const AccountPage = lazy(async () => ({
+  default: (await import('@/features/account/account-page')).AccountPage
+}))
+const CartPage = lazy(async () => ({
+  default: (await import('@/features/cart/cart-page')).CartPage
+}))
+const CheckoutPage = lazy(async () => ({
+  default: (await import('@/features/orders/checkout-page')).CheckoutPage
+}))
+const OrdersPage = lazy(async () => ({
+  default: (await import('@/features/orders/orders-page')).OrdersPage
+}))
+const FavoritesPage = lazy(async () => ({
+  default: (await import('@/features/nft-detail/favorites-page')).FavoritesPage
+}))
+
+function DeferredPage({ children }: { children: ReactNode }) {
+  return <Suspense fallback={<div aria-label="Carregando página" role="status" />}>{children}</Suspense>
+}
 
 const categories: CatalogCategory[] = [
   'Arte digital',
@@ -103,7 +123,7 @@ const indexRoute = createRoute({
 const nftDetailRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/nft/$nftId',
-  component: NftDetailPage
+  component: () => <DeferredPage><NftDetailPage /></DeferredPage>
 })
 
 const loginRoute = createRoute({
@@ -112,7 +132,7 @@ const loginRoute = createRoute({
   validateSearch: (search: Record<string, unknown>) => ({
     returnTo: typeof search.returnTo === 'string' ? search.returnTo : undefined
   }),
-  component: () => <AuthPage mode="login" background={false} />
+  component: () => <DeferredPage><AuthPage mode="login" background={false} /></DeferredPage>
 })
 
 const registerRoute = createRoute({
@@ -121,7 +141,7 @@ const registerRoute = createRoute({
   validateSearch: (search: Record<string, unknown>) => ({
     returnTo: typeof search.returnTo === 'string' ? search.returnTo : undefined
   }),
-  component: () => <AuthPage mode="register" background={false} />
+  component: () => <DeferredPage><AuthPage mode="register" background={false} /></DeferredPage>
 })
 
 const routeTree = rootRoute.addChildren([
@@ -130,7 +150,7 @@ const routeTree = rootRoute.addChildren([
   createRoute({
     getParentRoute: () => rootRoute,
     path: '/cart',
-    component: CartPage
+    component: () => <DeferredPage><CartPage /></DeferredPage>
   }),
 
   loginRoute,
@@ -145,7 +165,7 @@ const routeTree = rootRoute.addChildren([
     },
     component: () => (
       <AuthenticatedRoute>
-        <AccountPage section="profile" />
+        <DeferredPage><AccountPage section="profile" /></DeferredPage>
       </AuthenticatedRoute>
     )
   }),
@@ -159,7 +179,7 @@ const routeTree = rootRoute.addChildren([
     },
     component: () => (
       <AuthenticatedRoute>
-        <AccountPage section="wallets" />
+        <DeferredPage><AccountPage section="wallets" /></DeferredPage>
       </AuthenticatedRoute>
     )
   }),
@@ -173,7 +193,7 @@ const routeTree = rootRoute.addChildren([
     },
     component: () => (
       <AuthenticatedRoute>
-        <FavoritesPage />
+        <DeferredPage><FavoritesPage /></DeferredPage>
       </AuthenticatedRoute>
     )
   }),
@@ -187,7 +207,7 @@ const routeTree = rootRoute.addChildren([
     },
     component: () => (
       <AuthenticatedRoute>
-        <CheckoutPage />
+        <DeferredPage><CheckoutPage /></DeferredPage>
       </AuthenticatedRoute>
     )
   }),
@@ -200,7 +220,7 @@ const routeTree = rootRoute.addChildren([
     },
     component: () => (
       <AuthenticatedRoute>
-        <OrdersPage />
+        <DeferredPage><OrdersPage /></DeferredPage>
       </AuthenticatedRoute>
     )
   })

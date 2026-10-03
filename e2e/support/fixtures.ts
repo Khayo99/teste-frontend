@@ -86,29 +86,25 @@ export { expect }
 export async function login(
   page: Page,
   email = 'demo@kurio.test',
-  password = 'kurio-demo'
+  password = 'kurio-demo',
+  path = '/login'
 ) {
-  await page.goto('/login')
+  await page.goto(path)
   await page.getByLabel('E-mail', { exact: true }).fill(email)
   await page.getByLabel('Senha', { exact: true }).fill(password)
   await page.getByRole('dialog').getByRole('button', { name: 'Entrar' }).click()
-  await expect(
-    page.getByRole('banner').getByRole('button', { name: /Demo Kurio|Pessoa/ })
-  ).toBeVisible()
+  await expect(page.getByRole('dialog')).toBeHidden()
 }
 
 export async function completeCheckout(page: Page) {
-  await login(page)
-  await page.goto('/checkout')
+  await login(page, undefined, undefined, '/checkout')
   await page.getByLabel('Nome de exibição').fill('Demo Kurio')
   await page.getByLabel('Nome de usuário').fill('demo-kurio')
-  await page.getByLabel('Rede').selectOption('Ethereum')
+  await page.locator('#checkout-rede').selectOption('Ethereum')
   await page.getByLabel('Nome do perfil').fill('Demo Kurio')
   await page.getByLabel('Endereço da carteira').fill('0x8aC4bE7d912a0000')
   await page.getByLabel('Tipo de carteira').selectOption('MetaMask')
-  await page.getByLabel('E-mail').fill('demo@kurio.test')
+  await page.locator('#checkout-e-mail').fill('demo@kurio.test')
   await page.getByLabel('Nome ENS').fill('demo')
   await page.getByLabel('MetaMask', { exact: true }).check()
-  await page.getByRole('button', { name: 'Revisar cotação' }).click()
-  await expect(page.getByRole('status')).toContainText('Cotação revisada')
 }

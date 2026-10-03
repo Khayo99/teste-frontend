@@ -1,7 +1,7 @@
-import artworkOne from '@/assets/home/nft-artwork-01.png'
-import artworkTwo from '@/assets/home/nft-artwork-02.png'
-import artworkThree from '@/assets/home/nft-artwork-03.png'
-import heroApe from '@/assets/home/hero-ape.png'
+import artworkOne from '@/assets/optimized/home/nft-artwork-01.jpg'
+import artworkTwo from '@/assets/optimized/home/nft-artwork-02.jpg'
+import artworkThree from '@/assets/optimized/home/nft-artwork-03.jpg'
+import heroApe from '@/assets/optimized/home/hero-ape.jpg'
 import type { Nft } from '@/@types/catalog'
 
 export const catalogNfts: Nft[] = [

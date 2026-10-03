@@ -26,7 +26,7 @@ test('exibe o modal de confirmação após concluir a compra', async ({
   await page.locator('#checkout-e-mail').fill('demo@kurio.test')
   await page.locator('#checkout-nome-ens').fill('demo')
   await page.getByLabel('MetaMask', { exact: true }).check()
-  await page.getByRole('button', { name: 'Revisar cotação' }).click()
+  await expect(page.getByRole('button', { name: 'Revisar cotação' })).toHaveCount(0)
   const confirm = page.getByRole('button', { name: 'Confirmar compra' })
   await expect(confirm).toBeEnabled()
   await confirm.click()
@@ -40,6 +40,9 @@ test('exibe o modal de confirmação após concluir a compra', async ({
   await expect(
     confirmation.getByRole('button', { name: 'Ver no Etherscan' })
   ).toBeVisible()
+  await confirmation.getByRole('button', { name: 'Fechar confirmação' }).click()
+  await expect(page).toHaveURL('/')
+  await expect(confirmation).toBeHidden()
 })
 
 test('mantém confirmação bloqueada sem itens no carrinho', async ({ page }) => {

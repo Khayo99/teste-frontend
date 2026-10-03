@@ -1,6 +1,6 @@
-import heroApe from '@/assets/home/hero-ape.png'
-import mobileNftOne from '@/assets/home/mobile-nft-01.png'
-import mobileNftTwo from '@/assets/home/mobile-nft-02.png'
+import heroApe from '@/assets/optimized/home/hero-ape.jpg'
+import mobileNftOne from '@/assets/optimized/home/mobile-nft-01.jpg'
+import mobileNftTwo from '@/assets/optimized/home/mobile-nft-02.jpg'
 import type { CatalogSearch } from '@/@types/catalog'
 import { Input } from '@/components/ui/input'
 import { useNavigate } from '@tanstack/react-router'
@@ -112,6 +112,7 @@ export function HomeHero() {
           <img
             alt="Colecionador Kurio"
             className="size-full object-cover object-center"
+            fetchPriority="high"
             src={heroApe}
           />
         </div>
@@ -140,6 +141,7 @@ export function HomeHero() {
           <img
             alt="NFT em destaque"
             className="size-value-138 rounded-2xl object-cover shadow-hero-mobile-artwork"
+            fetchPriority="high"
             src={mobileNftOne}
           />
           <img

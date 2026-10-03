@@ -1,8 +1,8 @@
 import { ArrowRight } from 'lucide-react'
-import galleryApe from '@/assets/home/hero-ape.png'
-import darkApe from '@/assets/home/nft-artwork-02.png'
-import featuredApe from '@/assets/home/nft-artwork-01.png'
-import goldenApe from '@/assets/home/nft-artwork-03.png'
+import galleryApe from '@/assets/optimized/home/hero-ape.jpg'
+import darkApe from '@/assets/optimized/home/nft-artwork-02.jpg'
+import featuredApe from '@/assets/optimized/home/nft-artwork-01.jpg'
+import goldenApe from '@/assets/optimized/home/nft-artwork-03.jpg'
 
 const promotions = [
   {
@@ -66,6 +66,7 @@ export function HomeDiscovery() {
             <img
               alt=""
               className="aspect-value-4-3 w-full object-cover sm:aspect-auto sm:w-promotion-artwork sm:shrink-0"
+              loading="lazy"
               src={promotion.image}
             />
             <div className="flex flex-1 flex-col items-start justify-center px-6 py-6 text-left sm:items-end sm:px-7 sm:text-right">
@@ -102,9 +103,10 @@ export function HomeDiscovery() {
               key={article.title}
             >
               <img
-                alt=""
-                className="aspect-square w-full object-cover"
-                src={article.image}
+              alt=""
+              className="aspect-square w-full object-cover"
+              loading="lazy"
+              src={article.image}
               />
               <div className="p-3">
                 <p className="text-tiny-medium text-text-secondary">

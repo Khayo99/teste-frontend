@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { ChevronLeft, ZoomIn } from 'lucide-react'
-import mobileHeroArtwork from '@/assets/nft-detail/mobile/nft-hero-artwork.png'
+import mobileHeroArtwork from '@/assets/optimized/nft-detail/nft-hero-artwork.jpg'
 import mobileGalleryPagination from '@/assets/nft-detail/mobile/gallery-pagination.svg'
 
 export function NftGallery({
@@ -35,6 +35,7 @@ export function NftGallery({
             <img
               alt={`Imagem principal de ${name}`}
               className="size-full object-cover"
+              fetchPriority="high"
               src={isEmeraldApe ? mobileHeroArtwork : activeImage}
             />
           </div>
@@ -61,14 +62,15 @@ export function NftGallery({
               onClick={() => setActiveIndex(index)}
               type="button"
             >
-              <img alt="" className="size-full object-cover" src={image} />
+              <img alt="" className="size-full object-cover" loading="lazy" src={image} />
             </button>
           ))}
         </div>
-        <div className="relative flex-1 overflow-hidden rounded-2xl bg-surface-card">
+        <div className="relative aspect-square flex-1 overflow-hidden rounded-2xl bg-surface-card">
           <img
             alt={`Imagem principal de ${name}`}
             className="aspect-square size-full object-cover"
+            fetchPriority="high"
             src={activeImage}
           />
           <span

@@ -27,6 +27,7 @@ export function NftCard({ mobileImage, nft }: NftCardProps) {
           <img
             alt={`NFT ${nft.name} ${nft.tokenId}`}
             className="size-full rounded-2xl object-cover transition duration-300 group-hover:scale-card-hover"
+            loading="lazy"
             src={nft.image}
           />
         </picture>

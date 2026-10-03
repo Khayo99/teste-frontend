@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Link } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -58,6 +58,7 @@ const currency = (value?: string) =>
   value ? `${Number(value).toFixed(3)} ETH` : '—'
 
 export function CheckoutPage() {
+  const navigate = useNavigate()
   const user = useAuthStore(state => state.user!)
   const { items, coupon, removePurchasedQuantity, syncNftUpdate, syncQuote } = useCartStore()
   const client = useQueryClient()
@@ -73,7 +74,7 @@ export function CheckoutPage() {
   })
   const [details, setDetails] = useState<CheckoutDetails>(blankDetails)
   const [connected, setConnected] = useState(false)
-  const [reviewedFingerprint, setReviewedFingerprint] = useState('')
+  const previousFingerprint = useRef('')
   const [quoteMustBeReviewed, setQuoteMustBeReviewed] = useState(false)
   const [notice, setNotice] = useState('')
   const [attempt, setAttempt] = useState(
@@ -164,20 +165,20 @@ export function CheckoutPage() {
     )
   }, [profile.data, wallets.data])
   useEffect(() => {
-    if (reviewedFingerprint && reviewedFingerprint !== fingerprint) {
-      // A server-originated quote update intentionally invalidates local review.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setReviewedFingerprint('')
+    if (!fingerprint) return
+    if (previousFingerprint.current && previousFingerprint.current !== fingerprint) {
+      // A changed server quote requires acknowledgement through the confirmation control.
+      setQuoteMustBeReviewed(true)
       setNotice(
         'A cotação foi atualizada. Revise o novo total antes de confirmar.'
       )
     }
-  }, [fingerprint, reviewedFingerprint])
+    previousFingerprint.current = fingerprint
+  }, [fingerprint])
   useEffect(() => {
     return subscribeToNftUpdates(event => {
       if (!syncNftUpdate(event)) return
       setQuoteMustBeReviewed(true)
-      setReviewedFingerprint('')
       setNotice('O preço ou a disponibilidade de um NFT do carrinho mudou. Revise a cotação antes de confirmar.')
       void quote.refetch()
     })
@@ -264,9 +265,13 @@ export function CheckoutPage() {
   const formReady = detailsSchema.safeParse(details).success
   const reviewQuote = () => {
     if (!quote.data) return
-    setReviewedFingerprint(fingerprint)
     setQuoteMustBeReviewed(false)
     setNotice('Cotação revisada. Agora confirme a compra para enviar o pedido.')
+  }
+  const confirmPurchase = () => {
+    if (!items.length || quote.isFetching || !quote.data || !connected || !formReady || submit.isPending) return
+    if (quoteMustBeReviewed) reviewQuote()
+    else submit.mutate()
   }
   return (
     <main className="checkout-page" aria-labelledby="checkout-title">
@@ -280,7 +285,7 @@ export function CheckoutPage() {
             className="checkout-form"
             onSubmit={event => {
               event.preventDefault()
-              reviewQuote()
+              confirmPurchase()
             }}
             noValidate
           >
@@ -446,30 +451,19 @@ export function CheckoutPage() {
             Simular recusa de conexão
           </button>
           <Button
-            className="checkout-review"
-            type="button"
-            onClick={reviewQuote}
-            disabled={!items.length || quote.isFetching || !quote.data || !connected || !formReady}
-          >
-            Revisar cotação
-          </Button>
-          <Button
             className="checkout-confirm"
             type="button"
-            onClick={() => {
-              if (quoteMustBeReviewed) reviewQuote()
-              else submit.mutate()
-            }}
+            onClick={confirmPurchase}
             disabled={
               !items.length ||
               quote.isFetching ||
               !quote.data ||
               !connected ||
               !formReady ||
-              reviewedFingerprint !== fingerprint
+              submit.isPending
             }
           >
-            {submit.isPending ? 'Enviando…' : 'Confirmar compra'}
+            {submit.isPending ? 'Enviando…' : quoteMustBeReviewed ? 'Aceitar novo total' : 'Confirmar compra'}
           </Button>
           {(quote.isError || submit.isError) && (
             <p role="alert" className="checkout-error">
@@ -490,7 +484,7 @@ export function CheckoutPage() {
         <OrderConfirmationModal
           order={order}
           items={receiptItems}
-          onClose={() => setShowConfirmation(false)}
+          onClose={() => void navigate({ to: '/' })}
           onExplore={() =>
             setNotice('A referência da transação é simulada neste ambiente.')
           }

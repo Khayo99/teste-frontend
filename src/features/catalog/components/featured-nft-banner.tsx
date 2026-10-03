@@ -1,4 +1,4 @@
-import featuredNftApe from '@/assets/home/featured-nft-ape.png'
+import featuredNftApe from '@/assets/optimized/home/featured-nft-ape.jpg'
 
 export function FeaturedNftBanner() {
   return (
@@ -22,6 +22,7 @@ export function FeaturedNftBanner() {
           <img
             alt="NFT em destaque: macaco com chapéu verde e moletom roxo"
             className="size-full object-cover"
+            loading="lazy"
             src={featuredNftApe}
           />
         </div>

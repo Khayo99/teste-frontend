@@ -49,15 +49,18 @@ test.describe('falhas, tempo real e recuperação', () => {
     await completeCheckout(page)
     await mock.updateNft('emerald-ape-042', { priceEth: '9.99' })
     await expect(page.getByRole('status')).toContainText(
-      'cotação foi atualizada'
+      'cotação'
     )
     await expect(
       page.getByRole('button', { name: 'Confirmar compra' })
-    ).toBeDisabled()
-    await page.getByRole('button', { name: 'Revisar cotação' }).click()
+    ).toHaveCount(0)
+    await page.getByRole('button', { name: 'Aceitar novo total' }).click()
+    await expect(page.getByRole('status')).toContainText('Cotação revisada')
     await expect(
       page.getByRole('button', { name: 'Confirmar compra' })
     ).toBeEnabled()
+    await page.getByRole('button', { name: 'Confirmar compra' }).click()
+    await expect(page.getByRole('dialog', { name: 'Seus NFTs agora estão na sua carteira' })).toBeVisible()
   })
 
   test('recupera timeout com o mesmo pedido e não duplica confirmação', async ({
