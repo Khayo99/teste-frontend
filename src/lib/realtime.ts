@@ -21,6 +21,9 @@ const orderSubscribers = new Set<(event: OrderUpdateEvent) => void>()
 let installed = false
 let activeUserId: string | null = null
 let activeToken: string | null = null
+const identifyActiveSession = () => {
+  if (activeToken) realtimeClient.emit('session.identify', { token: activeToken })
+}
 
 const isNewer = (key: string, version: number) => {
   if ((versions.get(key) ?? -1) >= version) return false
@@ -67,6 +70,7 @@ export function installRealtimeCacheSync(queryClient: QueryClient) {
     void queryClient.invalidateQueries({ queryKey: ['private', event.userId, 'orders'] })
   })
   realtimeClient.on('connect', () => {
+    identifyActiveSession()
     // REST is authoritative after transport recovery, including a reload while
     // an order was pending.
     void queryClient.invalidateQueries({ queryKey: ['public'] })
@@ -74,6 +78,7 @@ export function installRealtimeCacheSync(queryClient: QueryClient) {
     if (activeUserId)
       void queryClient.invalidateQueries({ queryKey: ['private', activeUserId] })
   })
+  realtimeClient.connect()
 }
 
 export function startSessionRealtime(token: string, userId: string) {
@@ -84,8 +89,8 @@ export function startSessionRealtime(token: string, userId: string) {
   activeToken = token
   activeUserId = userId
   realtimeClient.auth = { token }
-  realtimeClient.once('connect', () => realtimeClient.emit('session.identify', { token }))
-  realtimeClient.connect()
+  if (!realtimeClient.connected) realtimeClient.connect()
+  else identifyActiveSession()
 }
 
 export function endSessionRealtime() {

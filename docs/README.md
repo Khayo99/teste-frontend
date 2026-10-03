@@ -2,7 +2,11 @@
 
 Este diretório reúne a documentação técnica e de produto do Jungle NFT Marketplace.
 
-## Arquitetura
+## Entrega e arquitetura
+
+- [README da solução](../README.md): instalação, credenciais, comandos, cenários e publicação.
+- [Arquitetura atual](../ARCHITECTURE.md): referência consolidada de contratos, sessão, carrinho, cache, eventos e limitações.
+- [Validação de entrega](./delivery-audit.md): verificações executadas, pendências e matriz de conformidade.
 
 - [Visão geral da arquitetura](./architecture/overview.md): uso da stack, cache, sincronização, autenticação e pagamento.
 

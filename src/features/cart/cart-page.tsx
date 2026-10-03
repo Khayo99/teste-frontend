@@ -12,7 +12,7 @@ import mobileIvoryBaron from '@/assets/cart/mobile/ivory-baron.png'
 import mobileGoldenBeat from '@/assets/cart/mobile/golden-beat.png'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { CartApiError, getCartQuote, validateCoupon } from '@/features/cart/cart-api'
+import { CartApiError, getCart, getCartQuote, removeCartCoupon, removeCartLine, updateCartLine, validateCoupon } from '@/features/cart/cart-api'
 import type { CartQuote } from '@/features/cart/cart-api'
 import { useCartStore } from '@/features/cart/cart-store'
 import type { CartItem } from '@/features/cart/cart-store'
@@ -116,13 +116,18 @@ function MobileCart({
 export function CartPage() {
   const navigate = useNavigate()
   const userId = useAuthStore(state => state.user?.id ?? null)
-  const { items, coupon, removeCoupon, removeItem, setCoupon, syncNftUpdate, syncQuote, updateQuantity } = useCartStore()
+  const { items, coupon, removeCoupon, removeItem, replaceItems, setCoupon, syncNftUpdate, syncQuote, updateQuantity } = useCartStore()
   const [couponText, setCouponText] = useState('')
   const [couponFeedback, setCouponFeedback] = useState<string | null>(null)
   const [realtimeNotice, setRealtimeNotice] = useState<string | null>(null)
+  const cart = useQuery({ queryKey: queryKeys.cart(userId), queryFn: ({ signal }) => getCart(signal), staleTime: 0 })
   const cartKey = JSON.stringify({ coupon, items: items.map(({ id, editionId, quantity, priceEth, stock }) => ({ id, editionId, quantity, priceEth, stock })) })
   const quote = useQuery({ queryKey: queryKeys.quote(userId, cartKey), queryFn: ({ signal }) => getCartQuote(items, coupon, signal), retry: false, staleTime: 0 })
   const refetchQuote = quote.refetch
+
+  useEffect(() => {
+    if (cart.data) replaceItems(cart.data.items, cart.data.coupon)
+  }, [cart.data, replaceItems])
 
   useEffect(() => { if (quote.data) syncQuote(quote.data.items) }, [quote.data, syncQuote])
   useEffect(() => subscribeToNftUpdates(event => {
@@ -130,6 +135,27 @@ export function CartPage() {
     setRealtimeNotice('Um NFT do seu carrinho mudou de preço ou disponibilidade. O resumo foi atualizado.')
     void refetchQuote()
   }), [refetchQuote, syncNftUpdate])
+
+  const changeQuantity = (id: string, editionId: string, quantity: number) => {
+    updateQuantity(id, editionId, quantity)
+    void updateCartLine(`${id}:${editionId}`, quantity).then(() => {
+      void cart.refetch()
+    }).catch(() => {
+      void cart.refetch()
+    })
+  }
+  const deleteItem = (id: string, editionId: string) => {
+    removeItem(id, editionId)
+    void removeCartLine(`${id}:${editionId}`).then(() => {
+      void cart.refetch()
+    }).catch(() => {
+      void cart.refetch()
+    })
+  }
+  const clearCoupon = () => {
+    removeCoupon()
+    void removeCartCoupon().then(() => void cart.refetch()).catch(() => void cart.refetch())
+  }
 
   const couponMutation = useMutation({
     mutationFn: validateCoupon,
@@ -141,7 +167,7 @@ export function CartPage() {
 
   return <>
     {realtimeNotice && <p className="mx-auto mb-4 max-w-6xl rounded border border-primary bg-surface-card px-4 py-3 text-body-14-medium text-foreground" role="status">{realtimeNotice}</p>}
-    <MobileCart coupon={coupon} couponFeedback={couponFeedback} couponMutation={couponMutation} couponText={couponText} isQuoteLoading={isQuoteLoading} items={items} navigate={navigate} quote={quote} removeCoupon={removeCoupon} removeItem={removeItem} setCouponFeedback={setCouponFeedback} setCouponText={setCouponText} totals={totals} updateQuantity={updateQuantity} />
+    <MobileCart coupon={coupon} couponFeedback={couponFeedback} couponMutation={couponMutation} couponText={couponText} isQuoteLoading={isQuoteLoading} items={items} navigate={navigate} quote={quote} removeCoupon={clearCoupon} removeItem={deleteItem} setCouponFeedback={setCouponFeedback} setCouponText={setCouponText} totals={totals} updateQuantity={changeQuantity} />
     <main className="-mt-16 hidden flex-col gap-24 sm:flex">
     <section>
       <nav aria-label="Breadcrumb" className="text-body-15-bold-compact text-foreground"><Link to="/">Início</Link> / <span>Mercado</span> / <span aria-current="page">Carrinho</span></nav>
@@ -152,14 +178,14 @@ export function CartPage() {
             {items.map(item => <li className="grid min-h-value-70 gap-3 bg-surface-card p-2 sm:grid-cols-cart-items sm:items-center sm:justify-between sm:p-0 sm:pr-6" key={`${item.id}:${item.editionId}`}>
               <div className="flex min-w-0 items-center gap-4"><img alt="" className="size-value-70 shrink-0 rounded-md object-cover" src={item.image} /><div className="min-w-0"><p className="truncate text-body-16-bold-compact text-foreground">{displayName(item.id, item.name)}</p><p className="mt-1 text-body-14-compact text-secondary">ID do token: {item.tokenId}</p>{item.stock === 0 && <p className="mt-1 text-value-10 text-error">Edição indisponível</p>}</div></div>
               <p className="text-body-16-bold-compact text-text-secondary"><span className="sm:hidden">Preço: </span>{formatEth(item.priceEth)}</p>
-              <div className="flex items-center gap-3" role="group" aria-label={`Quantidade de ${item.name}, edição ${item.editionLabel}`}><Button aria-label={`Diminuir quantidade de ${item.name}`} className="size-5 rounded-full border-ink bg-primary p-0 text-ink" disabled={item.quantity <= 1} onClick={() => updateQuantity(item.id, item.editionId, item.quantity - 1)} type="button" variant="outline"><Minus className="size-3" /></Button><output aria-live="polite" className="w-3 text-center text-value-17 leading-6 text-foreground">{item.quantity}</output><Button aria-label={`Aumentar quantidade de ${item.name}`} className="size-5 rounded-full border-ink bg-primary p-0 text-ink" disabled={item.quantity >= item.stock} onClick={() => updateQuantity(item.id, item.editionId, item.quantity + 1)} type="button" variant="outline"><Plus className="size-3" /></Button></div>
+              <div className="flex items-center gap-3" role="group" aria-label={`Quantidade de ${item.name}, edição ${item.editionLabel}`}><Button aria-label={`Diminuir quantidade de ${item.name}`} className="size-5 rounded-full border-ink bg-primary p-0 text-ink" disabled={item.quantity <= 1} onClick={() => changeQuantity(item.id, item.editionId, item.quantity - 1)} type="button" variant="outline"><Minus className="size-3" /></Button><output aria-live="polite" className="w-3 text-center text-value-17 leading-6 text-foreground">{item.quantity}</output><Button aria-label={`Aumentar quantidade de ${item.name}`} className="size-5 rounded-full border-ink bg-primary p-0 text-ink" disabled={item.quantity >= item.stock} onClick={() => changeQuantity(item.id, item.editionId, item.quantity + 1)} type="button" variant="outline"><Plus className="size-3" /></Button></div>
               <p className="text-body-16-bold-compact text-text-accent"><span className="sm:hidden">Total: </span>{formatEth(new Decimal(item.priceEth).mul(item.quantity).toString())}</p>
-              <Button aria-label={`Remover ${item.name} do carrinho`} className="size-6 p-0 text-secondary hover:text-text-accent" onClick={() => removeItem(item.id, item.editionId)} type="button" variant="ghost"><Trash2 className="size-4" /></Button>
+              <Button aria-label={`Remover ${item.name} do carrinho`} className="size-6 p-0 text-secondary hover:text-text-accent" onClick={() => deleteItem(item.id, item.editionId)} type="button" variant="ghost"><Trash2 className="size-4" /></Button>
             </li>)}
           </ul>}
         </section>
         <aside aria-labelledby="wallet-summary-title" className="min-h-value-388 xl:w-value-332"><h2 id="wallet-summary-title" className="h-7 border-b border-border pb-3 text-body-15-bold-compact text-foreground">Resumo da carteira</h2><label className="mt-6 block text-body-14-bold-compact text-foreground" htmlFor="coupon">Código promocional</label><div className="mt-2 flex h-10 overflow-hidden rounded-md"><Input className="h-10 min-w-0 flex-1 rounded-r-none border-border bg-surface-dark px-2 text-body-14-compact" disabled={couponMutation.isPending} id="coupon" onChange={event => setCouponText(event.target.value)} placeholder="Digite o código promocional..." value={couponText} /><Button className="h-10 w-value-102 shrink-0 rounded-l-none px-1 text-body-14-bold-compact" disabled={!couponText.trim() || couponMutation.isPending} onClick={() => couponMutation.mutate(couponText)} type="button">Aplicar</Button></div>
-          {coupon && <div className="mt-2 flex items-center justify-between text-value-10 text-success"><span>{coupon} aplicado</span><Button aria-label="Remover cupom" className="size-4 p-0 text-secondary hover:text-foreground" onClick={() => { removeCoupon(); setCouponFeedback('Cupom removido.') }} type="button" variant="ghost"><X className="size-3" /></Button></div>}
+          {coupon && <div className="mt-2 flex items-center justify-between text-value-10 text-success"><span>{coupon} aplicado</span><Button aria-label="Remover cupom" className="size-4 p-0 text-secondary hover:text-foreground" onClick={() => { clearCoupon(); setCouponFeedback('Cupom removido.') }} type="button" variant="ghost"><X className="size-3" /></Button></div>}
           {couponFeedback && <p className={couponMutation.isError ? 'mt-1 text-value-9 text-error' : 'mt-1 text-value-9 text-success'} role="status">{couponFeedback}</p>}
           {quote.isError && <p className="mt-2 text-value-10 text-error" role="alert">Não foi possível atualizar a cotação. Revise os valores antes de finalizar.</p>}
           {isQuoteLoading ? <div aria-label="Carregando resumo do carrinho" className="mt-6 space-y-3" role="status"><div className="skeleton h-5 rounded" /><div className="skeleton h-5 rounded" /><div className="skeleton h-5 rounded" /><div className="skeleton mt-6 h-6 rounded" /><div className="skeleton mt-6 h-10 rounded" /></div> : <><dl className="mt-6 space-y-3 text-body-14-compact text-foreground"><div className="flex h-5 justify-between"><dt>Subtotal</dt><dd>{totals ? formatEth(totals.subtotalEth) : '—'}</dd></div><div className="flex h-5 justify-between"><dt>Desconto do lançamento</dt><dd>{totals ? `(-) ${formatEth(totals.discountEth)}` : '—'}</dd></div><div><div className="flex h-5 justify-between"><dt>Taxa de rede</dt><dd>{totals ? formatEth(totals.networkFeeEth) : '—'}</dd></div><div className="mt-3 text-right text-value-10 text-text-accent">Cotação da API</div></div></dl>

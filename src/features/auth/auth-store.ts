@@ -2,6 +2,9 @@ import { create } from 'zustand'
 import type { AuthSession, AuthUser } from './api/auth-api'
 import { clearPrivateCache } from '@/lib/query-client'
 import { endSessionRealtime, startSessionRealtime } from '@/lib/realtime'
+import { mergeVisitorCart } from '@/features/cart/cart-api'
+import { queryClient } from '@/lib/query-client'
+import { useCartStore } from '@/features/cart/cart-store'
 
 const STORAGE_KEY = 'kurio.auth.session'
 type AuthState = {
@@ -38,7 +41,9 @@ export const useAuthStore = create<AuthState>(set => ({
       })
     )
     startSessionRealtime(session.token, session.user.id)
+    useCartStore.getState().replaceItems([])
     set({ status: 'authenticated', token: session.token, user: session.user })
+    void mergeVisitorCart().then(() => queryClient.invalidateQueries({ queryKey: ['cart'] })).catch(() => undefined)
   },
   setReturnTo: returnTo => set({ returnTo }),
 
@@ -68,6 +73,7 @@ export const useAuthStore = create<AuthState>(set => ({
     localStorage.removeItem(STORAGE_KEY)
     clearPrivateCache()
     endSessionRealtime()
+    useCartStore.getState().replaceItems([])
     set({ status: 'anonymous', token: null, user: null, returnTo: null })
   }
 }))

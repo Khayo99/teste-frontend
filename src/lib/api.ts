@@ -16,4 +16,11 @@ api.interceptors.response.use(response => {
   }
 
   return response
+}, error => {
+  if (axios.isAxiosError(error) && error.response?.status === 401) {
+    void import('@/features/auth/auth-store').then(({ useAuthStore }) => {
+      if (useAuthStore.getState().status === 'authenticated') useAuthStore.getState().clear()
+    })
+  }
+  return Promise.reject(error)
 })

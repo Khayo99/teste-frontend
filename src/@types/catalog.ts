@@ -32,6 +32,8 @@ export type CatalogQuery = {
   network: CatalogNetwork | null
   search: string
   sort: CatalogSort
+  page?: number
+  pageSize?: number
 }
 
 export type CatalogTab = 'all' | 'new' | 'trending'

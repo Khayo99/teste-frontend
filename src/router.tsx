@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components -- route tree registration exports non-components by design. */
 import {
   Link,
   Outlet,

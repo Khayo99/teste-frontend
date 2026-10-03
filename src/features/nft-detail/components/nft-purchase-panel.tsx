@@ -9,6 +9,7 @@ import { clampQuantity } from '@/features/nft-detail/lib/nft-detail-validation'
 import { Button } from '@/components/ui/button'
 import { useCartStore } from '@/features/cart/cart-store'
 import { queryKeys } from '@/lib/query-keys'
+import { addCartItem } from '@/features/cart/cart-api'
 import mobileHeartIcon from '@/assets/nft-detail/mobile/heart.svg'
 import mobileStarIcon from '@/assets/nft-detail/mobile/star.svg'
 import mobileQuantityPlusIcon from '@/assets/nft-detail/mobile/quantity-plus.svg'
@@ -109,7 +110,7 @@ export function NftPurchasePanel({ nft }: { nft: NftDetail }) {
 
   const handleBuy = () => {
     if (isSoldOut) return
-    addItem({
+    const item = {
       id: nft.id,
       image: nft.image,
       name: nft.name,
@@ -119,8 +120,13 @@ export function NftPurchasePanel({ nft }: { nft: NftDetail }) {
       priceEth: nft.priceEth,
       quantity,
       stock: nft.availability
-    })
-    void navigate({ to: '/cart' })
+    }
+    void addCartItem({ id: item.id, editionId: item.editionId, quantity: item.quantity })
+      .then(() => {
+        addItem(item)
+        void navigate({ to: '/cart' })
+      })
+      .catch(() => setFeedback('Não foi possível adicionar este NFT ao carrinho.'))
   }
 
   const adjustQuantity = (delta: number) =>

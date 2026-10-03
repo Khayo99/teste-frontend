@@ -13,7 +13,6 @@ import { CatalogPagination } from '@/features/catalog/components/catalog-paginat
 import { FeaturedNftBanner } from '@/features/catalog/components/featured-nft-banner'
 import { NftCard } from '@/features/catalog/components/nft-card'
 import { getCatalogNfts } from '@/features/catalog/api/catalog-api'
-import { filterCatalog } from '@/features/catalog/lib/filter-catalog'
 import toolbarUnderline from '@/assets/catalog/toolbar-underline.svg'
 import mobileArtworkOne from '@/assets/optimized/home/mobile-nft-01.jpg'
 import mobileArtworkTwo from '@/assets/optimized/home/mobile-nft-02.jpg'
@@ -51,18 +50,20 @@ export function HomeCatalog() {
       minPrice: search.minPrice,
       network: search.network,
       search: search.search,
-      sort: search.sort
+      sort: search.sort,
+      page: search.page,
+      pageSize
     }),
     [search]
   )
   const currentPage = search.page
   const activeTab = search.tab
   const facetQuery = useMemo<CatalogQuery>(
-    () => ({ ...query, category: null }),
+    () => ({ ...query, category: null, page: 1, pageSize: 1000 }),
     [query]
   )
   const {
-    data: catalogNfts = [],
+    data: catalogResponse = { items: [], totalItems: 0, totalPages: 1 },
     isError,
     isLoading,
     refetch
@@ -70,15 +71,14 @@ export function HomeCatalog() {
     queryKey: queryKeys.catalog(query),
     queryFn: ({ signal }) => getCatalogNfts(query, signal)
   })
-  const { data: categoryFacetNfts = [] } = useQuery({
+  const { data: categoryFacetResponse = { items: [], totalItems: 0, totalPages: 1 } } = useQuery({
     queryKey: queryKeys.catalogFacets(facetQuery),
     queryFn: ({ signal }) => getCatalogNfts(facetQuery, signal),
     enabled: query.category !== null
   })
-  const visibleNfts = useMemo(
-    () => filterCatalog(catalogNfts, query),
-    [catalogNfts, query]
-  )
+  const catalogNfts = catalogResponse.items
+  const categoryFacetNfts = categoryFacetResponse.items
+  const visibleNfts = catalogNfts
   const tabbedNfts = useMemo(() => {
     if (activeTab === 'all') return visibleNfts
 
@@ -112,12 +112,9 @@ export function HomeCatalog() {
       }
     )
   }, [catalogNfts, categoryFacetNfts, query.category])
-  const pageCount = Math.ceil(tabbedNfts.length / pageSize)
+  const pageCount = catalogResponse.totalPages
   const safeCurrentPage = Math.min(currentPage, Math.max(pageCount, 1))
-  const paginatedNfts = tabbedNfts.slice(
-    (safeCurrentPage - 1) * pageSize,
-    safeCurrentPage * pageSize
-  )
+  const paginatedNfts = safeCurrentPage === currentPage ? tabbedNfts : []
   const handleQueryChange = (nextQuery: CatalogQuery) => {
     void navigate({
       search: (previous: CatalogSearch) => ({

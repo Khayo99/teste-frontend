@@ -41,6 +41,10 @@ const PROFILES_STORAGE_KEY = 'kurio.mock.profiles'
 const WALLETS_STORAGE_KEY = 'kurio.mock.wallets'
 const ORDERS_STORAGE_KEY = 'kurio.mock.orders'
 const CATALOG_STORAGE_KEY = 'kurio.mock.catalog'
+const CARTS_STORAGE_KEY = 'kurio.mock.carts'
+const SESSIONS_STORAGE_KEY = 'kurio.mock.sessions'
+type MockCartLine = { lineId: string; id: string; editionId: string; editionLabel: string; quantity: number; stock: number }
+type MockCart = { items: MockCartLine[]; coupon: string | null; revision: number }
 type Order = {
   id: string
   userId: string
@@ -52,6 +56,7 @@ type Order = {
   transactionReference?: string
   idempotencyKey: string
   fingerprint: string
+  resolveAt?: string
 }
 const initialCatalog = catalogNfts.map(nft => ({ ...nft }))
 let mockCatalog = initialCatalog.map(nft => ({ ...nft }))
@@ -137,6 +142,18 @@ function writeUsers(users: User[]) {
   )
   localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(safeUsers))
 }
+function loadSessions() {
+  if (sessions.size) return
+  try {
+    const saved = JSON.parse(localStorage.getItem(SESSIONS_STORAGE_KEY) ?? '{}') as Record<string, { userId: string; expiresAt: string }>
+    Object.entries(saved).forEach(([token, session]) => sessions.set(token, session))
+  } catch { /* use empty session store */ }
+}
+function persistSessions() {
+  const records: Record<string, { userId: string; expiresAt: string }> = {}
+  sessions.forEach((session, token) => { records[token] = session })
+  localStorage.setItem(SESSIONS_STORAGE_KEY, JSON.stringify(records))
+}
 
 function readAccountRecords<T>(storageKey: string): Record<string, T> {
   try {
@@ -177,6 +194,7 @@ function ordersFor(userId: string) {
       .flat()
       .forEach(order => orders.set(order.id, order))
   }
+  resolveDueOrders()
   return [...orders.values()].filter(order => order.userId === userId)
 }
 function persistOrders() {
@@ -185,6 +203,22 @@ function persistOrders() {
     ;(grouped[order.userId] ??= []).push(order)
   })
   writeAccountRecords(ORDERS_STORAGE_KEY, grouped)
+}
+function resolveDueOrders() {
+  let changed = false
+  orders.forEach(order => {
+    if (order.status !== 'pending' || !order.resolveAt || new Date(order.resolveAt) > mockNow()) return
+    order.status = 'confirmed'
+    order.version += 1
+    order.transactionReference = `0x${crypto.randomUUID().replaceAll('-', '')}`
+    order.receipt.items.forEach(line => {
+      const nft = catalog().find(candidate => candidate.id === line.id)
+      if (nft) nft.availability = Math.max(0, nft.availability - line.quantity)
+    })
+    emitMockOrderUpdate({ orderId: order.id, userId: order.userId, status: order.status, version: order.version, transactionReference: order.transactionReference })
+    changed = true
+  })
+  if (changed) { persistOrders(); persistCatalog() }
 }
 
 /** Test/demo control surface. It only changes the network-owned mock database. */
@@ -195,13 +229,16 @@ export function resetMockScenario() {
     PROFILES_STORAGE_KEY,
     WALLETS_STORAGE_KEY,
     ORDERS_STORAGE_KEY,
-    CATALOG_STORAGE_KEY
+    CARTS_STORAGE_KEY,
+    CATALOG_STORAGE_KEY,
+    SESSIONS_STORAGE_KEY
   ].forEach(key => localStorage.removeItem(key))
   sessions.clear()
   favorites.clear()
   profiles.clear()
   wallets.clear()
   orders.clear()
+  socketUsers.clear()
   resourceVersions.clear()
   mockCatalog = initialCatalog.map(nft => ({ ...nft }))
   mockState.scenario = 'success'
@@ -322,11 +359,11 @@ function bearer(request: Request) {
   return request.headers.get('Authorization')?.replace('Bearer ', '')
 }
 function activeUser(request: Request) {
+  loadSessions()
   const token = bearer(request)
   const session = token ? sessions.get(token) : undefined
-  return session
-    ? readUsers().find(user => user.id === session.userId)
-    : undefined
+  if (!session || new Date(session.expiresAt) <= mockNow()) return undefined
+  return readUsers().find(user => user.id === session.userId)
 }
 function profileFor(user: User): Profile {
   const existing = profiles.get(user.id)
@@ -356,8 +393,13 @@ function persistProfile(userId: string, profile: Profile) {
 function walletsFor(userId: string) {
   const existing = wallets.get(userId)
   if (existing) return existing
-  const saved = readAccountRecords<Wallet[]>(WALLETS_STORAGE_KEY)[userId] ?? []
+  const records = readAccountRecords<Wallet[]>(WALLETS_STORAGE_KEY)
+  const saved = records[userId] ?? (userId === DEMO_USER.id ? [{
+    id: 'primary', displayName: 'Carteira principal', alias: 'Principal', network: 'Ethereum',
+    profileName: 'Demo Kurio', address: '0x8aC4bE7d912a0000', type: 'MetaMask', referralCode: '', email: DEMO_USER.email, ens: 'demo'
+  }] : [])
   wallets.set(userId, saved)
+  if (!records[userId] && saved.length) persistWallets(userId, saved)
   return saved
 }
 
@@ -365,6 +407,46 @@ function persistWallets(userId: string, list: Wallet[]) {
   const records = readAccountRecords<Wallet[]>(WALLETS_STORAGE_KEY)
   records[userId] = list
   writeAccountRecords(WALLETS_STORAGE_KEY, records)
+}
+
+function cartScope(request: Request) {
+  const user = activeUser(request)
+  return user ? `user:${user.id}` : `visitor:${request.headers.get('X-Cart-Id') ?? 'anonymous'}`
+}
+function cartRecords() { return readAccountRecords<MockCart>(CARTS_STORAGE_KEY) }
+function initialCart(): MockCart {
+  return {
+    coupon: null,
+    revision: 1,
+    items: [
+      { lineId: 'emerald-ape-042:1/10', id: 'emerald-ape-042', editionId: '1/10', editionLabel: '1/10', quantity: 2, stock: 2 },
+      { lineId: 'violet-nomad-314:1/50', id: 'violet-nomad-314', editionId: '1/50', editionLabel: '1/50', quantity: 6, stock: 6 },
+      { lineId: 'ivory-baron-088:ABERTA', id: 'ivory-baron-088', editionId: 'ABERTA', editionLabel: 'ABERTA', quantity: 9, stock: 9 }
+    ]
+  }
+}
+function readCart(scope: string) {
+  const records = cartRecords()
+  const cart = records[scope] ?? initialCart()
+  records[scope] = cart
+  writeAccountRecords(CARTS_STORAGE_KEY, records)
+  return cart
+}
+function writeCart(scope: string, cart: MockCart) {
+  const records = cartRecords()
+  records[scope] = { ...cart, revision: cart.revision + 1 }
+  writeAccountRecords(CARTS_STORAGE_KEY, records)
+  return records[scope]
+}
+function cartResponse(cart: MockCart) {
+  return {
+    items: cart.items.flatMap(line => {
+      const nft = catalog().find(candidate => candidate.id === line.id)
+      return nft ? [{ ...line, image: nft.image, name: nft.name, tokenId: nft.tokenId, priceEth: nft.priceEth }] : []
+    }),
+    coupon: cart.coupon,
+    revision: cart.revision
+  }
 }
 
 export const handlers = [
@@ -375,6 +457,7 @@ export const handlers = [
       const session = token ? sessions.get(token) : undefined
       if (session) socketUsers.set(io.client, session.userId)
     })
+    io.client.on('disconnect', () => socketUsers.delete(io.client))
   }),
   http.all('/api/*', async ({ request }) => {
     const path = new URL(request.url).pathname
@@ -415,6 +498,78 @@ export const handlers = [
         { status: 401 }
       )
     return HttpResponse.json({ profile: profileFor(user) })
+  }),
+  http.get('/api/cart', ({ request }) => HttpResponse.json(cartResponse(readCart(cartScope(request))))),
+  http.post('/api/cart/items', async ({ request }) => {
+    const scope = cartScope(request)
+    const cart = readCart(scope)
+    const body = (await request.json()) as { id?: string; nftId?: string; editionId?: string; quantity?: number }
+    const id = body.id ?? body.nftId ?? ''
+    const editionId = body.editionId ?? 'ABERTA'
+    const quantity = body.quantity
+    const nft = catalog().find(candidate => candidate.id === id)
+    if (!nft || !Number.isInteger(quantity) || (quantity ?? 0) < 1)
+      return HttpResponse.json({ message: 'NFT ou quantidade inválida.' }, { status: 400 })
+    const lineId = `${id}:${editionId}`
+    const existing = cart.items.find(item => item.lineId === lineId)
+    if (existing) existing.quantity = Math.min(existing.stock, existing.quantity + quantity!)
+    else cart.items.push({ lineId, id, editionId, editionLabel: editionId, quantity: Math.min(quantity!, nft.availability), stock: nft.availability })
+    return HttpResponse.json(cartResponse(writeCart(scope, cart)), { status: 201 })
+  }),
+  http.patch('/api/cart/items/:lineId', async ({ request, params }) => {
+    const scope = cartScope(request)
+    const cart = readCart(scope)
+    const body = (await request.json()) as { quantity?: number }
+    const quantity = body.quantity
+    const line = cart.items.find(item => item.lineId === String(params.lineId))
+    if (!line || !Number.isInteger(quantity) || (quantity ?? 0) < 1 || (quantity ?? 0) > line.stock)
+      return HttpResponse.json({ message: 'Quantidade indisponível.' }, { status: 409 })
+    line.quantity = quantity!
+    return HttpResponse.json(cartResponse(writeCart(scope, cart)))
+  }),
+  http.delete('/api/cart/items/:lineId', ({ request, params }) => {
+    const scope = cartScope(request)
+    const cart = readCart(scope)
+    cart.items = cart.items.filter(item => item.lineId !== String(params.lineId))
+    return HttpResponse.json(cartResponse(writeCart(scope, cart)))
+  }),
+  http.put('/api/cart/coupon', async ({ request }) => {
+    const code = String(((await request.json()) as { code?: string }).code ?? '').trim().toUpperCase()
+    if (code === 'KURIO2024') return HttpResponse.json({ message: 'Este cupom expirou.' }, { status: 410 })
+    if (code !== 'KURIO10') return HttpResponse.json({ message: 'Código promocional inválido.' }, { status: 422 })
+    const scope = cartScope(request)
+    const cart = readCart(scope)
+    cart.coupon = code
+    return HttpResponse.json(cartResponse(writeCart(scope, cart)))
+  }),
+  http.delete('/api/cart/coupon', ({ request }) => {
+    const scope = cartScope(request)
+    const cart = readCart(scope)
+    cart.coupon = null
+    return HttpResponse.json(cartResponse(writeCart(scope, cart)))
+  }),
+  http.post('/api/cart/merge', async ({ request }) => {
+    const user = activeUser(request)
+    if (!user) return HttpResponse.json({ message: 'Autenticação necessária.' }, { status: 401 })
+    const body = (await request.json()) as { visitorId?: string }
+    const visitorScope = `visitor:${body.visitorId ?? ''}`
+    const userScope = `user:${user.id}`
+    const visitor = readCart(visitorScope)
+    const target = readCart(userScope)
+    const adjustments: string[] = []
+    visitor.items.forEach(incoming => {
+      const existing = target.items.find(item => item.id === incoming.id && item.editionId === incoming.editionId)
+      if (existing) {
+        const previous = existing.quantity
+        existing.quantity = Math.min(existing.stock, existing.quantity + incoming.quantity)
+        if (existing.quantity < previous + incoming.quantity) adjustments.push(`${incoming.id}:${incoming.editionId}`)
+      } else target.items.push({ ...incoming, quantity: Math.min(incoming.quantity, incoming.stock) })
+    })
+    const records = cartRecords()
+    records[userScope] = { ...target, revision: target.revision + 1 }
+    delete records[visitorScope]
+    writeAccountRecords(CARTS_STORAGE_KEY, records)
+    return HttpResponse.json({ ...cartResponse(records[userScope]), adjustments })
   }),
   http.put('/api/profile', async ({ request }) => {
     const user = activeUser(request)
@@ -512,6 +667,8 @@ export const handlers = [
         { status: 400 }
       )
     const list = walletsFor(user.id)
+    if (wallet.id === 'secondary' && list.some(item => item.id === 'primary' && item.address === wallet.address))
+      return HttpResponse.json({ message: 'A carteira secundária precisa ter um endereço diferente.' }, { status: 409 })
     const index = list.findIndex(item => item.id === wallet.id)
     if (index >= 0) list[index] = wallet
     else list.push(wallet)
@@ -524,6 +681,8 @@ export const handlers = [
     const minPrice = Number(params.get('minPrice'))
     const maxPrice = Number(params.get('maxPrice'))
     const sort = params.get('sort')
+    const page = Math.max(1, Number(params.get('page') ?? 1))
+    const pageSize = Math.max(1, Number(params.get('pageSize') ?? 1000))
     const query = {
       search: params.get('search') ?? '',
       category: params.get('category') as CatalogCategory | null,
@@ -534,7 +693,9 @@ export const handlers = [
         ? sort
         : 'recent') as CatalogSort
     }
-    return HttpResponse.json({ items: filterCatalog(catalog(), query) })
+    const filtered = filterCatalog(catalog(), query)
+    const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize))
+    return HttpResponse.json({ items: filtered.slice((page - 1) * pageSize, page * pageSize), totalItems: filtered.length, totalPages, page, pageSize })
   }),
   http.get('/api/nfts/:id', ({ request, params }) => {
     const nft = getNftDetailFixture(String(params.id))
@@ -695,6 +856,7 @@ export const handlers = [
       userId: user.id,
       expiresAt: new Date(mockNow().getTime() + 86_400_000).toISOString()
     })
+    persistSessions()
     return HttpResponse.json(sessionResponse(token, user), { status: 201 })
   }),
   http.post('/api/auth/login', async ({ request }) => {
@@ -717,9 +879,11 @@ export const handlers = [
       userId: user.id,
       expiresAt: new Date(mockNow().getTime() + 86_400_000).toISOString()
     })
+    persistSessions()
     return HttpResponse.json(sessionResponse(token, user))
   }),
   http.get('/api/auth/session', ({ request }) => {
+    loadSessions()
     const token = bearer(request)
     const userId = token?.replace('mock-token-', '')
     const user = userId
@@ -733,16 +897,13 @@ export const handlers = [
       new URL(request.url).searchParams.get('expired') === '1'
     )
       return HttpResponse.json({ message: 'Sessão expirada.' }, { status: 401 })
-    if (!active)
-      sessions.set(token, {
-        userId: user.id,
-        expiresAt: new Date(mockNow().getTime() + 86_400_000).toISOString()
-      })
+    if (!active) return HttpResponse.json({ message: 'Sessão expirada.' }, { status: 401 })
     return HttpResponse.json(sessionResponse(token, user))
   }),
   http.post('/api/auth/logout', ({ request }) => {
+    loadSessions()
     const token = bearer(request)
-    if (token) sessions.delete(token)
+    if (token) { sessions.delete(token); persistSessions() }
     return new HttpResponse(null, { status: 204 })
   }),
   http.get('/api/orders', ({ request }) => {
@@ -760,6 +921,7 @@ export const handlers = [
   }),
   http.get('/api/orders/:id', ({ request, params }) => {
     const user = activeUser(request)
+    if (user) ordersFor(user.id)
     const order = orders.get(String(params.id))
     if (!user)
       return HttpResponse.json(
@@ -887,7 +1049,11 @@ export const handlers = [
           ? `0x${crypto.randomUUID().replaceAll('-', '')}`
           : undefined,
       idempotencyKey,
-      fingerprint
+      fingerprint,
+      resolveAt:
+        status === 'pending' && mockState.autoConfirmPendingOrders
+          ? new Date(mockNow().getTime() + 800).toISOString()
+          : undefined
     }
     orders.set(order.id, order)
     persistOrders()

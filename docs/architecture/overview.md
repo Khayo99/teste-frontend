@@ -1,5 +1,7 @@
 # Arquitetura e conformidade da stack
 
+> Consulte [ARCHITECTURE.md](../../ARCHITECTURE.md) para o estado atual, contratos completos e limitações verificadas. Esta página preserva notas históricas de implementação.
+
 ## Regra de uso efetivo
 
 Uma dependência obrigatória não pode permanecer apenas no `package.json`, em um arquivo de configuração ou em um provider sem consumidores. Toda mudança deve indicar o ponto de uso, a verificação e a responsabilidade da biblioteca.
@@ -22,7 +24,7 @@ Antes de concluir uma feature, validar que novos dados passam por Axios, são in
 
 As chaves em `src/lib/query-keys.ts` carregam o usuário e os parâmetros já validados; tokens nunca entram em chaves. Catálogo tem `staleTime` de 30 segundos, dados privados de perfil/carteira/favoritos de 60 segundos e cotações são imediatamente obsoletas após alterações. Queries repetem apenas falhas de rede/5xx (duas tentativas com backoff); mutations não têm repetição automática.
 
-O `AbortSignal` do TanStack Query chega ao Axios para descartar respostas obsoletas. O favorito usa atualização otimista com snapshot e rollback. Eventos `nft.updated` são validados, deduplicados pela versão e invalidam catálogo, detalhe e cotação; após reconexão os recursos ativos são revalidados por REST. O mock atual não cria um servidor Socket.IO real: em demonstração os eventos podem ser emitidos por um servidor compatível externo, enquanto a aplicação exercita sempre `socket.io-client`.
+O `AbortSignal` do TanStack Query chega ao Axios nas consultas de catálogo, detalhe e cotação. O favorito usa atualização otimista com snapshot e rollback. Eventos `nft.updated` são validados, deduplicados pela versão e invalidam catálogo, detalhe e cotação. MSW intercepta WebSocket com `@mswjs/socket.io-binding`, exercitando `socket.io-client` sem servidor externo. A reconciliação após reconexão ainda tem limitações descritas no documento consolidado.
 
 ## Autenticação (004-auth-login-register)
 

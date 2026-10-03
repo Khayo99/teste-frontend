@@ -5,7 +5,7 @@ export async function getCatalogNfts(
   query: CatalogQuery,
   signal?: AbortSignal
 ) {
-  const response = await api.get<{ items: Nft[] }>('/nfts', {
+  const response = await api.get<{ items: Nft[]; totalItems?: number; totalPages?: number }>('/nfts', {
     signal,
     params: {
       search: query.search || undefined,
@@ -13,7 +13,9 @@ export async function getCatalogNfts(
       network: query.network || undefined,
       minPrice: query.minPrice,
       maxPrice: query.maxPrice,
-      sort: query.sort
+      sort: query.sort,
+      page: query.page,
+      pageSize: query.pageSize
     }
   })
 
@@ -21,5 +23,9 @@ export async function getCatalogNfts(
     throw new Error('A API do catálogo retornou uma resposta inválida.')
   }
 
-  return response.data.items
+  return {
+    items: response.data.items,
+    totalItems: response.data.totalItems ?? response.data.items.length,
+    totalPages: response.data.totalPages ?? 1
+  }
 }

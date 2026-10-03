@@ -65,6 +65,7 @@ type CartStore = {
     editionId: string,
     quantity: number
   ) => void
+  replaceItems: (items: CartItem[], coupon?: string | null) => void
   setCoupon: (coupon: string) => void
   syncNftUpdate: (event: NftUpdateEvent) => boolean
   syncQuote: (items: CartQuoteItem[]) => void
@@ -124,6 +125,7 @@ export const useCartStore = create<CartStore>()(
             return remaining > 0 ? [{ ...item, quantity: remaining }] : []
           })
         })),
+      replaceItems: (items, coupon) => set({ items, ...(coupon !== undefined ? { coupon } : {}) }),
       setCoupon: coupon => set({ coupon }),
       syncNftUpdate: event => {
         let changed = false

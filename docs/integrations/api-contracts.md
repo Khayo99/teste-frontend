@@ -1,5 +1,7 @@
 # Contratos REST em uso
 
+> A tabela completa de endpoints implementados, formatos e recursos ainda ausentes está em [ARCHITECTURE.md](../../ARCHITECTURE.md). Esta página contém o resumo histórico da integração.
+
 Todos os recursos passam por `src/lib/api.ts`; os adaptadores retornam dados TypeScript e convertem erros Axios em erros de domínio.
 
 | Recurso | Operação | Resposta principal |

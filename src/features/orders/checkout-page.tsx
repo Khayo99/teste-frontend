@@ -11,7 +11,7 @@ import {
   type Profile,
   type Wallet
 } from '@/features/account/account-api'
-import { getCartQuote } from '@/features/cart/cart-api'
+import { getCart, getCartQuote } from '@/features/cart/cart-api'
 import { useCartStore, type CartItem } from '@/features/cart/cart-store'
 import {
   createOrder,
@@ -60,7 +60,7 @@ const currency = (value?: string) =>
 export function CheckoutPage() {
   const navigate = useNavigate()
   const user = useAuthStore(state => state.user!)
-  const { items, coupon, removePurchasedQuantity, syncNftUpdate, syncQuote } = useCartStore()
+  const { items, coupon, removePurchasedQuantity, replaceItems, syncNftUpdate, syncQuote } = useCartStore()
   const client = useQueryClient()
   const profile = useQuery({
     queryKey: queryKeys.profile(user.id),
@@ -71,6 +71,11 @@ export function CheckoutPage() {
     queryKey: queryKeys.wallets(user.id),
     queryFn: getWallets,
     staleTime: 60_000
+  })
+  const cart = useQuery({
+    queryKey: queryKeys.cart(user.id),
+    queryFn: ({ signal }) => getCart(signal),
+    staleTime: 0
   })
   const [details, setDetails] = useState<CheckoutDetails>(blankDetails)
   const [connected, setConnected] = useState(false)
@@ -85,6 +90,9 @@ export function CheckoutPage() {
   const [receiptItems, setReceiptItems] = useState<typeof items>([])
   const [showConfirmation, setShowConfirmation] = useState(false)
   const [recoveredOrderId, setRecoveredOrderId] = useState('')
+  useEffect(() => {
+    if (cart.data) replaceItems(cart.data.items, cart.data.coupon)
+  }, [cart.data, replaceItems])
   const revision = useMemo(
     () =>
       JSON.stringify(
@@ -416,27 +424,24 @@ export function CheckoutPage() {
             role="radiogroup"
             aria-label="Carteira compatível"
           >
-            {[
-              'METAMASK · WALLETCONNECT · COINBASE',
-              'MetaMask',
-              'Coinbase Wallet'
-            ].map((name, index) => (
-              <label key={name} className="checkout-wallet">
+            {(wallets.data ?? []).map(wallet => (
+              <label key={wallet.id} className="checkout-wallet">
                 <input
                   type="radio"
                   name="wallet"
                   checked={
                     connected &&
-                    (index === 1 || (index === 0 && !details.walletType))
+                    details.walletAddress === wallet.address
                   }
                   onChange={() => {
                     setConnected(true)
-                    if (index > 0) setDetails({ ...details, walletType: name })
+                    setDetails({ ...details, walletAddress: wallet.address, walletType: wallet.type, network: wallet.network })
                   }}
                 />{' '}
-                {name}
+                {wallet.type}
               </label>
             ))}
+            {!wallets.isLoading && !wallets.data?.length && <p className="checkout-error">Cadastre uma carteira persistida para continuar.</p>}
           </div>
           <button
             type="button"
@@ -500,9 +505,9 @@ function fromProfile(profile: Profile, wallet?: Wallet): CheckoutDetails {
     displayName: profile.displayName,
     username: profile.username,
     profileName: wallet?.profileName ?? profile.displayName,
-    network: wallet?.network ?? 'Ethereum',
-    walletAddress: wallet?.address ?? '0x8aC4bE7d912a0000',
-    walletType: wallet?.type ?? 'MetaMask',
+    network: wallet?.network ?? '',
+    walletAddress: wallet?.address ?? '',
+    walletType: wallet?.type ?? '',
     email: profile.email,
     ens: profile.ens || profile.username,
     secondaryAddress: wallet?.secondaryAddress ?? '',
@@ -510,13 +515,7 @@ function fromProfile(profile: Profile, wallet?: Wallet): CheckoutDetails {
   }
 }
 function walletOptions(wallets?: Wallet[]) {
-  return [
-    ...new Set([
-      ...(wallets?.map(wallet => wallet.type) ?? []),
-      'MetaMask',
-      'Coinbase Wallet'
-    ])
-  ]
+  return [...new Set(wallets?.map(wallet => wallet.type) ?? [])]
 }
 function Field({
   label,

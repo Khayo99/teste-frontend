@@ -12,10 +12,13 @@ export default defineConfig({
     video: 'retain-on-failure',
   },
   outputDir: 'test-results',
-  snapshotPathTemplate: '{testDir}/__snapshots__/{testFilePath}/{arg}{ext}',
+  snapshotPathTemplate: '{testDir}/__snapshots__/{projectName}/{testFilePath}/{arg}{ext}',
   projects: [
     { name: 'chromium-desktop', use: { ...devices['Desktop Chrome'] } },
-    { name: 'chromium-mobile', use: { ...devices['iPhone 13'] } },
+    {
+      name: 'chromium-mobile',
+      use: { ...devices['iPhone 13'], browserName: 'chromium' }
+    },
   ],
   webServer: {
     command: 'npm run dev -- --host 127.0.0.1',

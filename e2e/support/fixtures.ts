@@ -54,21 +54,17 @@ const call = <T>(page: Page, action: string, value?: T) =>
   )
 
 export const test = base.extend<{ mock: MockControls }>({
-  page: async ({ page }, use) => {
-    await page.addInitScript(() => {
-      localStorage.clear()
-      sessionStorage.clear()
-    })
+  page: async ({ page }, fixture) => {
     await page.goto('/')
     await expect
       .poll(() => page.evaluate(() => Boolean(window.__KURIO_MOCKS__)))
       .toBe(true)
     await page.evaluate(() => window.__KURIO_MOCKS__?.reset())
     await page.reload()
-    await use(page)
+    await fixture(page)
   },
-  mock: async ({ page }, use) => {
-    await use({
+  mock: async ({ page }, fixture) => {
+    await fixture({
       configure: config => call(page, 'configure', config),
       failNext: failure => call(page, 'failNext', failure),
       updateNft: (id, update) => call(page, 'updateNft', [id, update]),

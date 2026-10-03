@@ -395,14 +395,17 @@ function WalletsForm() {
     staleTime: 60_000
   })
   const [values, setValues] = useState<Wallet | null>(null)
+  const [position, setPosition] = useState<'primary' | 'secondary'>('primary')
   const [notice, setNotice] = useState('')
-  const form = values ?? wallets.data?.[0] ?? blankWallet
+  const form = values ?? wallets.data?.find(wallet => wallet.id === position) ?? { ...blankWallet, id: position }
   const update = (key: keyof Wallet, value: string) =>
     setValues({ ...form, [key]: value })
   const save = useMutation({
     mutationFn: (data: Wallet) => {
       const parsed = walletSchema.safeParse(data)
       if (!parsed.success) throw new Error(parsed.error.issues[0].message)
+      if (data.id === 'secondary' && wallets.data?.some(wallet => wallet.id === 'primary' && wallet.address === data.address))
+        throw new Error('A carteira secundária precisa ter um endereço diferente.')
       return saveWallet(data)
     },
     onSuccess: wallet => {
@@ -415,7 +418,7 @@ function WalletsForm() {
     <main className="min-w-0">
       <div className="flex max-w-value-862 items-start justify-between">
         <div className="space-y-2">
-          <h1 className="text-body-17-bold">Carteira principal</h1>
+          <h1 className="text-body-17-bold">Carteira {position === 'primary' ? 'principal' : 'secundária'}</h1>
           <p className="text-body-14-compact text-text-secondary">
             Estas carteiras ficam disponíveis no pagamento e para receber NFTs
             comprados.
@@ -425,6 +428,7 @@ function WalletsForm() {
           variant="ghost"
           type="button"
           className="h-4 px-0 text-body-16-medium"
+          onClick={() => { setPosition('secondary'); setValues(wallets.data?.find(wallet => wallet.id === 'secondary') ?? { ...form, id: 'secondary', alias: '' }) }}
         >
           Adicionar
         </Button>
@@ -529,18 +533,20 @@ function WalletsForm() {
           <div>
             <h2 className="text-body-18-bold-compact">Carteira secundária</h2>
             <p className="mt-2 text-body-14-compact text-text-secondary">
-              Você ainda não adicionou uma carteira secundária.
+              {wallets.data?.some(wallet => wallet.id === 'secondary') ? 'Carteira secundária cadastrada.' : 'Você ainda não adicionou uma carteira secundária.'}
             </p>
           </div>
           <div className="flex items-center gap-4">
             <Button
               variant="ghost"
               className="h-4 gap-2 px-0 text-body-15-medium"
+              type="button"
+              onClick={() => setValues({ ...form, id: 'secondary', address: '', alias: `${form.alias} secundária` })}
             >
               <span className="size-4 rounded-full border-2 border-primary" />
               Igual à carteira principal
             </Button>
-            <Button variant="ghost" className="h-4 px-0 text-body-16-medium">
+            <Button variant="ghost" type="button" className="h-4 px-0 text-body-16-medium" onClick={() => { setPosition('secondary'); setValues(wallets.data?.find(wallet => wallet.id === 'secondary') ?? { ...form, id: 'secondary', alias: '' }) }}>
               Adicionar
             </Button>
           </div>

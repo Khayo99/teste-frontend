@@ -25,13 +25,13 @@ O uso de componentes locais é configurado por `components.json`. Os controles a
 
 Nas funcionalidades integradas, a tela chama um adaptador Axios por meio de uma query/mutation; MSW recebe a requisição, consulta ou altera o estado simulado e responde. A tela consome o resultado por TanStack Query. Eventos passam pelo WebSocket interceptado, são decodificados como Socket.IO e chegam ao cliente antes de atualizar a interface ou invalidar consultas.
 
-Há exceções ainda não conformes: itens e mutations do carrinho vivem em Zustand; o checkout possui endereço de carteira fictício de fallback; paginação e parte da filtragem são realizadas na UI. Esses caminhos precisam migrar para os contratos de rede exigidos.
+O carrinho usa endpoints REST MSW para leitura, inclusão, alteração, remoção, cupom e merge; Zustand mantém apenas a projeção transitória usada pela interface. A listagem envia página, tamanho, filtros e ordenação ao endpoint REST, e o checkout hidrata o carrinho remoto antes da cotação. A publicação e a medição Lighthouse continuam dependentes do ambiente do usuário.
 
 ## Rotas e URL
 
 Públicas: `/`, `/nft/$nftId`, `/cart`, `/login`, `/register`. Privadas: `/checkout`, `/profile`, `/wallets`, `/favorites`, `/orders`. A confirmação é um modal no checkout, condicionado a `order.status === 'confirmed'`; não há rota de recibo por pedido.
 
-O catálogo valida `search`, `category`, `network`, `minPrice`, `maxPrice`, `sort`, `tab` e `page` no Router. Mudanças de filtro reiniciam a página. A listagem envia os filtros e a ordenação por Axios, mas não envia `page`/tamanho: recebe os resultados e aplica `slice` no cliente. Isso ainda não atende ao contrato REST de paginação do enunciado.
+O catálogo valida `search`, `category`, `network`, `minPrice`, `maxPrice`, `sort`, `tab` e `page` no Router. Mudanças de filtro reiniciam a página. A listagem envia filtros, ordenação, `page` e `pageSize` por Axios; o mock retorna itens e metadados de paginação, enquanto a consulta de facetas solicita o conjunto completo.
 
 Os guards verificam a presença de sessão armazenada e `AuthenticatedRoute` verifica o estado de autenticação. `returnTo` preserva o destino de entrada. A aplicação hospedada precisa de fallback de SPA para `/index.html` sem impedir o acesso a arquivos estáticos e ao worker MSW.
 
@@ -41,17 +41,11 @@ Os guards verificam a presença de sessão armazenada e `AuthenticatedRoute` ver
 
 Logout remove a sessão local, cancela/remove queries privadas e de detalhe e desconecta Socket.IO; também solicita o logout à API. As chaves privadas incluem o usuário, e pedidos são filtrados pelo proprietário no mock.
 
-Limitações verificadas:
-
-- `activeUser()` verifica a existência da sessão, mas não sua expiração. Perfil e outras rotas privadas podem aceitar token expirado.
-- A recuperação de sessão recria uma sessão a partir do token previsível quando o mapa em memória está vazio. Expiração e revogação não são preservadas corretamente após reload.
-- Não há tratamento global de 401 que preserve o rascunho de checkout e solicite reautenticação durante a navegação.
-- `setSession()` não limpa integralmente o cache da identidade anterior por si só; a limpeza depende do fluxo de logout.
-- Carrinho e suas quantidades usam uma única chave local, compartilhada entre identidades no mesmo navegador. O isolamento completo entre usuários ainda não está garantido.
+As sessões simuladas são persistidas com expiração e revogação; `activeUser()` rejeita tokens vencidos e o interceptor Axios limpa cache privado em 401. O carrinho usa `X-Cart-Id` para visitantes e escopo de usuário autenticado, com merge por NFT/edição no login. A validação completa de deploy e o conjunto ampliado de cenários E2E ainda precisam ser executados no ambiente final.
 
 ## Carrinho, valores e cotação
 
-`kurio.cart.v2` persiste o carrinho Zustand. O estado inicial contém três itens de demonstração. Inclusão, remoção, cupom e quantidade são locais; autenticar mantém os itens por usar o mesmo estado. Não existe ainda um carrinho remoto por visitante/usuário nem merge autenticado pela API.
+`GET /api/cart`, `POST /api/cart/items`, `PATCH /api/cart/items/:lineId`, `DELETE /api/cart/items/:lineId`, `PUT/DELETE /api/cart/coupon` e `POST /api/cart/merge` mantêm o carrinho remoto simulado. O cliente hidrata a projeção Zustand e envia `X-Cart-Id` persistido para visitantes; no login, itens iguais por NFT/edição são somados e limitados pela disponibilidade.
 
 `POST /api/cart/quote` recebe identificador, edição e quantidade de cada item e cupom opcional. Consulta o catálogo, limita quantidade à disponibilidade do NFT, calcula subtotal/desconto/taxa/total com Decimal.js e retorna strings com 18 casas decimais. `KURIO10` concede 10%; a taxa simulada é `0.016` ETH para subtotal não nulo.
 
@@ -68,9 +62,9 @@ O servidor recalcula o total e verifica disponibilidade antes de criar um pedido
 O pedido persiste `receipt`, versão e referência simulada. O recibo de valores fica no pedido; imagens/nomes também são guardados em `kurio.checkout.receipt.<userId>.<orderId>`. Limitações:
 
 - O mock compara o total enviado, mas guarda `body.quote` como recibo; ainda precisa gerar e validar o snapshot completo no servidor, incluindo edição, cupom, taxas e quantidades inteiras.
-- O checkout sem carteira cadastrada usa endereço e tipo fictícios definidos na tela.
-- O efeito de recuperação deixa de acompanhar REST depois de preencher `recoveredOrderId`; uma confirmação perdida durante desconexão pode deixar a UI pendente após reconexão.
-- A confirmação automática de pendências usa timer em memória; reload antes de sua execução perde esse timer.
+- O checkout sem carteira cadastrada bloqueia a confirmação e orienta o cadastro de uma carteira persistida.
+- O cliente invalida pedidos ao reconectar Socket.IO e consulta REST para recuperar uma tentativa pendente após refresh.
+- Pedidos pendentes carregam `resolveAt` persistido e são resolvidos quando `GET /orders` ou `GET /orders/:id` é executado.
 - `confirmOrder()` altera status/referência, mas não reproduz integralmente a baixa de estoque e os eventos de NFT da confirmação normal.
 - A listagem de pedidos não oferece reabertura de recibo completo por identificador.
 
@@ -105,7 +99,7 @@ Base `/api`. Requisições/respostas JSON; recursos privados usam `Authorization
 | `GET /favorites` | Bearer | `{ nfts }`; 401 |
 | `POST /favorites/:nftId` | Bearer | `{ isFavorite: true }`; 401 |
 | `DELETE /favorites/:nftId` | Bearer | `{ isFavorite: false }`; 401 |
-| `POST /cart/coupons` | `{ code }` | `{ coupon: { code } }`; 410 para `EXPIRED`, 422 para inválido |
+| `POST /cart/coupons` | `{ code }` | `{ coupon: { code } }`; 410 para `KURIO2024`, 422 para inválido |
 | `POST /cart/quote` | `{ items: [{ id, editionId, quantity }], coupon }` | `CartQuote`; 422 |
 | `GET /profile` | Bearer | `{ profile }`; 401 |
 | `PUT /profile` | dados, `walletAlias`, `avatar` opcional | `{ profile, user }`; 400/401 |
@@ -161,7 +155,7 @@ Os controles `updateNft` e `confirmOrder` alteram o mock; `emitNftUpdate`/`emitO
 
 ## Persistência, cenários e reset
 
-MSW guarda usuários, perfis, carteiras, favoritos, catálogo e pedidos em chaves `kurio.mock.*` no localStorage. Sessões, conexões, versões e timers ficam em memória. O ambiente é local ao navegador/origem; não há sincronização entre computadores ou abas como em um backend real.
+MSW guarda usuários, sessões, perfis, carteiras, favoritos, catálogo, carrinhos e pedidos em chaves `kurio.mock.*` no localStorage. Conexões, versões e subscribers ficam em memória; o ambiente é local ao navegador/origem e não há sincronização entre computadores ou abas como em um backend real.
 
 `resetMockScenario()` remove as chaves do banco do mock e restaura o cenário `success`, mas não remove carrinho, sessão e tentativas de checkout. Para reset integral, use a receita de limpeza das chaves `kurio.*` e reload do README. Cenários configurados por console não sobrevivem ao reload; a variável de build define o cenário de partida.
 
