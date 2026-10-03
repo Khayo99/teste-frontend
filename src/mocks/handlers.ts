@@ -56,7 +56,29 @@ type Order = {
 const initialCatalog = catalogNfts.map(nft => ({ ...nft }))
 let mockCatalog = initialCatalog.map(nft => ({ ...nft }))
 const orders = new Map<string, Order>()
-const scenario = import.meta.env.VITE_MOCK_SCENARIO ?? 'success'
+export type MockScenario =
+  | 'success'
+  | 'offline'
+  | 'server-error'
+  | 'slow'
+  | 'variable-latency'
+  | 'payment-declined'
+  | 'payment-pending'
+  | 'order-timeout'
+type OneShotFailure = { path: string; status?: number; networkError?: boolean }
+const mockState: {
+  scenario: MockScenario
+  latencyMs: number
+  now: string | null
+  oneShotFailures: OneShotFailure[]
+  autoConfirmPendingOrders: boolean
+} = {
+  scenario: (import.meta.env.VITE_MOCK_SCENARIO as MockScenario | undefined) ?? 'success',
+  latencyMs: 0,
+  now: null,
+  oneShotFailures: [],
+  autoConfirmPendingOrders: true
+}
 const realtime = ws.link('/realtime/socket.io')
 type MockSocket = {
   on: (
@@ -78,6 +100,8 @@ function emitToUser(
     if (userId === null || owner === userId) socket.emit(event, payload)
   })
 }
+const mockNow = () => (mockState.now ? new Date(mockState.now) : new Date())
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 const DEMO_USER: User = {
   id: 'user-demo',
   name: 'Demo Kurio',
@@ -180,6 +204,22 @@ export function resetMockScenario() {
   orders.clear()
   resourceVersions.clear()
   mockCatalog = initialCatalog.map(nft => ({ ...nft }))
+  mockState.scenario = 'success'
+  mockState.latencyMs = 0
+  mockState.now = null
+  mockState.oneShotFailures = []
+  mockState.autoConfirmPendingOrders = true
+}
+export function configureMockScenario(config: Partial<{
+  scenario: MockScenario
+  latencyMs: number
+  now: string | null
+  autoConfirmPendingOrders: boolean
+}>) {
+  Object.assign(mockState, config)
+}
+export function failNextMockRequest(failure: OneShotFailure) {
+  mockState.oneShotFailures.push(failure)
 }
 export function updateMockNft(
   id: string,
@@ -200,6 +240,41 @@ export function updateMockNft(
   }
   emitToUser(null, 'nft.updated', payload)
   return payload
+}
+export function emitMockNftUpdate(payload: {
+  nftId: string
+  priceEth: string
+  availability: number
+  version: number
+}) {
+  resourceVersions.set(`nft:${payload.nftId}`, payload.version)
+  emitToUser(null, 'nft.updated', { ...payload, userId: null })
+}
+export function emitMockOrderUpdate(payload: {
+  orderId: string
+  userId: string
+  status: Order['status']
+  version: number
+  reason?: string
+  transactionReference?: string
+}) {
+  emitToUser(payload.userId, 'order.updated', payload)
+}
+export function confirmMockOrder(orderId: string) {
+  const order = orders.get(orderId)
+  if (!order || order.status !== 'pending') return null
+  order.status = 'confirmed'
+  order.version += 1
+  order.transactionReference = `0x${crypto.randomUUID().replaceAll('-', '')}`
+  persistOrders()
+  emitMockOrderUpdate({
+    orderId: order.id,
+    userId: order.userId,
+    status: order.status,
+    version: order.version,
+    transactionReference: order.transactionReference
+  })
+  return order
 }
 
 function favoritesFor(userId: string) {
@@ -301,19 +376,23 @@ export const handlers = [
       if (session) socketUsers.set(io.client, session.userId)
     })
   }),
-  http.all('/api/*', async () => {
-    if (scenario === 'offline') return HttpResponse.error()
-    if (scenario === 'server-error')
+  http.all('/api/*', async ({ request }) => {
+    const path = new URL(request.url).pathname
+    const failure = mockState.oneShotFailures.findIndex(item => item.path === path)
+    if (failure >= 0) {
+      const [next] = mockState.oneShotFailures.splice(failure, 1)
+      if (next.networkError) return HttpResponse.error()
+      return HttpResponse.json({ message: 'Falha temporária simulada.' }, { status: next.status ?? 503 })
+    }
+    if (mockState.scenario === 'offline') return HttpResponse.error()
+    if (mockState.scenario === 'server-error')
       return HttpResponse.json(
         { message: 'Indisponibilidade temporária simulada.' },
         { status: 503 }
       )
-    if (scenario === 'slow')
-      await new Promise(resolve => setTimeout(resolve, 1_500))
-    if (scenario === 'variable-latency')
-      await new Promise(resolve =>
-        setTimeout(resolve, 120 + Math.abs(Date.now() % 5) * 180)
-      )
+    const latency = mockState.latencyMs ||
+      (mockState.scenario === 'slow' ? 1_500 : mockState.scenario === 'variable-latency' ? 300 : 0)
+    if (latency) await delay(latency)
   }),
   http.get('/api/favorites', ({ request }) => {
     const user = activeUser(request)
@@ -614,7 +693,7 @@ export const handlers = [
     const token = `mock-token-${user.id}`
     sessions.set(token, {
       userId: user.id,
-      expiresAt: new Date(Date.now() + 86_400_000).toISOString()
+      expiresAt: new Date(mockNow().getTime() + 86_400_000).toISOString()
     })
     return HttpResponse.json(sessionResponse(token, user), { status: 201 })
   }),
@@ -636,7 +715,7 @@ export const handlers = [
     const token = `mock-token-${user.id}`
     sessions.set(token, {
       userId: user.id,
-      expiresAt: new Date(Date.now() + 86_400_000).toISOString()
+      expiresAt: new Date(mockNow().getTime() + 86_400_000).toISOString()
     })
     return HttpResponse.json(sessionResponse(token, user))
   }),
@@ -650,14 +729,14 @@ export const handlers = [
     if (
       !token ||
       !user ||
-      (active && new Date(active.expiresAt) <= new Date()) ||
+      (active && new Date(active.expiresAt) <= mockNow()) ||
       new URL(request.url).searchParams.get('expired') === '1'
     )
       return HttpResponse.json({ message: 'Sessão expirada.' }, { status: 401 })
     if (!active)
       sessions.set(token, {
         userId: user.id,
-        expiresAt: new Date(Date.now() + 86_400_000).toISOString()
+        expiresAt: new Date(mockNow().getTime() + 86_400_000).toISOString()
       })
     return HttpResponse.json(sessionResponse(token, user))
   }),
@@ -787,9 +866,9 @@ export const handlers = [
         { status: 409 }
       )
     const status: Order['status'] =
-      scenario === 'payment-declined'
+      mockState.scenario === 'payment-declined'
         ? 'declined'
-        : scenario === 'payment-pending' || scenario === 'order-timeout'
+        : mockState.scenario === 'payment-pending' || mockState.scenario === 'order-timeout'
           ? 'pending'
           : 'confirmed'
     const order: Order = {
@@ -798,7 +877,7 @@ export const handlers = [
       status,
       version: 1,
       receipt: body.quote,
-      createdAt: new Date().toISOString(),
+      createdAt: mockNow().toISOString(),
       reason:
         status === 'declined'
           ? 'Pagamento recusado pela carteira simulada.'
@@ -837,7 +916,7 @@ export const handlers = [
           version
         })
       })
-    if (status === 'pending')
+    if (status === 'pending' && mockState.autoConfirmPendingOrders)
       setTimeout(() => {
         const active = orders.get(order.id)
         if (!active || active.status !== 'pending') return
@@ -868,7 +947,7 @@ export const handlers = [
           })
         })
       }, 800)
-    if (scenario === 'order-timeout') return HttpResponse.error()
+    if (mockState.scenario === 'order-timeout') return HttpResponse.error()
     return HttpResponse.json({ order }, { status: 201 })
   })
 ]

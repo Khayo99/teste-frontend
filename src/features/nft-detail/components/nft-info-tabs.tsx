@@ -18,7 +18,7 @@ export function NftInfoTabs({ nft }: { nft: NftDetail }) {
           aria-selected={activeTab === 'details'}
           className={`relative pb-2 text-body-15-medium ${
             activeTab === 'details'
-              ? 'text-text-accent after:absolute after:inset-x-0 after:-bottom-[9px] after:h-0.5 after:bg-text-accent'
+              ? 'text-text-accent after:absolute after:inset-x-0 after:-bottom-value-9 after:h-0.5 after:bg-text-accent'
               : 'text-text-secondary hover:text-text-primary'
           }`}
           onClick={() => setActiveTab('details')}
@@ -31,7 +31,7 @@ export function NftInfoTabs({ nft }: { nft: NftDetail }) {
           aria-selected={activeTab === 'reviews'}
           className={`relative pb-2 text-body-15-medium ${
             activeTab === 'reviews'
-              ? 'text-text-accent after:absolute after:inset-x-0 after:-bottom-[9px] after:h-0.5 after:bg-text-accent'
+              ? 'text-text-accent after:absolute after:inset-x-0 after:-bottom-value-9 after:h-0.5 after:bg-text-accent'
               : 'text-text-secondary hover:text-text-primary'
           }`}
           onClick={() => setActiveTab('reviews')}

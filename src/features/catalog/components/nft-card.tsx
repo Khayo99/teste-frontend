@@ -11,7 +11,7 @@ export function NftCard({ mobileImage, nft }: NftCardProps) {
   return (
     <article className="group min-w-0">
       <div
-        className="relative flex h-[200px] cursor-pointer items-center justify-center overflow-hidden rounded-2xl bg-surface-card sm:h-card-visual-height"
+        className="relative flex h-value-200 cursor-pointer items-center justify-center overflow-hidden rounded-2xl bg-surface-card sm:h-card-visual-height"
         onClick={goToDetail}
         onKeyDown={event => {
           if (event.key === 'Enter' || event.key === ' ') goToDetail()
@@ -20,7 +20,7 @@ export function NftCard({ mobileImage, nft }: NftCardProps) {
         tabIndex={0}
         aria-label={`Ver ${nft.name} ${nft.tokenId}`}
       >
-        <picture className="size-[calc(100%-8px)] sm:size-card-artwork">
+        <picture className="size-card-mobile-artwork sm:size-card-artwork">
           {mobileImage && (
             <source media="(max-width: 639px)" srcSet={mobileImage} />
           )}
@@ -69,13 +69,13 @@ export function NftCard({ mobileImage, nft }: NftCardProps) {
         </div>
       </div>
       <Link
-        className="mt-2 block pl-2 text-[15px] leading-normal text-text-primary hover:text-text-accent sm:mt-3 sm:pl-0 sm:text-body-16-compact"
+        className="mt-2 block pl-2 text-value-15 leading-normal text-text-primary hover:text-text-accent sm:mt-3 sm:pl-0 sm:text-body-16-compact"
         params={{ nftId: nft.id }}
         to="/nft/$nftId"
       >
         {nft.name} {nft.tokenId}
       </Link>
-      <p className="mt-1 pl-2 text-[16px] font-bold leading-4 text-text-accent sm:mt-3 sm:pl-0 sm:text-body-18-bold-compact">
+      <p className="mt-1 pl-2 text-value-16 font-bold leading-4 text-text-accent sm:mt-3 sm:pl-0 sm:text-body-18-bold-compact">
         {nft.priceEth} ETH
       </p>
     </article>

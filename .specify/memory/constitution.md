@@ -15,7 +15,7 @@ Sync Impact Report
 Every implemented screen, responsive state, asset, typography, color, spacing, and interaction
 MUST follow the supplied Figma file and README brief. The Figma layout governs visual composition;
 the README governs functional behavior. The team MUST NOT add unrequested product ideas, flows, or
-visual treatments. Any unavoidable divergence MUST be documented in `ARCHITECTURE.md` before it is
+visual treatments. Any unavoidable divergence MUST be documented in `docs/architecture/overview.md` before it is
 accepted.
 
 ### II. Required Stack Must Be Real, Not Decorative
@@ -75,7 +75,7 @@ handling, asset provenance, and responsive behavior relevant to the feature.
 Before delivery, the repository MUST provide reproducible commands for development, build, preview,
 type-checking, linting, Playwright, and Lighthouse. `README.md` MUST document setup, environment,
 fictitious credentials, scenarios, reset, contracts, events, cache, session, and cart behavior.
-`ARCHITECTURE.md` MUST document design decisions, transport limitations, UX decisions, and Figma
+`docs/architecture/overview.md` MUST document design decisions, transport limitations, UX decisions, and Figma
 deviations. Lighthouse audits MUST run against optimized builds and report the required medians.
 
 ## Governance
@@ -84,6 +84,6 @@ This constitution supersedes informal implementation preferences. Every specific
 review, and release check MUST verify compliance with these principles. Amendments require a written
 rationale, an updated Sync Impact Report, and a semantic version bump: MAJOR for incompatible
 governance changes, MINOR for a new or materially expanded requirement, and PATCH for clarification.
-Compliance exceptions require explicit user approval and documentation in `ARCHITECTURE.md`.
+Compliance exceptions require explicit user approval and documentation in `docs/architecture/overview.md`.
 
 **Version**: 1.1.0 | **Ratified**: 2026-10-01 | **Last Amended**: 2026-10-02

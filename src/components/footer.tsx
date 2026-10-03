@@ -85,7 +85,7 @@ export function Footer() {
   return (
     <footer className="w-full overflow-hidden" id="footer">
       <section className="bg-surface-card px-5 py-8 sm:px-8">
-        <div className="grid max-w-layout-content gap-8 lg:mx-auto lg:min-h-[186px] lg:grid-cols-[repeat(3,minmax(0,1fr))_var(--spacing-footer-newsletter-width)] lg:gap-0">
+        <div className="grid max-w-layout-content gap-8 lg:mx-auto lg:min-h-value-186 lg:grid-cols-footer-newsletter lg:gap-0">
           {benefits.map((benefit, index) => (
             <article
               className={`flex flex-col gap-3 lg:px-4 ${index > 0 ? 'lg:border-l lg:border-primary' : ''}`}
@@ -100,7 +100,7 @@ export function Footer() {
               <h2 className="text-body-17-bold text-text-primary">
                 {benefit.title}
               </h2>
-              <p className="max-w-[204px] text-body-14-copy text-text-secondary">
+              <p className="max-w-value-204 text-body-14-copy text-text-secondary">
                 {benefit.description}
               </p>
             </article>
@@ -136,7 +136,7 @@ export function Footer() {
                   value={email}
                 />
                 <Button
-                  className="w-[85px] bg-primary px-1 text-body-18-bold-compact text-ink transition-colors hover:bg-primary-light"
+                  className="w-value-85 bg-primary px-1 text-body-18-bold-compact text-ink transition-colors hover:bg-primary-light"
                   type="submit"
                   variant="primary"
                 >
@@ -167,7 +167,7 @@ export function Footer() {
       </section>
 
       <section className="bg-surface-dark px-5 py-6 sm:px-8">
-        <div className="mx-auto grid max-w-layout-content gap-5 text-body-14-copy text-text-primary sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_228px] lg:items-center lg:gap-[92px]">
+        <div className="mx-auto grid max-w-layout-content gap-5 text-body-14-copy text-text-primary sm:grid-cols-2 lg:grid-cols-footer-primary lg:items-center lg:gap-value-92">
           <a className="text-body-14-brand text-text-primary" href="/">
             KURIO
           </a>
@@ -186,7 +186,7 @@ export function Footer() {
       </section>
 
       <section className="bg-surface-card px-5 py-8 sm:px-8">
-        <div className="mx-auto grid max-w-layout-content gap-10 sm:grid-cols-2 lg:grid-cols-[repeat(3,minmax(0,1fr))_228px] lg:gap-[124px]">
+        <div className="mx-auto grid max-w-layout-content gap-10 sm:grid-cols-2 lg:grid-cols-footer-secondary lg:gap-value-124">
           {linkGroups.map(group => (
             <nav aria-label={group.title} key={group.title}>
               <h2 className="text-body-18-bold-compact text-text-primary">
@@ -214,7 +214,7 @@ export function Footer() {
               >
                 Redes sociais
               </h2>
-              <div className="mt-5 flex gap-[10px]">
+              <div className="mt-5 flex gap-value-10">
                 {socialLinks.map(social => (
                   <a
                     aria-label={social.label}
@@ -238,7 +238,7 @@ export function Footer() {
               >
                 Carteiras compatíveis
               </h2>
-              <p className="mt-3 flex h-[26px] items-center justify-center rounded-md border border-border-soft bg-surface-dark px-2 text-tiny-bold text-text-accent">
+              <p className="mt-3 flex h-value-26 items-center justify-center rounded-md border border-border-soft bg-surface-dark px-2 text-tiny-bold text-text-accent">
                 METAMASK&nbsp; • &nbsp;WALLETCONNECT&nbsp; • &nbsp;COINBASE
               </p>
             </section>

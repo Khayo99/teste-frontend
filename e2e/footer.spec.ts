@@ -1,33 +1,49 @@
-import { expect, test } from '@playwright/test'
+import { expect, test } from './support/fixtures'
 
 test.describe('marketplace footer', () => {
-  test('validates newsletter input and confirms a valid subscription', async ({ page }) => {
+  test('validates newsletter input and confirms a valid subscription', async ({
+    page
+  }) => {
     await page.goto('/')
 
     const footer = page.getByRole('contentinfo')
     await footer.scrollIntoViewIfNeeded()
 
     await footer.getByRole('button', { name: 'Enviar' }).click()
-    await expect(footer.getByRole('alert')).toContainText('Informe um e-mail válido')
+    await expect(footer.getByRole('alert')).toContainText(
+      'Informe um e-mail válido'
+    )
 
-    await footer.getByLabel('E-mail para novidades').fill('colecionador@example.com')
+    await footer
+      .getByLabel('E-mail para novidades')
+      .fill('colecionador@example.com')
     await footer.getByRole('button', { name: 'Enviar' }).click()
-    await expect(footer.getByRole('status')).toContainText('Inscrição confirmada')
+    await expect(footer.getByRole('status')).toContainText(
+      'Inscrição confirmada'
+    )
   })
 
-  test('keeps footer content visible without horizontal overflow', async ({ page }) => {
+  test('keeps footer content visible without horizontal overflow', async ({
+    page
+  }) => {
     await page.goto('/')
     await page.getByRole('contentinfo').scrollIntoViewIfNeeded()
 
-    await expect(page.getByRole('heading', { name: 'Segurança da carteira' })).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'Meu perfil' })).toBeVisible()
+    await expect(
+      page.getByRole('heading', { name: 'Segurança da carteira' })
+    ).toBeVisible()
+    await expect(
+      page.getByRole('heading', { name: 'Meu perfil' })
+    ).toBeVisible()
     await expect(page.getByRole('link', { name: 'Instagram' })).toBeVisible()
 
     const dimensions = await page.locator('body').evaluate(element => ({
       clientWidth: element.clientWidth,
-      scrollWidth: element.scrollWidth,
+      scrollWidth: element.scrollWidth
     }))
-    expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth + 1)
+    expect(dimensions.scrollWidth).toBeLessThanOrEqual(
+      dimensions.clientWidth + 1
+    )
   })
 
   test('reflows at tablet and wide desktop widths', async ({ page }) => {
@@ -36,18 +52,26 @@ test.describe('marketplace footer', () => {
       await page.goto('/')
       await page.getByRole('contentinfo').scrollIntoViewIfNeeded()
 
-      await expect(page.getByRole('heading', { name: 'Antecipe-se ao próximo lançamento' })).toBeVisible()
-      await expect(page.getByRole('heading', { name: 'Carteiras compatíveis' })).toBeVisible()
+      await expect(
+        page.getByRole('heading', { name: 'Antecipe-se ao próximo lançamento' })
+      ).toBeVisible()
+      await expect(
+        page.getByRole('heading', { name: 'Carteiras compatíveis' })
+      ).toBeVisible()
 
       const dimensions = await page.locator('body').evaluate(element => ({
         clientWidth: element.clientWidth,
-        scrollWidth: element.scrollWidth,
+        scrollWidth: element.scrollWidth
       }))
-      expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth + 1)
+      expect(dimensions.scrollWidth).toBeLessThanOrEqual(
+        dimensions.clientWidth + 1
+      )
     }
   })
 
-  test('preserves keyboard access through newsletter controls', async ({ page }) => {
+  test('preserves keyboard access through newsletter controls', async ({
+    page
+  }) => {
     await page.goto('/')
     const footer = page.getByRole('contentinfo')
     await footer.scrollIntoViewIfNeeded()

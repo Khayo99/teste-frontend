@@ -20,7 +20,7 @@ import {
   type Order
 } from '@/features/orders/orders-api'
 import { queryKeys } from '@/lib/query-keys'
-import { realtimeClient } from '@/lib/realtime'
+import { isTerminalOrder, subscribeToNftUpdates, subscribeToOrderUpdates } from '@/lib/realtime'
 import { useAuthStore } from '@/features/auth/auth-store'
 import modalConfirmationIcon from '@/assets/orders/modal-confirmation.svg'
 import modalCloseIcon from '@/assets/orders/modal-close.svg'
@@ -59,7 +59,7 @@ const currency = (value?: string) =>
 
 export function CheckoutPage() {
   const user = useAuthStore(state => state.user!)
-  const { items, coupon, removePurchasedQuantity, syncQuote } = useCartStore()
+  const { items, coupon, removePurchasedQuantity, syncNftUpdate, syncQuote } = useCartStore()
   const client = useQueryClient()
   const profile = useQuery({
     queryKey: queryKeys.profile(user.id),
@@ -74,6 +74,7 @@ export function CheckoutPage() {
   const [details, setDetails] = useState<CheckoutDetails>(blankDetails)
   const [connected, setConnected] = useState(false)
   const [reviewedFingerprint, setReviewedFingerprint] = useState('')
+  const [quoteMustBeReviewed, setQuoteMustBeReviewed] = useState(false)
   const [notice, setNotice] = useState('')
   const [attempt, setAttempt] = useState(
     () =>
@@ -173,34 +174,42 @@ export function CheckoutPage() {
     }
   }, [fingerprint, reviewedFingerprint])
   useEffect(() => {
-    const refresh = () => void quote.refetch()
-    realtimeClient.on('nft.updated', refresh)
-    return () => {
-      realtimeClient.off('nft.updated', refresh)
-    }
-  }, [quote])
+    return subscribeToNftUpdates(event => {
+      if (!syncNftUpdate(event)) return
+      setQuoteMustBeReviewed(true)
+      setReviewedFingerprint('')
+      setNotice('O preço ou a disponibilidade de um NFT do carrinho mudou. Revise a cotação antes de confirmar.')
+      void quote.refetch()
+    })
+  }, [quote, syncNftUpdate])
   useEffect(() => {
-    const update = (event: {
-      orderId: string
-      userId: string
-      status: Order['status']
-      version: number
-      reason?: string
-      transactionReference?: string
-    }) => {
-      if (event.userId !== user.id) return
+    return subscribeToOrderUpdates(event => {
       setOrder(current =>
-        current?.id === event.orderId && event.version > current.version
+        current?.id === event.orderId && event.version > current.version && !isTerminalOrder(current.status)
           ? { ...current, ...event }
           : current
       )
       void client.invalidateQueries({ queryKey: queryKeys.orders(user.id) })
-    }
-    realtimeClient.on('order.updated', update)
-    return () => {
-      realtimeClient.off('order.updated', update)
-    }
+    })
   }, [client, user.id])
+
+  useEffect(() => {
+    if (order?.status !== 'confirmed' || showConfirmation) return
+    let cancelled = false
+    // A socket callback can arrive after the pending response. Defer the UI
+    // transition so React finishes reconciling that response first.
+    queueMicrotask(() => {
+      if (cancelled) return
+      const snapshot = readReceiptSnapshot(user.id, order.id)
+      const itemsForReceipt = snapshot.length ? snapshot : items.map(item => ({ ...item }))
+      localStorage.setItem(receiptStorageKey(user.id, order.id), JSON.stringify(itemsForReceipt))
+      setReceiptItems(itemsForReceipt)
+      setShowConfirmation(true)
+      order.receipt.items.forEach(line => removePurchasedQuantity(line.id, line.editionId, line.quantity ?? 0))
+      localStorage.removeItem(attemptStorageKey(user.id))
+    })
+    return () => { cancelled = true }
+  }, [items, order, removePurchasedQuantity, showConfirmation, user.id])
 
   const submit = useMutation({
     mutationFn: () => {
@@ -209,6 +218,8 @@ export function CheckoutPage() {
       if (!connected)
         throw new Error('Conecte a carteira simulada para continuar.')
       if (!quote.data) throw new Error('A cotação atual não está disponível.')
+      if (quoteMustBeReviewed)
+        throw new Error('Revise a cotação atualizada antes de confirmar.')
       return createOrder(items, coupon, quote.data, attempt, parsed.data)
     },
     onSuccess: value => {
@@ -254,6 +265,7 @@ export function CheckoutPage() {
   const reviewQuote = () => {
     if (!quote.data) return
     setReviewedFingerprint(fingerprint)
+    setQuoteMustBeReviewed(false)
     setNotice('Cotação revisada. Agora confirme a compra para enviar o pedido.')
   }
   return (
@@ -269,7 +281,6 @@ export function CheckoutPage() {
             onSubmit={event => {
               event.preventDefault()
               reviewQuote()
-              submit.mutate()
             }}
             noValidate
           >
@@ -435,18 +446,27 @@ export function CheckoutPage() {
             Simular recusa de conexão
           </button>
           <Button
+            className="checkout-review"
+            type="button"
+            onClick={reviewQuote}
+            disabled={!items.length || quote.isFetching || !quote.data || !connected || !formReady}
+          >
+            Revisar cotação
+          </Button>
+          <Button
             className="checkout-confirm"
             type="button"
             onClick={() => {
-              reviewQuote()
-              submit.mutate()
+              if (quoteMustBeReviewed) reviewQuote()
+              else submit.mutate()
             }}
             disabled={
               !items.length ||
               quote.isFetching ||
               !quote.data ||
               !connected ||
-              !formReady
+              !formReady ||
+              reviewedFingerprint !== fingerprint
             }
           >
             {submit.isPending ? 'Enviando…' : 'Confirmar compra'}

@@ -34,12 +34,12 @@ export function HomeHero() {
       >
         {isMobileSearchOpen ? (
           <form
-            className="flex h-[45px] min-w-0 flex-1 items-center gap-2 rounded-[10px] bg-surface-card px-3"
+            className="flex h-value-45 min-w-0 flex-1 items-center gap-2 rounded-value-10 bg-surface-card px-3"
             onSubmit={submitMobileSearch}
           >
             <Search
               aria-hidden="true"
-              className="size-[20px] shrink-0 text-secondary"
+              className="size-value-20 shrink-0 text-secondary"
             />
             <Input
               aria-label="Buscar NFTs"
@@ -55,7 +55,7 @@ export function HomeHero() {
               className="grid size-7 shrink-0 place-items-center text-text-accent"
               type="submit"
             >
-              <Search aria-hidden="true" className="size-[18px]" />
+              <Search aria-hidden="true" className="size-value-18" />
             </button>
             <button
               aria-label="Fechar busca"
@@ -63,28 +63,28 @@ export function HomeHero() {
               onClick={() => setIsMobileSearchOpen(false)}
               type="button"
             >
-              <X aria-hidden="true" className="size-[18px]" />
+              <X aria-hidden="true" className="size-value-18" />
             </button>
           </form>
         ) : (
           <button
-            className="flex h-[45px] min-w-0 flex-1 items-center gap-2 rounded-[10px] bg-surface-card px-3 text-left text-body-14-brand text-secondary"
+            className="flex h-value-45 min-w-0 flex-1 items-center gap-2 rounded-value-10 bg-surface-card px-3 text-left text-body-14-brand text-secondary"
             onClick={() => setIsMobileSearchOpen(true)}
             type="button"
           >
-            <Search aria-hidden="true" className="size-[22px] shrink-0" />
+            <Search aria-hidden="true" className="size-value-22 shrink-0" />
             Explorar coleções
           </button>
         )}
         <button
           aria-label="Abrir filtros"
-          className="grid size-[45px] place-items-center rounded-[14px] bg-primary/80 text-ink"
+          className="grid size-value-45 place-items-center rounded-value-14 bg-primary/80 text-ink"
           onClick={() =>
             window.dispatchEvent(new Event('kurio:open-catalog-filters'))
           }
           type="button"
         >
-          <SlidersHorizontal aria-hidden="true" className="size-[22px]" />
+          <SlidersHorizontal aria-hidden="true" className="size-value-22" />
         </button>
       </section>
       <section className="relative hidden min-h-hero-height flex-col overflow-hidden bg-ink lg:flex lg:h-hero-height lg:flex-row lg:items-start lg:gap-hero-gap lg:pl-10">
@@ -108,7 +108,7 @@ export function HomeHero() {
             EXPLORAR
           </a>
         </div>
-        <div className="size-full min-h-[240px] overflow-hidden sm:min-h-hero-mobile-height lg:size-hero-height lg:min-h-0 lg:shrink-0">
+        <div className="size-full min-h-value-240 overflow-hidden sm:min-h-hero-mobile-height lg:size-hero-height lg:min-h-0 lg:shrink-0">
           <img
             alt="Colecionador Kurio"
             className="size-full object-cover object-center"
@@ -116,36 +116,36 @@ export function HomeHero() {
           />
         </div>
       </section>
-      <section className="relative flex h-[190px] overflow-hidden rounded-[28px] bg-[radial-gradient(circle_at_68%_10%,#7c4c2d_0,transparent_42%),linear-gradient(118deg,#684027_0%,#241612_67%)] p-4 md:hidden">
+      <section className="relative flex overflow-hidden rounded-value-28 bg-hero-mobile p-4 md:hidden">
         <div className="flex min-w-0 flex-1 flex-col pt-2">
-          <p className="text-[12px] font-medium leading-4 text-foreground">
+          <p className="text-value-12 font-medium leading-4 text-foreground">
             Bem-vindo à Kurio
           </p>
-          <h1 className="mt-1 text-[18px] font-bold leading-[29px] text-foreground">
+          <h1 className="mt-1 text-value-18 font-bold leading-value-29 text-foreground">
             SEJA DONO DA
             <br />
             CULTURA DIGITAL
           </h1>
-          <p className="mt-1 max-w-[180px] text-[12px] leading-[18px] text-text-secondary">
+          <p className="mt-1 max-w-hero-mobile-description-width text-value-12 leading-value-18 text-text-secondary">
             Descubra NFTs selecionados de criadores do mundo todo.
           </p>
           <a
-            className="mt-1 inline-flex items-center gap-2 text-[12px] font-bold leading-[14px] text-text-accent"
+            className="mt-1 inline-flex items-center gap-2 text-value-12 font-bold leading-value-14 text-text-accent"
             href="#mercado"
           >
             EXPLORAR <ArrowRight aria-hidden="true" className="size-4" />
           </a>
         </div>
-        <div className="relative w-[138px] shrink-0">
+        <div className="relative w-value-138 shrink-0">
           <img
             alt="NFT em destaque"
-            className="size-[138px] rounded-2xl object-cover shadow-[0_8px_16px_rgb(0_0_0_/_0.2)]"
+            className="size-value-138 rounded-2xl object-cover shadow-hero-mobile-artwork"
             src={mobileNftOne}
           />
           <img
             alt=""
             aria-hidden="true"
-            className="absolute -bottom-1 -right-1 size-[58px] rounded-2xl object-cover shadow-lg"
+            className="absolute -bottom-1 -right-1 size-value-58 rounded-2xl object-cover shadow-lg"
             src={mobileNftTwo}
           />
         </div>
@@ -153,9 +153,9 @@ export function HomeHero() {
           aria-hidden="true"
           className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1"
         >
-          <span className="h-[7px] w-4 rounded-full bg-primary" />
-          <span className="size-[7px] rounded-full bg-foreground/50" />
-          <span className="size-[7px] rounded-full bg-foreground/50" />
+          <span className="h-value-7 w-4 rounded-full bg-primary" />
+          <span className="size-value-7 rounded-full bg-foreground/50" />
+          <span className="size-value-7 rounded-full bg-foreground/50" />
         </div>
       </section>
     </>

@@ -49,10 +49,10 @@ e2e/auth.spec.ts
 - Logout cancela queries privadas, remove cache persistido e desconecta subscriptions Socket.IO.
 - Guards do TanStack Router redirecionam para `/login?returnTo=...`; após autenticação o destino é restaurado.
 - Formulários compartilham componentes acessíveis, validação Zod, estado de loading e erro associado.
-- Como o conteúdo dos nós Figma não está disponível nesta sessão, o layout usa os assets e tokens locais; a limitação será registrada no `ARCHITECTURE.md`.
+- Como o conteúdo dos nós Figma não está disponível nesta sessão, o layout usa os assets e tokens locais; a limitação será registrada em `docs/architecture/overview.md`.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-|---|---|---|
-| N/A | N/A | No constitution violations. |
+| --------- | ---------- | ------------------------------------ |
+| N/A       | N/A        | No constitution violations.          |

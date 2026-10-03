@@ -65,7 +65,7 @@ export function HomeDiscovery() {
           >
             <img
               alt=""
-              className="aspect-[4/3] w-full object-cover sm:aspect-auto sm:w-promotion-artwork sm:shrink-0"
+              className="aspect-value-4-3 w-full object-cover sm:aspect-auto sm:w-promotion-artwork sm:shrink-0"
               src={promotion.image}
             />
             <div className="flex flex-1 flex-col items-start justify-center px-6 py-6 text-left sm:items-end sm:px-7 sm:text-right">

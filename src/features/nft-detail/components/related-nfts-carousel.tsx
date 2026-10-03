@@ -38,7 +38,7 @@ export function RelatedNftsCarousel({
         ref={scrollerRef}
       >
         {relatedNfts.map(relatedNft => (
-          <li className="w-[219px] shrink-0 snap-start" key={relatedNft.id}>
+          <li className="w-value-219 shrink-0 snap-start" key={relatedNft.id}>
             <Link
               className="group flex flex-col gap-3"
               params={{ nftId: relatedNft.id }}

@@ -165,7 +165,7 @@ export function HomeCatalog() {
       <div className="min-w-0 flex-1 xl:w-catalog-grid-width xl:flex-none">
         <div className="relative mb-6 flex flex-col gap-4 text-body-15-medium sm:mb-8 sm:min-h-catalog-toolbar-height sm:flex-row sm:items-start sm:justify-between">
           <div
-            className="relative -mx-1 flex max-w-full gap-8 overflow-x-auto px-1 pb-1"
+            className="relative -mx-1 flex max-w-full gap-4 overflow-x-auto px-1 pb-1"
             role="tablist"
             aria-label="Visualização do catálogo"
           >
@@ -176,7 +176,7 @@ export function HomeCatalog() {
             ].map(([tab, label]) => (
               <Button
                 aria-selected={activeTab === tab}
-                className={`relative shrink-0 whitespace-nowrap text-[14px] ${activeTab === tab ? 'text-text-accent' : 'text-foreground transition-colors hover:text-text-accent'} ${activeTab === tab && tab !== 'all' ? 'after:absolute after:left-0 after:top-[23px] after:h-0.5 after:w-full after:bg-text-accent' : ''}`}
+                className={`relative shrink-0 whitespace-nowrap text-value-14 ${activeTab === tab ? 'text-text-accent' : 'text-foreground transition-colors hover:text-text-accent'} ${activeTab === tab && tab !== 'all' ? 'after:absolute after:left-0 after:top-value-23 after:h-0.5 after:w-full after:bg-text-accent' : ''}`}
                 key={tab}
                 onClick={() => handleTabChange(tab as CatalogTab)}
                 role="tab"
@@ -187,14 +187,14 @@ export function HomeCatalog() {
                 {activeTab === tab && tab === 'all' ? (
                   <img
                     alt=""
-                    className="absolute left-0 top-[23px]"
+                    className="absolute left-0 top-value-23"
                     src={toolbarUnderline}
                   />
                 ) : null}
               </Button>
             ))}
           </div>
-          <div className="hidden items-center justify-between gap-3 sm:flex sm:w-[300px] sm:shrink-0">
+          <div className="hidden items-center justify-between gap-3 sm:flex sm:w-catalog-toolbar-sort-width sm:shrink-0">
             <Button
               aria-expanded={filtersOpen}
               className="h-9 gap-2 px-3 lg:hidden"
@@ -205,12 +205,12 @@ export function HomeCatalog() {
               <SlidersHorizontal aria-hidden="true" className="size-4" />{' '}
               Filtros
             </Button>
-            <div className="relative h-[18px] min-w-0 flex-1 text-body-15 text-foreground">
+            <div className="relative h-value-18 min-w-0 flex-1 text-body-15 text-foreground">
               <label className="absolute left-0 top-0" htmlFor="catalog-sort">
                 Ordenar por:
               </label>
               <Select
-                className="absolute left-[110px] top-0 w-[calc(100%-110px)] appearance-none truncate bg-transparent pl-0 pr-5 text-left text-foreground outline-none"
+                className="absolute left-value-110 top-0 w-catalog-sort-input-width appearance-none truncate bg-transparent pl-0 pr-5 text-left text-foreground outline-none"
                 id="catalog-sort"
                 onChange={event =>
                   handleQueryChange({
@@ -230,7 +230,7 @@ export function HomeCatalog() {
                   Maior preço
                 </option>
               </Select>
-              <span className="pointer-events-none absolute right-0 top-[2px] flex size-4 items-center justify-center">
+              <span className="pointer-events-none absolute right-0 top-value-2 flex size-4 items-center justify-center">
                 <ChevronDown aria-hidden="true" size={11} strokeWidth={1.5} />
               </span>
             </div>
@@ -244,7 +244,7 @@ export function HomeCatalog() {
           >
             {Array.from({ length: 9 }, (_, index) => (
               <div
-                className="skeleton h-[200px] rounded-2xl sm:h-card-visual-height"
+                className="skeleton h-value-200 rounded-2xl sm:h-card-visual-height"
                 key={index}
               />
             ))}
@@ -300,7 +300,7 @@ export function HomeCatalog() {
           <aside
             aria-label="Filtros do catálogo"
             aria-modal="true"
-            className="ml-auto h-full max-w-[310px] overflow-y-auto bg-surface-card shadow-2xl"
+            className="ml-auto h-full max-w-value-310 overflow-y-auto bg-surface-card shadow-2xl"
             role="dialog"
           >
             <div className="flex justify-end p-3">

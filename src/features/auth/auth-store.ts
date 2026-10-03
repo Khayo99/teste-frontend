@@ -37,7 +37,7 @@ export const useAuthStore = create<AuthState>(set => ({
         expiresAt: session.expiresAt
       })
     )
-    startSessionRealtime(session.token)
+    startSessionRealtime(session.token, session.user.id)
     set({ status: 'authenticated', token: session.token, user: session.user })
   },
   setReturnTo: returnTo => set({ returnTo }),

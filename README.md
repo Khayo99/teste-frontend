@@ -31,7 +31,7 @@ As tecnologias devem participar efetivamente da solução. A ferramenta de build
 
 ### Regra de conformidade da stack
 
-Nenhuma dependência obrigatória pode ser considerada atendida apenas por estar instalada. Cada uma deve ter um ponto de uso em produção, uma responsabilidade documentada e uma verificação reproduzível. O mapeamento atual e o gate de revisão estão em [ARCHITECTURE.md](./ARCHITECTURE.md).
+Nenhuma dependência obrigatória pode ser considerada atendida apenas por estar instalada. Cada uma deve ter um ponto de uso em produção, uma responsabilidade documentada e uma verificação reproduzível. O mapeamento atual e o gate de revisão estão na [documentação de arquitetura](./docs/architecture/overview.md). Consulte também o [índice da documentação](./docs/README.md).
 
 ## 3. Telas e fluxos
 
@@ -263,7 +263,7 @@ A versão publicada deve corresponder ao código entregue e permanecer acessíve
 
 O `README.md` da solução deve conter setup, variáveis de ambiente, credenciais fictícias, seleção e reset dos cenários, comandos de execução e instruções para reproduzir os fluxos de falha.
 
-Documente os contratos REST e eventos, a política de sessão, o estado do carrinho, a estratégia de cache e a reconciliação entre REST e Socket.IO. Registre limitações, decisões de UX e eventuais desvios do Figma em `ARCHITECTURE.md`.
+Documente os contratos REST e eventos, a política de sessão, o estado do carrinho, a estratégia de cache e a reconciliação entre REST e Socket.IO. Registre limitações, decisões de UX e eventuais desvios do Figma em [`docs/architecture/overview.md`](./docs/architecture/overview.md).
 
 Disponibilize comandos para desenvolvimento com mocks, build, preview, verificação de tipos, lint, testes Playwright e auditoria Lighthouse.
 

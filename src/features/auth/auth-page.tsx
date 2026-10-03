@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 import { Link, useNavigate, useSearch } from '@tanstack/react-router'
 import { EyeOff, X } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState, type RefObject } from 'react'
 import { login, register, type AuthApiError } from './api/auth-api'
 import { useAuthStore } from './auth-store'
 import { loginSchema, registerSchema } from './lib/auth-validation'
@@ -37,14 +37,20 @@ export function AuthPage({
     confirmPassword: ''
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const emailInput = useRef<HTMLInputElement>(null)
   const destination = returnTo ?? search.returnTo
   const close = () => {
     onClose?.()
     if (!onClose)
       void navigate({ to: destination?.startsWith('/') ? destination : '/' })
+    if (onClose)
+      requestAnimationFrame(() =>
+        document.querySelector<HTMLElement>('[data-auth-trigger]')?.focus()
+      )
   }
 
   useEffect(() => {
+    emailInput.current?.focus()
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') close()
     }
@@ -100,7 +106,7 @@ export function AuthPage({
         }}
       >
         <section
-          className="auth-card relative flex w-full max-w-[365px] flex-col overflow-hidden"
+          className="auth-card relative flex w-full max-w-value-365 flex-col overflow-hidden"
           role="dialog"
           aria-modal="true"
           aria-labelledby="auth-title"
@@ -113,7 +119,7 @@ export function AuthPage({
               type="button"
               onClick={close}
             >
-              <X className="size-[18px]" />
+              <X className="size-value-18" />
             </Button>
           )}
           <div className="auth-header shrink-0 text-center">
@@ -157,6 +163,7 @@ export function AuthPage({
               value={values.email}
               error={errors.email}
               onChange={update}
+              inputRef={emailInput}
             />
             <Field
               id="password"
@@ -231,7 +238,8 @@ function Field({
   placeholder,
   value,
   error,
-  onChange
+  onChange,
+  inputRef
 }: {
   id: string
   label: string
@@ -240,6 +248,7 @@ function Field({
   value: string
   error?: string
   onChange: (id: string, value: string) => void
+  inputRef?: RefObject<HTMLInputElement | null>
 }) {
   const errorId = `${id}-error`
   return (
@@ -258,6 +267,7 @@ function Field({
           aria-invalid={Boolean(error)}
           aria-describedby={error ? errorId : undefined}
           onChange={event => onChange(id, event.target.value)}
+          ref={inputRef}
         />
         {type === 'password' && (
           <EyeOff
@@ -267,7 +277,7 @@ function Field({
         )}
       </div>
       {error && (
-        <p className="mt-1 text-[10px] text-error" id={errorId}>
+        <p className="mt-1 text-value-10 text-error" id={errorId}>
           {error}
         </p>
       )}

@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { getOrders } from './orders-api'
 import { queryKeys } from '@/lib/query-keys'
-import { realtimeClient } from '@/lib/realtime'
+import { subscribeToOrderUpdates } from '@/lib/realtime'
 import { useAuthStore } from '@/features/auth/auth-store'
 
 export function OrdersPage() {
@@ -14,14 +14,9 @@ export function OrdersPage() {
     retry: false
   })
   useEffect(() => {
-    const update = (event: { userId: string }) => {
-      if (event.userId === user.id)
-        void client.invalidateQueries({ queryKey: queryKeys.orders(user.id) })
-    }
-    realtimeClient.on('order.updated', update)
-    return () => {
-      realtimeClient.off('order.updated', update)
-    }
+    return subscribeToOrderUpdates(() => {
+      void client.invalidateQueries({ queryKey: queryKeys.orders(user.id) })
+    })
   }, [client, user.id])
   return (
     <main className="mx-auto max-w-2xl py-16">

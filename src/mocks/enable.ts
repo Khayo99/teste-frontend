@@ -24,10 +24,18 @@ export async function enableMocking() {
       'Inicialização do Mock Service Worker'
     )
     if (import.meta.env.DEV || import.meta.env.VITE_ENABLE_MSW === 'true') {
+      const { realtimeClient } = await import('@/lib/realtime')
       Object.assign(window, {
         __KURIO_MOCKS__: {
           reset: controls.resetMockScenario,
-          updateNft: controls.updateMockNft
+          configure: controls.configureMockScenario,
+          failNext: controls.failNextMockRequest,
+          updateNft: controls.updateMockNft,
+          emitNftUpdate: controls.emitMockNftUpdate,
+          emitOrderUpdate: controls.emitMockOrderUpdate,
+          confirmOrder: controls.confirmMockOrder,
+          disconnectRealtime: () => realtimeClient.disconnect(),
+          reconnectRealtime: () => realtimeClient.connect()
         }
       })
     }

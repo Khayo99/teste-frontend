@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test } from './support/fixtures'
 
 test('salva o favorito solicitado antes da autenticação', async ({ page }) => {
   await page.goto('/nft/cosmic-bloom-118')

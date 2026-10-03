@@ -66,8 +66,8 @@ const blankWallet: Wallet = {
 
 export function AccountPage({ section }: { section: 'profile' | 'wallets' }) {
   return (
-    <section className="-mt-16 min-h-[820px] pb-16">
-      <div className="grid gap-7 xl:grid-cols-[310px_minmax(0,1fr)]">
+    <section className="-mt-16 min-h-value-820 pb-16">
+      <div className="grid gap-7 xl:grid-cols-account">
         <AccountSidebar section={section} />
         {section === 'profile' ? <ProfileForm /> : <WalletsForm />}
       </div>
@@ -106,7 +106,7 @@ function AccountSidebar({ section }: { section: 'profile' | 'wallets' }) {
         <Link
           key={label}
           to={to}
-          className={`flex h-[45px] items-center gap-4 border-l-6 px-4 text-body-15 ${active ? 'border-primary text-text-accent' : 'border-transparent text-text-accent hover:bg-surface-raised'}`}
+          className={`flex h-value-45 items-center gap-4 border-l-6 px-4 text-body-15 ${active ? 'border-primary text-text-accent' : 'border-transparent text-text-accent hover:bg-surface-raised'}`}
         >
           <Icon className="size-5" />
           {label}
@@ -115,9 +115,9 @@ function AccountSidebar({ section }: { section: 'profile' | 'wallets' }) {
       {inactive.map(({ label, icon: Icon }) => (
         <span
           key={label}
-          className="flex h-[45px] items-center gap-3 px-[22px] text-body-15 text-text-accent"
+          className="flex h-value-45 items-center gap-3 px-value-22 text-body-15 text-text-accent"
         >
-          <Icon className="size-[18px]" />
+          <Icon className="size-value-18" />
           {label}
         </span>
       ))}
@@ -221,13 +221,13 @@ function ProfileForm() {
       {formError && (
         <p
           role="alert"
-          className="mt-4 max-w-[862px] rounded border border-error bg-error/10 p-3 text-sm text-error"
+          className="mt-4 max-w-value-862 rounded border border-error bg-error/10 p-3 text-sm text-error"
         >
           {formError}
         </p>
       )}
       <form
-        className="mt-8 max-w-[862px]"
+        className="mt-8 max-w-value-862"
         onSubmit={e => {
           e.preventDefault()
           save.mutate({ profile: form, password })
@@ -270,7 +270,7 @@ function ProfileForm() {
           <div>
             <label className="mb-2 block text-body-14-compact">Avatar</label>
             <div className="flex items-center gap-5">
-              <span className="grid size-[50px] place-items-center overflow-hidden rounded-full border border-border bg-surface-raised text-primary">
+              <span className="grid size-value-50 place-items-center overflow-hidden rounded-full border border-border bg-surface-raised text-primary">
                 {form.avatar ? (
                   <img
                     src={form.avatar}
@@ -325,7 +325,7 @@ function ProfileForm() {
         />
         <div className="mt-8 flex items-center gap-4">
           <Button
-            className="h-10 w-[131px] text-body-14-bold-compact text-ink"
+            className="h-10 w-value-131 text-body-14-bold-compact text-ink"
             type="submit"
             disabled={save.isPending}
           >
@@ -351,7 +351,7 @@ function PasswordFields({
 }) {
   const [visible, setVisible] = useState(false)
   return (
-    <section className="mt-8 max-w-[417px]">
+    <section className="mt-8 max-w-value-417">
       <h2 className="text-body-16-bold">Alterar senha</h2>
       <div className="mt-6 space-y-5">
         {[
@@ -413,7 +413,7 @@ function WalletsForm() {
   })
   return (
     <main className="min-w-0">
-      <div className="flex max-w-[862px] items-start justify-between">
+      <div className="flex max-w-value-862 items-start justify-between">
         <div className="space-y-2">
           <h1 className="text-body-17-bold">Carteira principal</h1>
           <p className="text-body-14-compact text-text-secondary">
@@ -430,7 +430,7 @@ function WalletsForm() {
         </Button>
       </div>
       <form
-        className="mt-8 max-w-[862px]"
+        className="mt-8 max-w-value-862"
         onSubmit={e => {
           e.preventDefault()
           save.mutate(form)
@@ -524,7 +524,7 @@ function WalletsForm() {
           )}
         </div>
       </form>
-      <div className="mt-8 max-w-[862px]">
+      <div className="mt-8 max-w-value-862">
         <div className="flex items-start justify-between">
           <div>
             <h2 className="text-body-18-bold-compact">Carteira secundária</h2>
@@ -584,7 +584,7 @@ function Field({
       )}
       <div className={prefix ? 'flex gap-2' : ''}>
         {prefix && (
-          <span className="flex h-10 items-center rounded-[3px] border border-border px-3 text-sm">
+          <span className="flex h-10 items-center rounded-value-3 border border-border px-3 text-sm">
             {prefix}
           </span>
         )}
@@ -593,7 +593,7 @@ function Field({
           type={type}
           placeholder={placeholder}
           value={value}
-          className="rounded-[3px]"
+          className="rounded-value-3"
           onChange={e => onChange(e.target.value)}
         />
       </div>
@@ -628,7 +628,7 @@ function SelectField({
         id={id}
         value={value}
         onChange={e => onChange(e.target.value)}
-        className="h-10 w-full rounded-[3px] border border-border px-3 text-sm text-text-secondary"
+        className="h-10 w-full rounded-value-3 border border-border px-3 text-sm text-text-secondary"
       >
         <option value="">Selecione uma {label.toLowerCase()}</option>
         {options.map(option => (
@@ -641,7 +641,7 @@ function SelectField({
 function FormSkeleton() {
   return (
     <div
-      className="h-[600px] animate-pulse rounded bg-surface-card"
+      className="h-value-600 animate-pulse rounded bg-surface-card"
       aria-label="Carregando perfil"
     />
   )

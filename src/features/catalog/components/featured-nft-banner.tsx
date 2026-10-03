@@ -4,7 +4,7 @@ export function FeaturedNftBanner() {
   return (
     <section
       aria-labelledby="featured-nft-heading"
-      className="relative w-catalog-sidebar-width overflow-hidden bg-gradient-to-b from-primary/10 to-primary/[0.03] pb-1 pt-6"
+      className="relative w-catalog-sidebar-width overflow-hidden bg-gradient-to-b from-primary/10 to-primary-subtle pb-1 pt-6"
     >
       <div className="flex flex-col gap-4">
         <div className="flex flex-col items-center gap-4">

@@ -31,76 +31,76 @@ function MobileBottomNavigation() {
   return (
     <nav
       aria-label="Navegação principal"
-      className="fixed inset-x-0 bottom-0 z-40 h-[126px] overflow-hidden md:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 h-value-126 overflow-hidden md:hidden"
     >
       <img
         alt=""
         aria-hidden="true"
-        className="absolute left-1/2 top-[-9px] max-w-none -translate-x-1/2"
+        className="absolute left-1/2 -top-value-9 max-w-none -translate-x-1/2"
         src={tabBarShape}
       />
       <Link
         aria-label="Início"
-        className="absolute left-[8.7%] top-[71px] grid size-5 place-items-center"
+        className="absolute left-value-8-7-percent top-value-71 grid size-5 place-items-center"
         to="/"
       >
         <img alt="" src={tabBarHome} />
       </Link>
       <Link
         aria-label="Favoritos"
-        className="absolute left-[26.09%] top-[72px] grid size-5 place-items-center"
+        className="absolute left-value-26-09-percent top-value-72 grid size-5 place-items-center"
         to="/favorites"
       >
         <img alt="" src={tabBarHeart} />
       </Link>
       <Link
         aria-label="Carrinho"
-        className="absolute left-[70.53%] top-[71px] grid size-5 place-items-center"
+        className="absolute left-value-70-53-percent top-value-71 grid size-5 place-items-center"
         to="/cart"
       >
         <img alt="" src={tabBarShop} />
       </Link>
       <Link
         aria-label="Perfil"
-        className="absolute left-[85.51%] top-[71px] grid size-5 place-items-center"
+        className="absolute left-value-85-51-percent top-value-71 grid size-5 place-items-center"
         to="/profile"
       >
         <img alt="" src={tabBarUser} />
       </Link>
       <a
         aria-label="Explorar NFTs"
-        className="absolute left-1/2 top-0 block size-[65px] -translate-x-1/2"
+        className="absolute left-1/2 top-0 block size-value-65 -translate-x-1/2"
         href="#mercado"
       >
         <img alt="" aria-hidden="true" src={tabBarOrb} />
         <img
           alt=""
           aria-hidden="true"
-          className="absolute left-[19px] top-[32px]"
+          className="absolute left-value-19 top-value-32"
           src={centerOne}
         />
         <img
           alt=""
           aria-hidden="true"
-          className="absolute left-[20px] top-[35px]"
+          className="absolute left-value-20 top-value-35"
           src={centerTwo}
         />
         <img
           alt=""
           aria-hidden="true"
-          className="absolute left-[34px] top-[21px]"
+          className="absolute left-value-34 top-value-21"
           src={centerThree}
         />
         <img
           alt=""
           aria-hidden="true"
-          className="absolute left-[34px] top-[35px]"
+          className="absolute left-value-34 top-value-35"
           src={centerFour}
         />
         <img
           alt=""
           aria-hidden="true"
-          className="absolute left-[20px] top-[21px]"
+          className="absolute left-value-20 top-value-21"
           src={centerFive}
         />
       </a>

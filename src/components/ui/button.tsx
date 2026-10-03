@@ -8,10 +8,10 @@ const buttonVariants = cva(
     variants: {
       variant: {
         pagination:
-          'size-[35px] rounded-sm border border-border text-body-18 text-text-primary hover:border-text-accent',
+          'size-value-35 rounded-sm border border-border text-body-18 text-text-primary hover:border-text-accent',
         primary: 'rounded-md bg-primary text-ink hover:bg-primary-light',
         outline:
-          'rounded-[5px] border border-border text-text-secondary hover:border-primary hover:text-text-primary',
+          'rounded-value-5 border border-border text-text-secondary hover:border-primary hover:text-text-primary',
         ghost: 'rounded-md text-text-accent hover:text-text-primary'
       }
     },

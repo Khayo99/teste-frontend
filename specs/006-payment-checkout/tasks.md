@@ -8,17 +8,17 @@
 
 ## Phase 1: Setup
 
-- [X] T001 Record payment Figma asset provenance and any accessible-control substitutions in ARCHITECTURE.md
-- [X] T002 [P] Add checkout spacing, receipt, skeleton, and responsive utility tokens in src/styles/design-system.css
-- [X] T003 [P] Create checkout test scenario helpers and viewport coverage in e2e/checkout.spec.ts
+- [x] T001 Record payment Figma asset provenance and any accessible-control substitutions in docs/architecture/overview.md
+- [x] T002 [P] Add checkout spacing, receipt, skeleton, and responsive utility tokens in src/styles/design-system.css
+- [x] T003 [P] Create checkout test scenario helpers and viewport coverage in e2e/checkout.spec.ts
 
 ## Phase 2: Foundational
 
 - [ ] T004 Extend shared typed order/checkout contracts, quote fingerprints, and ordered event payload validation in src/lib/contracts.ts
 - [ ] T005 Extend private per-user query keys and persisted payment-attempt recovery keys in src/lib/query-keys.ts
-- [X] T006 Extend Axios order adapters for checkout submission payloads, idempotency lookup, receipt references, and typed errors in src/features/orders/orders-api.ts
+- [x] T006 Extend Axios order adapters for checkout submission payloads, idempotency lookup, receipt references, and typed errors in src/features/orders/orders-api.ts
 - [ ] T007 Extend MSW payment/order handlers to validate checkout fields, wallet connection, quote conflicts, immutable receipt references, and idempotent recovery in src/mocks/handlers.ts
-- [X] T008 Validate the foundational typed transport and mock behavior with npm run typecheck
+- [x] T008 Validate the foundational typed transport and mock behavior with npm run typecheck
 
 **Checkpoint**: Checkout can use a fresh quote, collector defaults, registered wallets, and a recoverable simulated order attempt.
 
@@ -28,13 +28,13 @@
 
 **Independent Test**: Sign in, open `/checkout` with the deterministic cart, complete the required form and wallet selection, acknowledge the quote, submit once, and verify the confirmed receipt and cart change after refresh.
 
-- [X] T009 [P] [US1] Add deterministic successful protected checkout and confirmed receipt regression coverage in e2e/checkout.spec.ts
-- [X] T010 [P] [US1] Add field-level Zod validation and accessible checkout input/select/radio helpers in src/features/orders/checkout-page.tsx
-- [X] T011 [US1] Build the Figma-faithful responsive collector form, receipt line items using exact local cart assets, quote summary, and wallet controls in src/features/orders/checkout-page.tsx
+- [x] T009 [P] [US1] Add deterministic successful protected checkout and confirmed receipt regression coverage in e2e/checkout.spec.ts
+- [x] T010 [P] [US1] Add field-level Zod validation and accessible checkout input/select/radio helpers in src/features/orders/checkout-page.tsx
+- [x] T011 [US1] Build the Figma-faithful responsive collector form, receipt line items using exact local cart assets, quote summary, and wallet controls in src/features/orders/checkout-page.tsx
 - [ ] T012 [US1] Integrate profile and registered-wallet defaults through TanStack Query/Axios with skeleton, empty, and retry states in src/features/orders/checkout-page.tsx
-- [X] T013 [US1] Implement quote acknowledgement, connected-wallet gating, idempotent confirmation, and removal of only confirmed quantities in src/features/orders/checkout-page.tsx
+- [x] T013 [US1] Implement quote acknowledgement, connected-wallet gating, idempotent confirmation, and removal of only confirmed quantities in src/features/orders/checkout-page.tsx
 - [ ] T014 [US1] Add a confirmed-only immutable receipt view and protected direct order route in src/features/orders/checkout-page.tsx and src/router.tsx
-- [X] T015 [US1] Run the User Story 1 Playwright scenario in e2e/checkout.spec.ts
+- [x] T015 [US1] Run the User Story 1 Playwright scenario in e2e/checkout.spec.ts
 
 ## Phase 4: User Story 2 - Resolve changed quotes before payment (Priority: P1)
 
@@ -63,7 +63,7 @@
 ## Phase 6: Polish and Cross-Cutting Verification
 
 - [ ] T026 [P] Validate checkout at 390px, 768px, and 1440px with keyboard navigation, focus visibility, linked errors, motion-safe skeleton shimmer, and no horizontal overflow in src/features/orders/checkout-page.tsx and e2e/checkout.spec.ts
-- [X] T027 [P] Document payment contracts, cache/session policy, mock transport limitation, asset decision, scenarios, and validation commands in README.md and ARCHITECTURE.md
+- [x] T027 [P] Document payment contracts, cache/session policy, mock transport limitation, asset decision, scenarios, and validation commands in README.md and docs/architecture/overview.md
 - [ ] T028 Run npm run typecheck, npm run lint, npm run build, npm run test:e2e, and the checkout visual inspection against the Figma frame
 
 ## Dependencies & Execution Order

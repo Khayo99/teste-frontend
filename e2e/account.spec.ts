@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test } from './support/fixtures'
 
 async function login(page: import('@playwright/test').Page) {
   await page.goto('/login')
@@ -7,23 +7,36 @@ async function login(page: import('@playwright/test').Page) {
   await page.getByRole('dialog').getByRole('button', { name: 'Entrar' }).click()
 }
 
-test('botão Entrar autenticado abre perfil e perfil é persistido', async ({ page }) => {
+test('botão Entrar autenticado abre perfil e perfil é persistido', async ({
+  page
+}) => {
   await login(page)
-  await page.getByRole('banner').getByRole('button', { name: 'Demo Kurio' }).click()
+  await page
+    .getByRole('banner')
+    .getByRole('button', { name: 'Demo Kurio' })
+    .click()
   await expect(page).toHaveURL('/profile')
   await page.getByLabel('Nome de exibição').fill('Colecionador Kurio')
   await page.getByLabel('Apelido da carteira').fill('Minha carteira')
   await page.getByRole('button', { name: 'Salvar', exact: true }).click()
   await expect(page.getByRole('status')).toHaveText('Perfil salvo com sucesso.')
   await page.reload()
-  await expect(page.getByLabel('Nome de exibição')).toHaveValue('Colecionador Kurio')
+  await expect(page.getByLabel('Nome de exibição')).toHaveValue(
+    'Colecionador Kurio'
+  )
 })
 
 test('um único salvar atualiza avatar e senha', async ({ page }) => {
   await login(page)
   await page.goto('/profile')
   await page.getByLabel('Apelido da carteira').fill('Minha carteira')
-  await page.getByLabel('Selecionar avatar').setInputFiles({ name: 'avatar.png', mimeType: 'image/png', buffer: Buffer.from('89504e470d0a1a0a', 'hex') })
+  await page
+    .getByLabel('Selecionar avatar')
+    .setInputFiles({
+      name: 'avatar.png',
+      mimeType: 'image/png',
+      buffer: Buffer.from('89504e470d0a1a0a', 'hex')
+    })
   await page.getByLabel('Senha atual').fill('kurio-demo')
   await page.getByLabel('Nova senha', { exact: true }).fill('nova-senha-123')
   await page.getByLabel('Confirmar nova senha').fill('nova-senha-123')
@@ -45,7 +58,9 @@ test('valida e salva carteira principal', async ({ page }) => {
   await page.getByLabel('E-mail').fill('demo@kurio.test')
   await page.getByLabel('Nome ENS').fill('demo')
   await page.getByRole('button', { name: 'Salvar carteira' }).click()
-  await expect(page.getByRole('status')).toHaveText('Carteira salva com sucesso.')
+  await expect(page.getByRole('status')).toHaveText(
+    'Carteira salva com sucesso.'
+  )
 })
 
 test('sair encerra a sessão imediatamente', async ({ page }) => {
@@ -53,5 +68,7 @@ test('sair encerra a sessão imediatamente', async ({ page }) => {
   await page.goto('/profile')
   await page.getByRole('button', { name: 'Sair' }).click()
   await expect.poll(() => new URL(page.url()).pathname).toBe('/')
-  await expect(page.getByRole('banner').getByRole('button', { name: 'Entrar' })).toBeVisible()
+  await expect(
+    page.getByRole('banner').getByRole('button', { name: 'Entrar' })
+  ).toBeVisible()
 })

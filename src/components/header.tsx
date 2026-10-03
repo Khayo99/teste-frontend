@@ -145,6 +145,7 @@ export function Header() {
             </span>
           </Button>
           <Button
+            data-auth-trigger
             className="hidden h-header-actions w-login-width place-items-center rounded-md bg-primary text-body-16-medium text-ink transition-colors hover:bg-primary-light sm:grid"
             variant="primary"
             onClick={() => {
@@ -177,7 +178,7 @@ export function Header() {
           <nav
             aria-label="Navegação móvel"
             aria-modal="true"
-            className="ml-auto flex h-full w-[min(86vw,340px)] flex-col gap-6 bg-surface-card p-6 shadow-2xl"
+            className="ml-auto flex h-full w-header-drawer-width flex-col gap-6 bg-surface-card p-6 shadow-2xl"
             id="mobile-navigation"
             role="dialog"
           >
@@ -206,6 +207,7 @@ export function Header() {
               </a>
             ))}
             <Button
+              data-auth-trigger
               className="mt-auto h-11 w-full"
               onClick={() => {
                 setMenuOpen(false)
