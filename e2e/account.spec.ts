@@ -52,6 +52,6 @@ test('sair encerra a sessão imediatamente', async ({ page }) => {
   await login(page)
   await page.goto('/profile')
   await page.getByRole('button', { name: 'Sair' }).click()
-  await expect(page).toHaveURL('/')
+  await expect.poll(() => new URL(page.url()).pathname).toBe('/')
   await expect(page.getByRole('banner').getByRole('button', { name: 'Entrar' })).toBeVisible()
 })

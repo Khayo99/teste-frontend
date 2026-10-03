@@ -28,3 +28,15 @@ test('searches the catalog through the URL', async ({ page }) => {
   await expect(page).toHaveURL(/search=Emerald(?:%20|\+)Ape/)
   await expect(page.locator('#mercado').getByText('Emerald Ape #042')).toBeVisible()
 })
+
+test('searches the catalog from the mobile explore collections control', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/')
+
+  await page.getByRole('button', { name: 'Explorar coleções' }).click()
+  await page.getByRole('textbox', { name: 'Buscar NFTs' }).fill('Emerald Ape')
+  await page.getByRole('button', { name: 'Pesquisar' }).click()
+
+  await expect(page).toHaveURL(/search=Emerald(?:%20|\+)Ape/)
+  await expect(page.locator('#mercado').getByText('Emerald Ape #042')).toBeVisible()
+})

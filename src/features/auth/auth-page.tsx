@@ -5,11 +5,6 @@ import { useEffect, useState } from 'react'
 import { login, register, type AuthApiError } from './api/auth-api'
 import { useAuthStore } from './auth-store'
 import { loginSchema, registerSchema } from './lib/auth-validation'
-import googleGreen from '@/assets/auth/asset-5.svg'
-import googleBlue from '@/assets/auth/asset-6.svg'
-import googleYellow from '@/assets/auth/asset-7.svg'
-import googleBlueDark from '@/assets/auth/asset-8.svg'
-import googleOrange from '@/assets/auth/asset-13.svg'
 import facebookIcon from '@/assets/auth/asset-9.svg'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -85,60 +80,42 @@ export function AuthPage({ mode, background = true, onClose, returnTo }: { mode:
     <>
       {background && <HomePage />}
       <div
-        className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/10 px-4 py-8 sm:py-[8vh]"
+        className="auth-backdrop fixed inset-0 z-50 flex items-start justify-center overflow-y-auto px-4 py-6 sm:py-8"
         role="presentation"
         onMouseDown={event => {
           if (event.target === event.currentTarget) close()
         }}
       >
         <section
-          className="relative flex h-[600px] w-full max-w-[500px] flex-col overflow-hidden bg-surface-card shadow-2xl shadow-black/50"
+          className="auth-card relative flex w-full max-w-[365px] flex-col overflow-hidden"
           role="dialog"
           aria-modal="true"
           aria-labelledby="auth-title"
         >
-          <Button
-            aria-label="Fechar autenticação"
-            className="absolute right-3 top-3 z-10 grid size-6 place-items-center p-0"
-            variant="ghost"
-            type="button"
-            onClick={close}
-          >
-            <X className="size-[18px]" />
-          </Button>
-          <div className="shrink-0 px-12 pb-0 pt-12 text-center">
-            <div className="flex justify-center gap-2 text-xl leading-4 font-medium">
-              <Link
-                className={
-                  isRegister ? 'text-text-primary' : 'text-text-accent'
-                }
-                to="/login"
-                search={{ returnTo: search.returnTo }}
-              >
-                Entrar
-              </Link>
-              <span className="text-text-coral">|</span>
-              <Link
-                className={
-                  isRegister ? 'text-text-accent' : 'text-text-primary'
-                }
-                to="/register"
-                search={{ returnTo: search.returnTo }}
-              >
-                Criar conta
-              </Link>
-            </div>
+          {onClose && (
+            <Button
+              aria-label="Fechar autenticação"
+              className="auth-close absolute right-3 top-3 z-10 grid size-7 place-items-center p-0"
+              variant="ghost"
+              type="button"
+              onClick={close}
+            >
+              <X className="size-[18px]" />
+            </Button>
+          )}
+          <div className="auth-header shrink-0 text-center">
+            <p className="auth-logo" aria-label="Kurio">KURIO</p>
             <h1 id="auth-title" className="sr-only">
               {isRegister ? 'Criar conta' : 'Entrar'}
             </h1>
-            <p className="mt-10 text-[13px] leading-4 text-text-primary">
+            <p className="auth-heading">
               {isRegister
-                ? 'Crie sua conta para explorar o marketplace.'
-                : 'Entre para gerenciar sua carteira, coleção e perfil de criador.'}
+                ? 'Criar perfil de colecionador'
+                : 'Entrar'}
             </p>
           </div>
           <form
-            className="space-y-3 px-20 pt-6"
+            className="auth-form"
             onSubmit={event => {
               event.preventDefault()
               mutation.mutate()
@@ -148,7 +125,7 @@ export function AuthPage({ mode, background = true, onClose, returnTo }: { mode:
             {errors.form && (
               <div
                 role="alert"
-                className="rounded border border-error bg-error/10 p-3 text-xs text-error"
+                className="auth-error"
               >
                 {errors.form}
               </div>
@@ -192,7 +169,7 @@ export function AuthPage({ mode, background = true, onClose, returnTo }: { mode:
             )}
             {!isRegister && (
               <Button
-                className="-mt-1 block h-auto w-full p-0 text-right text-[10px] hover:underline"
+                className="auth-forgot block h-auto w-full p-0 text-right hover:underline"
                 variant="ghost"
                 type="button"
               >
@@ -200,7 +177,7 @@ export function AuthPage({ mode, background = true, onClose, returnTo }: { mode:
               </Button>
             )}
             <Button
-              className="mt-3 h-[45px] w-full text-base font-bold leading-4"
+              className="auth-submit w-full font-bold"
               disabled={mutation.isPending}
               type="submit"
             >
@@ -211,20 +188,25 @@ export function AuthPage({ mode, background = true, onClose, returnTo }: { mode:
                   : 'Entrar'}
             </Button>
           </form>
-          <div className="mt-6 flex flex-col gap-3">
-            <div className="flex items-center gap-3 px-6">
-              <span className="h-px flex-1 bg-border" />
-              <p className="text-[13px] leading-4 text-text-primary">
+          <div className="auth-socials">
+            <div className="auth-divider">
+              <span />
+              <p>
                 Ou continue com
               </p>
-              <span className="h-px flex-1 bg-border" />
+              <span />
             </div>
-            <div className="flex flex-col gap-3 px-20">
+            <div className="auth-social-buttons">
               <SocialButton provider="Google" />
               <SocialButton provider="Facebook" />
             </div>
           </div>
-          <div className="mt-auto h-[10px] shrink-0 bg-primary" />
+          <p className="auth-switch">
+            {isRegister ? 'Já tem uma conta? ' : 'Novo na Kurio? '}
+            <Link to={isRegister ? '/login' : '/register'} search={{ returnTo: search.returnTo }}>
+              {isRegister ? 'Entre' : 'Crie uma conta'}
+            </Link>
+          </p>
         </section>
       </div>
     </>
@@ -256,6 +238,7 @@ function Field({
       </label>
       <div className="relative">
         <Input
+          className="auth-input"
           id={id}
           name={id}
           type={type}
@@ -284,7 +267,7 @@ function Field({
 function SocialButton({ provider }: { provider: 'Google' | 'Facebook' }) {
   return (
     <Button
-      className="h-10 w-full gap-3 text-[13px] leading-4"
+      className="auth-social-button w-full gap-3"
       variant="outline"
       type="button"
     >
@@ -300,12 +283,11 @@ function SocialButton({ provider }: { provider: 'Google' | 'Facebook' }) {
 
 function GoogleIcon() {
   return (
-    <span aria-hidden="true" className="relative block size-5">
-      <img alt="" className="absolute bottom-0 left-[1px]" src={googleGreen} />
-      <img alt="" className="absolute left-1/2 top-[7px]" src={googleBlue} />
-      <img alt="" className="absolute left-0 top-[5px]" src={googleYellow} />
-      <img alt="" className="absolute right-0 top-[7px]" src={googleBlueDark} />
-      <img alt="" className="absolute left-[1px] top-0" src={googleOrange} />
-    </span>
+    <svg aria-hidden="true" className="size-5" viewBox="0 0 48 48">
+      <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6L40.1 6.2C35.93 2.3 30.42 0 24 0 14.62 0 6.51 5.38 2.56 13.22l8.01 6.22C12.46 13.72 17.78 9.5 24 9.5Z" />
+      <path fill="#4285F4" d="M46.98 24.55c0-1.64-.15-3.22-.42-4.73H24v9.2h12.91c-.58 2.96-2.26 5.47-4.8 7.15l7.73 6c4.51-4.18 7.14-10.36 7.14-17.62Z" />
+      <path fill="#FBBC05" d="M10.57 28.56A14.45 14.45 0 0 1 9.8 24c0-1.58.27-3.11.77-4.56l-8.01-6.22A23.94 23.94 0 0 0 0 24c0 3.86.92 7.53 2.56 10.78l8.01-6.22Z" />
+      <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.9-5.81l-7.73-6c-2.13 1.43-4.86 2.28-8.17 2.28-6.22 0-11.54-4.22-13.43-9.91l-8.01 6.22C6.51 42.62 14.62 48 24 48Z" />
+    </svg>
   )
 }

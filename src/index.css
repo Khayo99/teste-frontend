@@ -6,6 +6,46 @@
 
 @keyframes checkout-shimmer { to { transform: translateX(100%); } }
 
+/* Authentication uses a full-screen compact panel on mobile and a modal on
+   larger viewports. */
+.auth-backdrop { background: #211f1f; }
+.auth-card { min-height: min(789px, calc(100dvh - 48px)); border-radius: 37px; background: var(--color-ink); box-shadow: 0 20px 48px rgb(0 0 0 / 24%); }
+.auth-close { color: var(--color-text-secondary); }
+.auth-header { padding: 116px 24px 0; }
+.auth-logo { margin: 0; color: var(--color-foreground); font-size: 28px; font-weight: 700; letter-spacing: .13em; line-height: 1; }
+.auth-heading { margin: 77px 0 0; color: var(--color-foreground); font-size: 16px; font-weight: 700; line-height: 20px; }
+.auth-form { display: grid; gap: 10px; padding: 31px 25px 0; }
+.auth-input { height: 44px; border-color: var(--color-border); border-radius: 8px; padding: 12px 14px; color: var(--color-text-primary); font-size: 12px; }
+.auth-input:focus { border-color: var(--color-primary); }
+.auth-error { border: 1px solid var(--color-error); border-radius: 6px; background: rgb(237 27 46 / 10%); padding: 8px 10px; color: var(--color-error); font-size: 10px; }
+.auth-forgot { margin-top: -1px; color: var(--color-text-accent); font-size: 11px; line-height: 18px; }
+.auth-submit { height: 54px; margin-top: 24px; border-radius: 9px; font-size: 14px; line-height: 16px; }
+.auth-socials { display: grid; gap: 14px; padding: 38px 25px 0; }
+.auth-divider { display: flex; align-items: center; gap: 9px; }
+.auth-divider span { height: 1px; flex: 1; background: var(--color-border); }
+.auth-divider p { margin: 0; color: var(--color-text-primary); font-size: 10px; line-height: 14px; white-space: nowrap; }
+.auth-social-buttons { display: grid; gap: 13px; }
+.auth-social-button { height: 36px; border-radius: 5px; color: var(--color-text-secondary); font-size: 11px; line-height: 14px; }
+.auth-social-button img { width: 17px; height: 17px; }
+.auth-switch { margin: auto 0 22px; padding: 0 24px; color: var(--color-text-secondary); font-size: 12px; line-height: 18px; text-align: center; }
+.auth-switch a { color: var(--color-text-secondary); text-decoration: none; }
+.auth-switch a:hover { color: var(--color-text-accent); text-decoration: underline; }
+
+@media (min-width: 640px) {
+  .auth-backdrop { align-items: center; padding: 32px; background: rgb(0 0 0 / 64%); }
+  .auth-card { width: min(100%, 500px); max-width: 500px; min-height: 656px; height: 656px; border-radius: 8px; background: var(--color-surface-card); box-shadow: 0 24px 60px rgb(0 0 0 / 52%); }
+  .auth-header { padding: 58px 48px 0; }
+  .auth-heading { margin-top: 40px; }
+  .auth-form { padding: 26px 80px 0; }
+  .auth-socials { padding: 24px 80px 0; }
+  .auth-switch { margin-bottom: 20px; }
+}
+
+@media (max-width: 420px) {
+  .auth-backdrop { padding: 0; }
+  .auth-card { min-height: 100dvh; border-radius: 0; }
+}
+
 .checkout-page { margin-top: -56px; min-width: 0; }
 .checkout-breadcrumb { margin: 0 0 16px; font-size: 15px; font-weight: 700; line-height: 16px; }
 .checkout-grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(340px, 1fr); gap: 32px; }
@@ -45,10 +85,24 @@
 .receipt-skeleton { display: grid; gap: 6px; }
 .receipt-skeleton span { position: relative; display: block; height: 52px; overflow: hidden; background: var(--color-surface-card); }
 .receipt-skeleton span::after { position: absolute; inset: 0 auto 0 -80%; width: 60%; content: ''; background: linear-gradient(90deg, transparent, rgb(245 241 235 / 10%), transparent); animation: checkout-shimmer 1.2s infinite; }
-.checkout-result { max-width: 520px; margin: -56px auto 80px; border: 1px solid var(--color-border); padding: 32px; background: var(--color-surface-card); }
+.checkout-result { width: min(100%, 520px); max-width: 520px; margin: -56px auto 80px; border: 1px solid var(--color-border); padding: 32px; background: var(--color-surface-card); }
+.checkout-result h1 { margin: 0; color: var(--color-foreground); font-size: 24px; line-height: 32px; }
+.checkout-result-description { margin: 10px 0 0; color: var(--color-text-secondary); line-height: 24px; }
+.checkout-result-identifiers { display: grid; gap: 12px; margin: 20px 0; }
+.checkout-result-identifiers div { display: grid; gap: 4px; }
+.checkout-result-identifiers dt { color: var(--color-text-secondary); font-size: 13px; }
+.checkout-result-identifiers dd { min-width: 0; margin: 0; overflow-wrap: anywhere; color: var(--color-foreground); font-size: 15px; line-height: 22px; }
 .checkout-result-link { display: inline-block; margin-top: 20px; color: var(--color-text-accent); }
 @media (prefers-reduced-motion: reduce) { .receipt-skeleton span::after { animation: none; } }
 @media (max-width: 767px) { .checkout-page { margin-top: -56px; } .checkout-grid { grid-template-columns: 1fr; } .checkout-fields { grid-template-columns: 1fr; gap: 12px; } .checkout-summary { order: -1; } .receipt-line { grid-template-columns: 44px minmax(0, 1fr) auto; } .receipt-line b { grid-column: 3; } }
+
+@media (max-width: 639px) {
+  .checkout-result { width: calc(100% + 32px); margin: 0 -16px; padding: 32px 28px 48px; border-right: 0; border-left: 0; }
+  .checkout-result h1 { font-size: 22px; line-height: 30px; }
+  .checkout-result-identifiers { margin: 22px 0; }
+  .checkout-result .checkout-totals { margin-top: 26px; }
+  .checkout-result .checkout-totals div { gap: 8px; font-size: 14px; }
+}
 
 /* Keeps the unlabeled secondary-wallet input on the baseline of the address
    input beside it, as specified by the desktop wallet frame. */

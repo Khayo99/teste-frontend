@@ -46,4 +46,8 @@ export function startSessionRealtime(token: string) {
 }
 // Resource hooks unregister their own listeners on unmount. Keeping the cache
 // synchronizer installed makes a subsequent login safe without duplicating it.
-export function endSessionRealtime() { versions.clear(); if (realtimeClient.connected) realtimeClient.disconnect(); realtimeClient.auth = {} }
+export function endSessionRealtime() {
+  versions.clear()
+  if (realtimeClient.connected) realtimeClient.disconnect()
+  realtimeClient.auth = {}
+}

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import type {
   CatalogCategory,
@@ -15,17 +15,34 @@ import { NftCard } from '@/features/catalog/components/nft-card'
 import { getCatalogNfts } from '@/features/catalog/api/catalog-api'
 import { filterCatalog } from '@/features/catalog/lib/filter-catalog'
 import toolbarUnderline from '@/assets/catalog/toolbar-underline.svg'
-import { ChevronDown } from 'lucide-react'
+import mobileArtworkOne from '@/assets/home/mobile-nft-01.png'
+import mobileArtworkTwo from '@/assets/home/mobile-nft-02.png'
+import mobileArtworkThree from '@/assets/home/mobile-nft-03.png'
+import mobileArtworkFour from '@/assets/home/mobile-nft-04.png'
+import { ChevronDown, SlidersHorizontal, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Select } from '@/components/ui/select'
 import { queryKeys } from '@/lib/query-keys'
 
 const pageSize = 9
+const mobileArtwork = [
+  mobileArtworkOne,
+  mobileArtworkTwo,
+  mobileArtworkThree,
+  mobileArtworkFour
+]
 
 export function HomeCatalog() {
   const search = useSearch({ from: '/' })
   const navigate = useNavigate({ from: '/' })
   const [isRetrying, setIsRetrying] = useState(false)
+  const [filtersOpen, setFiltersOpen] = useState(false)
+
+  useEffect(() => {
+    const openFilters = () => setFiltersOpen(true)
+    window.addEventListener('kurio:open-catalog-filters', openFilters)
+    return () => window.removeEventListener('kurio:open-catalog-filters', openFilters)
+  }, [])
   const query = useMemo<CatalogQuery>(
     () => ({
       category: search.category,
@@ -135,7 +152,7 @@ export function HomeCatalog() {
   }
 
   return (
-    <section className="flex gap-12" id="mercado">
+    <section className="mt-6 mb-12 flex gap-12 md:mt-0 md:mb-0" id="mercado">
       <div className="hidden w-catalog-sidebar-width shrink-0 flex-col gap-4 lg:flex">
         <CatalogFilters
           categoryCounts={categoryCounts}
@@ -145,9 +162,9 @@ export function HomeCatalog() {
         <FeaturedNftBanner />
       </div>
       <div className="min-w-0 flex-1 xl:w-catalog-grid-width xl:flex-none">
-        <div className="relative mb-8 flex h-catalog-toolbar-height flex-col justify-between gap-4 text-body-15-medium sm:flex-row sm:items-start">
+        <div className="relative mb-6 flex flex-col gap-4 text-body-15-medium sm:mb-8 sm:min-h-catalog-toolbar-height sm:flex-row sm:items-start sm:justify-between">
           <div
-            className="relative flex gap-5"
+            className="relative -mx-1 flex max-w-full gap-8 overflow-x-auto px-1 pb-1"
             role="tablist"
             aria-label="Visualização do catálogo"
           >
@@ -158,7 +175,7 @@ export function HomeCatalog() {
             ].map(([tab, label]) => (
               <Button
                 aria-selected={activeTab === tab}
-                className={`relative whitespace-nowrap ${activeTab === tab ? 'text-text-accent' : 'text-foreground transition-colors hover:text-text-accent'} ${activeTab === tab && tab !== 'all' ? 'after:absolute after:left-0 after:top-[23px] after:h-0.5 after:w-full after:bg-text-accent' : ''}`}
+                className={`relative shrink-0 whitespace-nowrap text-[14px] ${activeTab === tab ? 'text-text-accent' : 'text-foreground transition-colors hover:text-text-accent'} ${activeTab === tab && tab !== 'all' ? 'after:absolute after:left-0 after:top-[23px] after:h-0.5 after:w-full after:bg-text-accent' : ''}`}
                 key={tab}
                 onClick={() => handleTabChange(tab as CatalogTab)}
                 role="tab"
@@ -176,12 +193,22 @@ export function HomeCatalog() {
               </Button>
             ))}
           </div>
-          <div className="relative h-[18px] w-[300px] shrink-0 text-body-15 text-foreground">
+          <div className="hidden items-center justify-between gap-3 sm:flex sm:w-[300px] sm:shrink-0">
+            <Button
+              aria-expanded={filtersOpen}
+              className="h-9 gap-2 px-3 lg:hidden"
+              onClick={() => setFiltersOpen(true)}
+              type="button"
+              variant="outline"
+            >
+              <SlidersHorizontal aria-hidden="true" className="size-4" /> Filtros
+            </Button>
+          <div className="relative h-[18px] min-w-0 flex-1 text-body-15 text-foreground">
             <label className="absolute left-0 top-0" htmlFor="catalog-sort">
               Ordenar por:
             </label>
             <Select
-              className="absolute left-[110px] top-0 w-[190px] appearance-none truncate bg-transparent pl-0 pr-5 text-left text-foreground outline-none"
+              className="absolute left-[110px] top-0 w-[calc(100%-110px)] appearance-none truncate bg-transparent pl-0 pr-5 text-left text-foreground outline-none"
               id="catalog-sort"
               onChange={event =>
                 handleQueryChange({
@@ -201,16 +228,17 @@ export function HomeCatalog() {
                 Maior preço
               </option>
             </Select>
-            <span className="pointer-events-none absolute left-[278px] top-[2px] flex size-4 items-center justify-center">
+            <span className="pointer-events-none absolute right-0 top-[2px] flex size-4 items-center justify-center">
               <ChevronDown aria-hidden="true" size={11} strokeWidth={1.5} />
             </span>
           </div>
+          </div>
         </div>
         {isLoading && !isRetrying ? (
-          <div className="grid grid-cols-3 gap-8" aria-label="Carregando NFTs">
+          <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3" aria-label="Carregando NFTs" role="status">
             {Array.from({ length: 9 }, (_, index) => (
               <div
-                className="h-card-visual-height animate-pulse rounded-2xl bg-surface-card"
+                className="skeleton h-[200px] rounded-2xl sm:h-card-visual-height"
                 key={index}
               />
             ))}
@@ -233,9 +261,9 @@ export function HomeCatalog() {
             </Button>
           </div>
         ) : tabbedNfts.length > 0 ? (
-          <div className="grid grid-cols-1 gap-y-catalog-row-gap sm:grid-cols-2 sm:gap-x-8 lg:grid-cols-catalog lg:justify-between">
-            {paginatedNfts.map(nft => (
-              <NftCard key={nft.id} nft={nft} />
+          <div className="home-catalog-grid grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-2 sm:gap-x-8 sm:gap-y-catalog-row-gap lg:grid-cols-catalog lg:justify-between">
+            {paginatedNfts.map((nft, index) => (
+              <NftCard key={nft.id} mobileImage={mobileArtwork[index % mobileArtwork.length]} nft={nft} />
             ))}
           </div>
         ) : (
@@ -252,6 +280,14 @@ export function HomeCatalog() {
           />
         </div>
       </div>
+      {filtersOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 p-4 lg:hidden" onMouseDown={event => { if (event.target === event.currentTarget) setFiltersOpen(false) }}>
+          <aside aria-label="Filtros do catálogo" aria-modal="true" className="ml-auto h-full max-w-[310px] overflow-y-auto bg-surface-card shadow-2xl" role="dialog">
+            <div className="flex justify-end p-3"><Button aria-label="Fechar filtros" className="size-9 p-0" onClick={() => setFiltersOpen(false)} type="button" variant="ghost"><X className="size-5" /></Button></div>
+            <CatalogFilters categoryCounts={categoryCounts} onChange={handleQueryChange} query={query} />
+          </aside>
+        </div>
+      )}
     </section>
   )
 }

@@ -3,15 +3,15 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import type { NftCardProps } from "@/@types/catalog";
 import { Button } from "@/components/ui/button";
 
-export function NftCard({ nft }: NftCardProps) {
+export function NftCard({ mobileImage, nft }: NftCardProps) {
   const navigate = useNavigate();
   const goToDetail = () =>
     void navigate({ to: "/nft/$nftId", params: { nftId: nft.id } });
 
   return (
-    <article className="group min-w-0 xl:w-card-width">
+    <article className="group min-w-0">
       <div
-        className="relative flex h-card-visual-height cursor-pointer items-center justify-center overflow-hidden rounded-2xl bg-surface-card"
+        className="relative flex h-[200px] cursor-pointer items-center justify-center overflow-hidden rounded-2xl bg-surface-card sm:h-card-visual-height"
         onClick={goToDetail}
         onKeyDown={(event) => {
           if (event.key === "Enter" || event.key === " ") goToDetail();
@@ -20,11 +20,14 @@ export function NftCard({ nft }: NftCardProps) {
         tabIndex={0}
         aria-label={`Ver ${nft.name} ${nft.tokenId}`}
       >
-        <img
-          alt={`NFT ${nft.name} ${nft.tokenId}`}
-          className="size-card-artwork rounded-2xl object-cover transition duration-300 group-hover:scale-card-hover"
-          src={nft.image}
-        />
+        <picture className="size-[calc(100%-8px)] sm:size-card-artwork">
+          {mobileImage && <source media="(max-width: 639px)" srcSet={mobileImage} />}
+          <img
+            alt={`NFT ${nft.name} ${nft.tokenId}`}
+            className="size-full rounded-2xl object-cover transition duration-300 group-hover:scale-card-hover"
+            src={nft.image}
+          />
+        </picture>
         {nft.rarity && (
           <span className="absolute left-0 top-0 bg-primary px-3 py-1 text-caption-bold uppercase text-ink">
             {nft.rarity}
@@ -64,13 +67,13 @@ export function NftCard({ nft }: NftCardProps) {
         </div>
       </div>
       <Link
-        className="mt-3 block text-body-16-compact text-text-primary hover:text-text-accent"
+        className="mt-2 block pl-2 text-[15px] leading-normal text-text-primary hover:text-text-accent sm:mt-3 sm:pl-0 sm:text-body-16-compact"
         params={{ nftId: nft.id }}
         to="/nft/$nftId"
       >
         {nft.name} {nft.tokenId}
       </Link>
-      <p className="mt-3 text-body-18-bold-compact text-text-accent">
+      <p className="mt-1 pl-2 text-[16px] font-bold leading-4 text-text-accent sm:mt-3 sm:pl-0 sm:text-body-18-bold-compact">
         {nft.priceEth} ETH
       </p>
     </article>

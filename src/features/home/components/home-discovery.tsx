@@ -60,15 +60,15 @@ export function HomeDiscovery() {
       <div className="grid gap-6 lg:grid-cols-2">
         {promotions.map(promotion => (
           <article
-            className="relative flex min-h-promotion-card overflow-hidden rounded-xl bg-surface-card"
+            className="relative flex flex-col overflow-hidden rounded-xl bg-surface-card sm:min-h-promotion-card sm:flex-row"
             key={promotion.title}
           >
             <img
               alt=""
-              className="w-promotion-artwork shrink-0 object-cover"
+              className="aspect-[4/3] w-full object-cover sm:aspect-auto sm:w-promotion-artwork sm:shrink-0"
               src={promotion.image}
             />
-            <div className="flex flex-1 flex-col items-end justify-center px-7 py-6 text-right">
+            <div className="flex flex-1 flex-col items-start justify-center px-6 py-6 text-left sm:items-end sm:px-7 sm:text-right">
               <h2 className="max-w-promotion-copy text-body-16-bold-compact text-text-primary">
                 {promotion.title}
               </h2>

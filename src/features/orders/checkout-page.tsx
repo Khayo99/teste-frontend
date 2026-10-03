@@ -196,4 +196,19 @@ function OrderConfirmationModal({ order, items, onClose, onExplore }: { order: O
   const transaction = order.transactionReference ?? order.id
   return <div className="order-confirmation-backdrop"><section className="order-confirmation-modal" role="dialog" aria-modal="true" aria-labelledby="order-confirmation-title"><button ref={closeButton} type="button" className="order-confirmation-close" aria-label="Fechar confirmação" onClick={onClose}><img src={modalCloseIcon} alt="" /></button><header className="order-confirmation-header"><img className="order-confirmation-icon" src={modalConfirmationIcon} alt="" /><h1 id="order-confirmation-title">Seus NFTs agora estão na sua carteira</h1></header><div className="order-confirmation-meta"><span>ID da transação<br /><strong>{transaction.slice(0, 6)}…{transaction.slice(-4)}</strong></span><span>Data<br /><strong>{receiptDate(order.createdAt)}</strong></span><span>Total<br /><strong>{receiptCurrency(order.receipt.totals.totalEth)}</strong></span><span>Wallet<br /><strong>MetaMask</strong></span></div><div className="order-confirmation-details"><h2>Detalhes da transação</h2><div className="order-confirmation-columns"><span>NFTs</span><span>Edições</span><span>Subtotal</span></div><div className="order-confirmation-items">{items.map(item => { const quoted = order.receipt.items.find(line => line.id === item.id && line.editionId === item.editionId); return <article key={`${item.id}-${item.editionId}`} className="order-confirmation-item"><img src={item.image} alt={`Arte ${item.name}`} /><div><strong>{item.name}</strong><small>ID do token: {item.tokenId}</small></div><span>x {quoted?.quantity ?? item.quantity}</span><b>{receiptCurrency(Number(quoted?.priceEth ?? item.priceEth) * (quoted?.quantity ?? item.quantity))}</b></article> })}</div><dl className="order-confirmation-totals"><div><dt>Taxa de rede</dt><dd>{receiptCurrency(order.receipt.totals.networkFeeEth)}</dd></div><div><dt>Total</dt><dd>{receiptCurrency(order.receipt.totals.totalEth)}</dd></div></dl></div><footer className="order-confirmation-footer"><p>Transação confirmada na Ethereum. Acompanhe os detalhes pelo explorador.</p><Button type="button" onClick={onExplore}>Ver no Etherscan</Button></footer></section></div>
 }
-function OrderState({ order, onRetry }: { order: Order; onRetry: () => void }) { const confirmed = order.status === 'confirmed'; return <main className="checkout-result"><h1>{confirmed ? 'Pedido confirmado' : order.status === 'declined' ? 'Pagamento recusado' : 'Pedido pendente'}</h1><p>{order.reason ?? (confirmed ? 'Sua transação simulada foi confirmada.' : 'Estamos recuperando o status da sua compra.')}</p><p>Pedido: {order.id}</p>{order.transactionReference && <p>Transação: {order.transactionReference}</p>}<Totals quote={order.receipt} />{confirmed ? <Link to="/orders" className="checkout-result-link">Ver pedidos</Link> : <Button onClick={onRetry}>Tentar novamente</Button>}</main> }
+function OrderState({ order, onRetry }: { order: Order; onRetry: () => void }) {
+  const confirmed = order.status === 'confirmed'
+  const title = confirmed ? 'Pedido confirmado' : order.status === 'declined' ? 'Pagamento recusado' : 'Pedido pendente'
+  const description = order.reason ?? (confirmed ? 'Sua transação simulada foi confirmada.' : 'Estamos recuperando o status da sua compra.')
+
+  return <main className="checkout-result" aria-labelledby="checkout-result-title">
+    <h1 id="checkout-result-title">{title}</h1>
+    <p className="checkout-result-description">{description}</p>
+    <dl className="checkout-result-identifiers">
+      <div><dt>Pedido</dt><dd>{order.id}</dd></div>
+      {order.transactionReference && <div><dt>Transação</dt><dd>{order.transactionReference}</dd></div>}
+    </dl>
+    <Totals quote={order.receipt} />
+    {confirmed ? <Link to="/orders" className="checkout-result-link">Ver pedidos</Link> : <Button onClick={onRetry}>Tentar novamente</Button>}
+  </main>
+}

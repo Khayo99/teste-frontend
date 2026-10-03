@@ -25,13 +25,13 @@ export function NftDetailPage() {
   if (isLoading) {
     return (
       <div className="flex flex-col gap-8" aria-label="Carregando NFT">
-        <div className="h-5 w-48 animate-pulse rounded bg-surface-card" />
+        <div className="skeleton h-5 w-48 rounded" />
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
-          <div className="aspect-square animate-pulse rounded-2xl bg-surface-card" />
+          <div className="skeleton aspect-square rounded-2xl" />
           <div className="flex flex-col gap-4">
-            <div className="h-8 w-2/3 animate-pulse rounded bg-surface-card" />
-            <div className="h-24 animate-pulse rounded bg-surface-card" />
-            <div className="h-10 w-1/2 animate-pulse rounded bg-surface-card" />
+            <div className="skeleton h-8 w-2/3 rounded" />
+            <div className="skeleton h-24 rounded" />
+            <div className="skeleton h-10 w-1/2 rounded" />
           </div>
         </div>
       </div>
@@ -78,18 +78,18 @@ export function NftDetailPage() {
   }
 
   return (
-    <div className="flex flex-col gap-16">
-      <div className="flex flex-col gap-7">
+    <div className="flex flex-col gap-16 md:gap-16">
+      <div className="flex flex-col gap-7 md:gap-7">
         <nav
           aria-label="Trilha de navegação"
-          className="text-body-15 text-text-secondary"
+          className="hidden text-body-15 text-text-secondary md:block"
         >
           <Link className="hover:text-text-primary" to="/">
             Início
           </Link>{" "}
           / Mercado
         </nav>
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-0 md:gap-12 lg:grid-cols-2">
           <NftGallery
             gallery={nft.gallery}
             name={`${nft.name} ${nft.tokenId}`}
@@ -97,8 +97,8 @@ export function NftDetailPage() {
           <NftPurchasePanel key={nft.id} nft={nft} />
         </div>
       </div>
-      <NftInfoTabs nft={nft} />
-      <RelatedNftsCarousel relatedNfts={nft.relatedNfts} />
+      <div className="hidden md:block"><NftInfoTabs nft={nft} /></div>
+      <div className="hidden md:block"><RelatedNftsCarousel relatedNfts={nft.relatedNfts} /></div>
     </div>
   );
 }

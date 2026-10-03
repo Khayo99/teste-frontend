@@ -241,6 +241,12 @@ selecionar um deles, confirmando a navegação para a tela de detalhes desse ite
       encontrado).
 - [ ] T039 Rodar `npm run typecheck`, `npm run lint`, `npm run build` e `npm run test:e2e`, corrigindo
       quaisquer falhas antes de considerar a feature concluída.
+- [X] T040 [US1] Implementar a composição do frame mobile `15:5536` em
+      `src/features/nft-detail/{nft-detail-page.tsx,components/nft-gallery.tsx,components/nft-purchase-panel.tsx}`:
+      hero com ações sobrepostas, details sheet e barra de compra fixa; salvar e usar os assets locais
+      em `src/assets/nft-detail/mobile/`.
+- [X] T041 [US1] Adicionar a cobertura mobile de hero, CTA e ajuste de quantidade em
+      `e2e/nft-detail-mobile.spec.ts`.
 
 ---
 

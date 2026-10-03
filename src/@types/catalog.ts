@@ -48,5 +48,6 @@ export type CatalogFiltersProps = {
 }
 
 export type NftCardProps = {
+  mobileImage?: string
   nft: Nft
 }

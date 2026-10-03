@@ -215,7 +215,38 @@ html {
 
 body {
   margin: 0;
-  min-width: var(--spacing-viewport-min);
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-surface-card);
+}
+
+.skeleton::after {
+  position: absolute;
+  inset: 0 auto 0 -80%;
+  width: 60%;
+  content: '';
+  background: linear-gradient(90deg, transparent, rgb(245 241 235 / 12%), transparent);
+  animation: skeleton-shimmer 1.2s infinite;
+}
+
+@keyframes skeleton-shimmer {
+  to { transform: translateX(300%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; }
+  .skeleton::after { animation: none; }
+}
+
+@media (max-width: 639px) {
+  .home-catalog-grid > article:nth-child(even) {
+    margin-top: 32px;
+  }
 }
 
 button,

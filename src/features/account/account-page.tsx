@@ -124,12 +124,14 @@ function AccountSidebar({ section }: { section: 'profile' | 'wallets' }) {
       <div className="mt-1 border-t border-border" />
       <Button
         variant="ghost"
+        type="button"
         className="mt-1 flex h-10 w-full justify-start gap-2 px-4 text-body-15-bold-list"
         onClick={() => {
           const currentToken = token
-          clear()
-          void navigate({ to: '/' })
-          if (currentToken) void logout(currentToken).catch(() => undefined)
+          void navigate({ to: '/' }).then(() => {
+            clear()
+            if (currentToken) void logout(currentToken).catch(() => undefined)
+          })
         }}
       >
         <LogOut className="size-5" />
