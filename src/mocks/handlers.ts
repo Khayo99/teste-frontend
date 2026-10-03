@@ -358,12 +358,16 @@ function sessionResponse(token: string, user: User) {
 function bearer(request: Request) {
   return request.headers.get('Authorization')?.replace('Bearer ', '')
 }
-function activeUser(request: Request) {
+function requireSession(request: Request) {
   loadSessions()
   const token = bearer(request)
   const session = token ? sessions.get(token) : undefined
   if (!session || new Date(session.expiresAt) <= mockNow()) return undefined
-  return readUsers().find(user => user.id === session.userId)
+  const user = readUsers().find(candidate => candidate.id === session.userId)
+  return user ? { token, session, user } : undefined
+}
+function activeUser(request: Request) {
+  return requireSession(request)?.user
 }
 function profileFor(user: User): Profile {
   const existing = profiles.get(user.id)
@@ -972,10 +976,14 @@ export const handlers = [
         { message: 'Revise os dados do colecionador e da carteira.' },
         { status: 400 }
       )
+    const normalizedItems = [...(body.items ?? [])]
+      .map(line => ({ id: line.id, editionId: line.editionId, quantity: line.quantity }))
+      .sort((a, b) => `${a.id}:${a.editionId}`.localeCompare(`${b.id}:${b.editionId}`))
     const fingerprint = JSON.stringify({
-      items: body.items,
-      coupon: body.coupon ?? null,
-      checkout: body.checkout
+      items: normalizedItems,
+      coupon: body.coupon?.trim().toUpperCase() ?? null,
+      checkout: body.checkout,
+      quote: body.quote
     })
     const previous = ordersFor(user.id).find(
       order => order.idempotencyKey === idempotencyKey
@@ -998,6 +1006,8 @@ export const handlers = [
       liveItems.some(
         line =>
           !line.nft ||
+          !line.editionId ||
+          !Number.isInteger(line.quantity) ||
           line.quantity < 1 ||
           line.quantity > line.nft.availability
       )
@@ -1015,10 +1025,18 @@ export const handlers = [
       body.coupon?.toUpperCase() === 'KURIO10'
         ? subtotal.mul('0.10')
         : new Decimal(0)
+    if (body.coupon && body.coupon.trim().toUpperCase() !== 'KURIO10')
+      return HttpResponse.json({ message: 'Código promocional inválido ou expirado.' }, { status: 422 })
+    const networkFee = subtotal.isZero() ? new Decimal(0) : new Decimal('0.016')
     const total = subtotal
       .minus(discount)
-      .plus(subtotal.isZero() ? 0 : '0.016')
+      .plus(networkFee)
       .toFixed(18)
+    const canonicalQuote: CartQuote = {
+      items: liveItems.map(line => ({ id: line.id, editionId: line.editionId, quantity: line.quantity, priceEth: line.nft!.priceEth, availability: line.nft!.availability })),
+      coupon: discount.isZero() ? null : { code: body.coupon!.trim().toUpperCase(), discountEth: discount.toFixed(18) },
+      totals: { subtotalEth: subtotal.toFixed(18), discountEth: discount.toFixed(18), networkFeeEth: networkFee.toFixed(18), totalEth: total }
+    }
     if (!body.quote || body.quote.totals.totalEth !== total)
       return HttpResponse.json(
         {
@@ -1038,7 +1056,7 @@ export const handlers = [
       userId: user.id,
       status,
       version: 1,
-      receipt: body.quote,
+      receipt: canonicalQuote,
       createdAt: mockNow().toISOString(),
       reason:
         status === 'declined'

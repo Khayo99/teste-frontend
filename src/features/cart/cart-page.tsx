@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import Decimal from 'decimal.js'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { Minus, Plus, Trash2, X } from 'lucide-react'
 import relatedApe from '@/assets/cart/related-ape.png'
@@ -115,6 +115,7 @@ function MobileCart({
 
 export function CartPage() {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const userId = useAuthStore(state => state.user?.id ?? null)
   const { items, coupon, removeCoupon, removeItem, replaceItems, setCoupon, syncNftUpdate, syncQuote, updateQuantity } = useCartStore()
   const [couponText, setCouponText] = useState('')
@@ -144,13 +145,16 @@ export function CartPage() {
       void cart.refetch()
     })
   }
-  const deleteItem = (id: string, editionId: string) => {
+  const deleteItem = async (id: string, editionId: string) => {
+    await queryClient.cancelQueries({ queryKey: queryKeys.cart(userId) })
     removeItem(id, editionId)
-    void removeCartLine(`${id}:${editionId}`).then(() => {
+    try {
+      const response = await removeCartLine(`${id}:${editionId}`)
+      replaceItems(response.items, response.coupon)
+      queryClient.setQueryData(queryKeys.cart(userId), response)
+    } catch {
       void cart.refetch()
-    }).catch(() => {
-      void cart.refetch()
-    })
+    }
   }
   const clearCoupon = () => {
     removeCoupon()

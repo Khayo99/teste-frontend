@@ -9,8 +9,8 @@
 
 ## Phase 2 — Session and cart (P1)
 
-- [ ] T005 Implement shared `requireSession` with expiry/revocation checks in `src/mocks/handlers.ts`.
-- [ ] T006 Add Axios 401 handling and checkout return/draft recovery in `src/lib/api.ts`, auth store, and router.
+- [x] T005 Implement shared `requireSession` with expiry/revocation checks in `src/mocks/handlers.ts`.
+- [x] T006 Add Axios 401 handling and checkout return/draft recovery in `src/lib/api.ts`, auth store, and router.
 - [x] T007 Add visitor/user cart REST handlers and scope persistence in `src/mocks/handlers.ts`.
 - [ ] T008 Replace cart authoritative Zustand mutations with Query-backed cart adapters and visitor-to-user merge.
 - [ ] T009 Add cart and merge E2E scenarios for two users, refresh, coupon, availability, and rollback.
@@ -18,9 +18,9 @@
 ## Phase 3 — Catalog, wallets, and orders (P1)
 
 - [x] T010 Add server pagination/facets and edition-aware stock to catalog handlers/adapters/UI.
-- [ ] T011 Implement primary/secondary wallet UI, duplicate-address validation, persistence, and checkout selection.
-- [ ] T012 Rebuild server quote/order validation with Decimal.js, canonical fingerprint, idempotency, pending deadlines, and immutable receipts.
-- [ ] T013 Remove checkout fallbacks and recover orders from REST after refresh/reload.
+- [x] T011 Implement primary/secondary wallet UI, duplicate-address validation, persistence, and checkout selection.
+- [x] T012 Rebuild server quote/order validation with Decimal.js, canonical fingerprint, idempotency, pending deadlines, and immutable receipts.
+- [x] T013 Remove checkout fallbacks and recover orders from REST after refresh/reload.
 - [ ] T014 Add order outcome, precision, wallet, edition stock, and idempotency E2E scenarios.
 
 ## Phase 4 — Realtime, UI, and accessibility (P1/P2)

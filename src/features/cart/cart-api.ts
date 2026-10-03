@@ -45,10 +45,10 @@ export async function addCartItem(item: Pick<CartItem, 'id' | 'editionId' | 'qua
   try { return (await api.post<CartResponse>('/cart/items', item, { headers: scopeHeaders() })).data } catch (error) { throw toCartError(error) }
 }
 export async function updateCartLine(lineId: string, quantity: number) {
-  try { return (await api.patch<CartResponse>(`/cart/items/${lineId}`, { quantity }, { headers: scopeHeaders() })).data } catch (error) { throw toCartError(error) }
+  try { return (await api.patch<CartResponse>(`/cart/items/${encodeURIComponent(lineId)}`, { quantity }, { headers: scopeHeaders() })).data } catch (error) { throw toCartError(error) }
 }
 export async function removeCartLine(lineId: string) {
-  try { return (await api.delete<CartResponse>(`/cart/items/${lineId}`, { headers: scopeHeaders() })).data } catch (error) { throw toCartError(error) }
+  try { return (await api.delete<CartResponse>(`/cart/items/${encodeURIComponent(lineId)}`, { headers: scopeHeaders() })).data } catch (error) { throw toCartError(error) }
 }
 export async function removeCartCoupon() {
   try { return (await api.delete<CartResponse>('/cart/coupon', { headers: scopeHeaders() })).data } catch (error) { throw toCartError(error) }

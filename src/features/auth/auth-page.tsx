@@ -51,6 +51,9 @@ export function AuthPage({
 
   useEffect(() => {
     emailInput.current?.focus()
+  }, [])
+
+  useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') close()
     }

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { z } from 'zod'
+import Decimal from 'decimal.js'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
@@ -55,7 +56,7 @@ const attemptStorageKey = (userId: string) => `kurio.checkout.attempt.${userId}`
 const receiptStorageKey = (userId: string, orderId: string) =>
   `kurio.checkout.receipt.${userId}.${orderId}`
 const currency = (value?: string) =>
-  value ? `${Number(value).toFixed(3)} ETH` : '—'
+  value ? `${new Decimal(value).toFixed(3)} ETH` : '—'
 
 export function CheckoutPage() {
   const navigate = useNavigate()
@@ -489,7 +490,9 @@ export function CheckoutPage() {
         <OrderConfirmationModal
           order={order}
           items={receiptItems}
-          onClose={() => void navigate({ to: '/' })}
+          onClose={() => {
+            void navigate({ to: '/' }).then(() => window.history.replaceState(null, '', '/'))
+          }}
           onExplore={() =>
             setNotice('A referência da transação é simulada neste ambiente.')
           }
@@ -607,7 +610,7 @@ function ReceiptLine({
         <small>ID do token: {item.tokenId}</small>
       </div>
       <span>(x {item.quantity})</span>
-      <b>{currency((Number(item.priceEth) * item.quantity).toFixed(18))}</b>
+      <b>{currency(new Decimal(item.priceEth).mul(item.quantity).toFixed(18))}</b>
     </article>
   )
 }
@@ -654,7 +657,7 @@ function Totals({
   )
 }
 function receiptCurrency(value: number | string) {
-  return `${Number(value).toFixed(3)} ETH`
+  return `${new Decimal(value).toFixed(3)} ETH`
 }
 function readReceiptSnapshot(userId: string, orderId: string): CartItem[] {
   try {
@@ -773,12 +776,7 @@ function OrderConfirmationModal({
                     <small>ID do token: {item.tokenId}</small>
                   </div>
                   <span>x {quoted?.quantity ?? item.quantity}</span>
-                  <b>
-                    {receiptCurrency(
-                      Number(quoted?.priceEth ?? item.priceEth) *
-                        (quoted?.quantity ?? item.quantity)
-                    )}
-                  </b>
+                  <b>{receiptCurrency(new Decimal(quoted?.priceEth ?? item.priceEth).mul(quoted?.quantity ?? item.quantity).toFixed(18))}</b>
                 </article>
               )
             })}

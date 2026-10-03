@@ -1,5 +1,25 @@
 import { expect, test } from './support/fixtures'
 
+for (const path of ['/login', '/register']) {
+  test(`mantém o foco ao digitar a senha em ${path}`, async ({ page }) => {
+    await page.goto(path)
+    const email = page.getByLabel('E-mail', { exact: true })
+    await expect(email).toBeFocused()
+    await email.fill('demo@kurio.test')
+
+    for (const label of path === '/register'
+      ? ['Nome', 'Senha', 'Confirmar senha']
+      : ['Senha']) {
+      const input = page.getByLabel(label, { exact: true })
+      await input.click()
+      await page.keyboard.type('kurio-demo', { delay: 30 })
+      await expect(input).toBeFocused()
+      await expect(input).toHaveValue('kurio-demo')
+      await expect(email).toHaveValue('demo@kurio.test')
+    }
+  })
+}
+
 test('faz login e mantém a sessão após refresh', async ({ page }) => {
   await page.goto('/login')
   await page.getByLabel('E-mail', { exact: true }).fill('demo@kurio.test')
