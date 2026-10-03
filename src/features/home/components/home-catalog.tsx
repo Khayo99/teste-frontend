@@ -163,7 +163,7 @@ export function HomeCatalog() {
         <FeaturedNftBanner />
       </div>
       <div className="min-w-0 flex-1 xl:w-catalog-grid-width xl:flex-none">
-        <div className="relative mb-6 flex flex-col gap-4 text-body-15-medium sm:mb-8 sm:min-h-catalog-toolbar-height sm:flex-row sm:items-start sm:justify-between">
+        <div className="relative mb-6 mt-4 flex flex-col gap-4 text-body-15-medium sm:mb-8 sm:min-h-catalog-toolbar-height sm:flex-row sm:items-start sm:justify-between">
           <div
             className="relative -mx-1 flex max-w-full gap-4 overflow-x-auto px-1 pb-1"
             role="tablist"
