@@ -4,7 +4,7 @@ Marketplace de NFTs em React e TypeScript para o desafio frontend. A demonstraç
 
 - Repositório: [Khayo99/teste-frontend](https://github.com/Khayo99/teste-frontend).
 - Layout: [Frontend Challenge no Figma](https://www.figma.com/design/Ff0SksUi7UFtPWUO8kyNtw/Frontend-Challenge?node-id=0-1).
-- Aplicação pública: **URL ainda não informada/validada; o deploy obrigatório está pendente de comprovação**.
+- Aplicação pública: [Url publica](https://teste-frontend-psi.vercel.app/).
 - [Arquitetura, contratos e limitações](ARCHITECTURE.md).
 - [Relatório de validação da entrega](docs/delivery-audit.md).
 
@@ -28,48 +28,48 @@ Abra [http://127.0.0.1:5173](http://127.0.0.1:5173). `public/mockServiceWorker.j
 
 ### Variáveis de ambiente
 
-| Variável | Valores | Comportamento |
-| --- | --- | --- |
-| `VITE_ENABLE_MSW` | `true` / `false` | `.env.example` usa `true`. Somente `false` desativa os mocks. `true` também expõe controles de demonstração no build |
-| `VITE_MOCK_SCENARIO` | tabela de cenários abaixo | Cenário inicial; padrão `success` |
+| Variável             | Valores                   | Comportamento                                                                                                        |
+| -------------------- | ------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `VITE_ENABLE_MSW`    | `true` / `false`          | `.env.example` usa `true`. Somente `false` desativa os mocks. `true` também expõe controles de demonstração no build |
+| `VITE_MOCK_SCENARIO` | tabela de cenários abaixo | Cenário inicial; padrão `success`                                                                                    |
 
 Variáveis `VITE_*` são públicas e incorporadas no build. Mudanças exigem reiniciar o Vite ou reconstruir a aplicação. `VITE_ENABLE_MSW=false` pressupõe uma API em `/api` e Socket.IO no mesmo host; esse backend não acompanha a entrega.
 
 ## Comandos
 
-| Finalidade | Comando |
-| --- | --- |
-| Desenvolvimento com mocks | `VITE_ENABLE_MSW=true npm run dev` |
-| Build de demonstração | `VITE_ENABLE_MSW=true VITE_MOCK_SCENARIO=success npm run build` |
-| Preview do build | `npm run preview -- --host 127.0.0.1` |
-| TypeScript | `npm run typecheck` |
-| ESLint | `npm run lint` |
-| Playwright | `npm run test:e2e` |
-| Interface do Playwright | `npm run test:e2e:ui` |
-| Relatório HTML | `npm run test:e2e:report` |
-| Atualizar capturas visuais | `npm run test:e2e:update-snapshots` |
-| Lighthouse completo | `npm run lighthouse` |
+| Finalidade                 | Comando                                                         |
+| -------------------------- | --------------------------------------------------------------- |
+| Desenvolvimento com mocks  | `VITE_ENABLE_MSW=true npm run dev`                              |
+| Build de demonstração      | `VITE_ENABLE_MSW=true VITE_MOCK_SCENARIO=success npm run build` |
+| Preview do build           | `npm run preview -- --host 127.0.0.1`                           |
+| TypeScript                 | `npm run typecheck`                                             |
+| ESLint                     | `npm run lint`                                                  |
+| Playwright                 | `npm run test:e2e`                                              |
+| Interface do Playwright    | `npm run test:e2e:ui`                                           |
+| Relatório HTML             | `npm run test:e2e:report`                                       |
+| Atualizar capturas visuais | `npm run test:e2e:update-snapshots`                             |
+| Lighthouse completo        | `npm run lighthouse`                                            |
 
 O preview padrão fica em [http://127.0.0.1:4173](http://127.0.0.1:4173). Exemplos de variáveis inline usam shell POSIX; no PowerShell, defina `$env:VITE_ENABLE_MSW="true"` antes do comando.
 
 ## Credenciais fictícias e navegação
 
-| E-mail | Senha | Observação |
-| --- | --- | --- |
+| E-mail            | Senha        | Observação                |
+| ----------------- | ------------ | ------------------------- |
 | `demo@kurio.test` | `kurio-demo` | Única conta pré-carregada |
 
 Para testar outra identidade, cadastre `Pessoa Dois`, `pessoa2@kurio.test`, senha fictícia `kurio-demo-2` em `/register`. Essa conta só existirá após o cadastro; uma segunda fixture pré-carregada ainda está pendente. Use apenas dados fictícios.
 
-| Tela | Rota |
-| --- | --- |
-| Início/catálogo | `/` |
-| Detalhe de exemplo | `/nft/emerald-ape-042` |
-| Detalhe inexistente | `/nft/nao-existe` |
-| Carrinho | `/cart` |
-| Login/cadastro | `/login`, `/register` |
-| Perfil/carteiras | `/profile`, `/wallets` |
-| Favoritos/pedidos | `/favorites`, `/orders` |
-| Pagamento | `/checkout` |
+| Tela                | Rota                    |
+| ------------------- | ----------------------- |
+| Início/catálogo     | `/`                     |
+| Detalhe de exemplo  | `/nft/emerald-ape-042`  |
+| Detalhe inexistente | `/nft/nao-existe`       |
+| Carrinho            | `/cart`                 |
+| Login/cadastro      | `/login`, `/register`   |
+| Perfil/carteiras    | `/profile`, `/wallets`  |
+| Favoritos/pedidos   | `/favorites`, `/orders` |
+| Pagamento           | `/checkout`             |
 
 Checkout, perfil, carteiras, favoritos e pedidos exigem login. A confirmação aparece em modal quando a simulação retorna pedido confirmado. Logout fica na área do perfil. O carrinho começa com itens de demonstração; também é possível adicionar pelo detalhe. Botões de adicionar/favoritar nos cards do catálogo ainda não executam essas ações.
 
@@ -91,16 +91,16 @@ Selecione um cenário ao iniciar o processo:
 VITE_ENABLE_MSW=true VITE_MOCK_SCENARIO=payment-declined npm run dev
 ```
 
-| Cenário | Efeito atual |
-| --- | --- |
-| `success` | Respostas normais e compra confirmada |
-| `slow` | 1,5 s de atraso por requisição REST |
-| `variable-latency` | Atualmente 300 ms fixos; variação/fora de ordem ainda não implementadas |
-| `offline` | Erro de conexão MSW em REST |
-| `server-error` | HTTP 503 em REST |
-| `payment-declined` | Pedido recusado; itens devem permanecer no carrinho |
-| `payment-pending` | Pedido pendente; por padrão o mock confirma após cerca de 800 ms |
-| `order-timeout` | Cria pedido pendente e perde a resposta por erro de rede; recupera pela tentativa idempotente. Não é um timeout real de 10 s |
+| Cenário            | Efeito atual                                                                                                                 |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| `success`          | Respostas normais e compra confirmada                                                                                        |
+| `slow`             | 1,5 s de atraso por requisição REST                                                                                          |
+| `variable-latency` | Atualmente 300 ms fixos; variação/fora de ordem ainda não implementadas                                                      |
+| `offline`          | Erro de conexão MSW em REST                                                                                                  |
+| `server-error`     | HTTP 503 em REST                                                                                                             |
+| `payment-declined` | Pedido recusado; itens devem permanecer no carrinho                                                                          |
+| `payment-pending`  | Pedido pendente; por padrão o mock confirma após cerca de 800 ms                                                             |
+| `order-timeout`    | Cria pedido pendente e perde a resposta por erro de rede; recupera pela tentativa idempotente. Não é um timeout real de 10 s |
 
 Em desenvolvimento, ou em build com `VITE_ENABLE_MSW=true`, os controles abaixo ficam no console do navegador. A configuração feita por console vale para o documento atual; não navegue com reload depois de configurá-la. Para conservar o cenário ao recarregar, use a variável de ambiente.
 
@@ -131,7 +131,8 @@ Pendência controlada, recusa e perda de resposta:
 ```js
 // Execute no checkout antes de confirmar a compra.
 window.__KURIO_MOCKS__.configure({
-  scenario: 'payment-pending', autoConfirmPendingOrders: false
+  scenario: 'payment-pending',
+  autoConfirmPendingOrders: false
 })
 // Após a criação, substitua pelo ID exibido na tela.
 window.__KURIO_MOCKS__.confirmOrder('ord-ID-EXIBIDO')
@@ -147,7 +148,10 @@ Reconexão e eventos antigos:
 window.__KURIO_MOCKS__.disconnectRealtime()
 window.__KURIO_MOCKS__.reconnectRealtime()
 window.__KURIO_MOCKS__.emitNftUpdate({
-  nftId: 'emerald-ape-042', priceEth: '1.19', availability: 2, version: 0
+  nftId: 'emerald-ape-042',
+  priceEth: '1.19',
+  availability: 2,
+  version: 0
 })
 ```
 
