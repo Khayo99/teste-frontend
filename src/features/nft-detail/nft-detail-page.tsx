@@ -1,26 +1,26 @@
-import { useQuery } from "@tanstack/react-query";
-import { Link, useParams } from "@tanstack/react-router";
-import { getNftDetail } from "@/features/nft-detail/api/nft-detail-api";
-import { useAuthStore } from "@/features/auth/auth-store";
-import { NftGallery } from "@/features/nft-detail/components/nft-gallery";
-import { NftPurchasePanel } from "@/features/nft-detail/components/nft-purchase-panel";
-import { NftInfoTabs } from "@/features/nft-detail/components/nft-info-tabs";
-import { RelatedNftsCarousel } from "@/features/nft-detail/components/related-nfts-carousel";
+import { useQuery } from '@tanstack/react-query'
+import { Link, useParams } from '@tanstack/react-router'
+import { getNftDetail } from '@/features/nft-detail/api/nft-detail-api'
+import { useAuthStore } from '@/features/auth/auth-store'
+import { NftGallery } from '@/features/nft-detail/components/nft-gallery'
+import { NftPurchasePanel } from '@/features/nft-detail/components/nft-purchase-panel'
+import { NftInfoTabs } from '@/features/nft-detail/components/nft-info-tabs'
+import { RelatedNftsCarousel } from '@/features/nft-detail/components/related-nfts-carousel'
 import { queryKeys } from '@/lib/query-keys'
 
 export function NftDetailPage() {
-  const { nftId } = useParams({ from: "/nft/$nftId" });
-  const { token, user } = useAuthStore();
+  const { nftId } = useParams({ from: '/nft/$nftId' })
+  const { token, user } = useAuthStore()
   const {
     data: nft,
     isLoading,
     isError,
     error,
-    refetch,
+    refetch
   } = useQuery({
     queryKey: queryKeys.nft(nftId, user?.id ?? null),
-    queryFn: ({ signal }) => getNftDetail(nftId, token, signal),
-  });
+    queryFn: ({ signal }) => getNftDetail(nftId, token, signal)
+  })
 
   if (isLoading) {
     return (
@@ -35,10 +35,10 @@ export function NftDetailPage() {
           </div>
         </div>
       </div>
-    );
+    )
   }
 
-  const notFound = isError && (error as { status?: number }).status === 404;
+  const notFound = isError && (error as { status?: number }).status === 404
 
   if (notFound) {
     return (
@@ -54,7 +54,7 @@ export function NftDetailPage() {
           Voltar ao catálogo
         </Link>
       </div>
-    );
+    )
   }
 
   if (isError || !nft) {
@@ -74,7 +74,7 @@ export function NftDetailPage() {
           Tentar novamente
         </button>
       </div>
-    );
+    )
   }
 
   return (
@@ -86,7 +86,7 @@ export function NftDetailPage() {
         >
           <Link className="hover:text-text-primary" to="/">
             Início
-          </Link>{" "}
+          </Link>{' '}
           / Mercado
         </nav>
         <div className="grid grid-cols-1 gap-0 md:gap-12 lg:grid-cols-2">
@@ -97,8 +97,12 @@ export function NftDetailPage() {
           <NftPurchasePanel key={nft.id} nft={nft} />
         </div>
       </div>
-      <div className="hidden md:block"><NftInfoTabs nft={nft} /></div>
-      <div className="hidden md:block"><RelatedNftsCarousel relatedNfts={nft.relatedNfts} /></div>
+      <div className="hidden md:block">
+        <NftInfoTabs nft={nft} />
+      </div>
+      <div className="hidden md:block">
+        <RelatedNftsCarousel relatedNfts={nft.relatedNfts} />
+      </div>
     </div>
-  );
+  )
 }

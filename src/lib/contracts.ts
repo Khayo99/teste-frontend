@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 export const apiErrorSchema = z.object({
   message: z.string().optional(),
-  fieldErrors: z.record(z.string(), z.string()).optional(),
+  fieldErrors: z.record(z.string(), z.string()).optional()
 })
 
 export const nftUpdateEventSchema = z.object({
@@ -11,7 +11,7 @@ export const nftUpdateEventSchema = z.object({
   nftId: z.string(),
   version: z.number().int().nonnegative(),
   priceEth: z.string(),
-  availability: z.number().int().nonnegative(),
+  availability: z.number().int().nonnegative()
 })
 
 export type NftUpdateEvent = z.infer<typeof nftUpdateEventSchema>
@@ -23,7 +23,7 @@ export const orderUpdateEventSchema = z.object({
   version: z.number().int().nonnegative(),
   status: z.enum(['pending', 'confirmed', 'declined']),
   reason: z.string().optional(),
-  transactionReference: z.string().optional(),
+  transactionReference: z.string().optional()
 })
 
 export type OrderUpdateEvent = z.infer<typeof orderUpdateEventSchema>

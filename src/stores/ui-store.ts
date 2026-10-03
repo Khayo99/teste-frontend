@@ -4,22 +4,22 @@ import type { UiStore } from '@/@types/ui'
 
 const initialState = {
   isCartDrawerOpen: false,
-  postLoginRedirect: null,
+  postLoginRedirect: null
 }
 
 export const useUiStore = create<UiStore>()(
   persist(
-    (set) => ({
+    set => ({
       ...initialState,
       closeCartDrawer: () => set({ isCartDrawerOpen: false }),
       openCartDrawer: () => set({ isCartDrawerOpen: true }),
       resetUiState: () => set(initialState),
-      setPostLoginRedirect: (path) => set({ postLoginRedirect: path }),
+      setPostLoginRedirect: path => set({ postLoginRedirect: path })
     }),
     {
       name: 'jungle-nft-marketplace:ui',
-      partialize: (state) => ({ postLoginRedirect: state.postLoginRedirect }),
-      storage: createJSONStorage(() => localStorage),
-    },
-  ),
+      partialize: state => ({ postLoginRedirect: state.postLoginRedirect }),
+      storage: createJSONStorage(() => localStorage)
+    }
+  )
 )

@@ -14,12 +14,18 @@ void enableMocking().then(async () => {
   installRealtimeCacheSync(queryClient)
   const stored = storedSession()
   if (!stored) useAuthStore.getState().clear()
-  else { try { useAuthStore.getState().setSession(await getSession(stored.token)) } catch { useAuthStore.getState().clear() } }
+  else {
+    try {
+      useAuthStore.getState().setSession(await getSession(stored.token))
+    } catch {
+      useAuthStore.getState().clear()
+    }
+  }
   createRoot(document.getElementById('root')!).render(
     <StrictMode>
       <QueryClientProvider client={queryClient}>
         <RouterProvider router={router} />
       </QueryClientProvider>
-    </StrictMode>,
+    </StrictMode>
   )
 })

@@ -11,11 +11,14 @@ export function Header() {
   const location = useLocation()
   const { status, user, openAuthModal } = useAuthStore()
   const navigate = useNavigate()
-  const itemCount = useCartStore(state => state.items.reduce((total, item) => total + item.quantity, 0))
+  const itemCount = useCartStore(state =>
+    state.items.reduce((total, item) => total + item.quantity, 0)
+  )
   const isNftDetailPage = location.pathname.startsWith('/nft/')
   const isMarketPage = isNftDetailPage || location.pathname === '/cart'
   const isHomePage = location.pathname === '/'
-  const usesMobileScreenHeader = isHomePage || isNftDetailPage || location.pathname === '/cart'
+  const usesMobileScreenHeader =
+    isHomePage || isNftDetailPage || location.pathname === '/cart'
   const [searchOpen, setSearchOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [catalogSearch, setCatalogSearch] = useState('')
@@ -44,7 +47,9 @@ export function Header() {
   }, [menuOpen])
 
   return (
-    <header className={`relative h-header-height border-b border-border ${usesMobileScreenHeader ? 'hidden md:block' : ''}`}>
+    <header
+      className={`relative h-header-height border-b border-border ${usesMobileScreenHeader ? 'hidden md:block' : ''}`}
+    >
       <div className="flex h-header-inner items-start justify-between">
         <a className="pt-2 text-body-14-brand text-foreground" href="/">
           KURIO
@@ -105,7 +110,11 @@ export function Header() {
                 placeholder="Buscar NFTs"
                 value={catalogSearch}
               />
-              <Button className="h-8 px-2 text-sm" type="submit" variant="ghost">
+              <Button
+                className="h-8 px-2 text-sm"
+                type="submit"
+                variant="ghost"
+              >
                 Buscar
               </Button>
             </form>
@@ -128,7 +137,10 @@ export function Header() {
             type="button"
           >
             <ShoppingCart className="size-icon-md stroke-icon" />
-            <span aria-label={`${itemCount} itens no carrinho`} className="absolute -right-2 -top-1 grid size-4 place-items-center rounded-full bg-primary text-tiny-medium text-ink">
+            <span
+              aria-label={`${itemCount} itens no carrinho`}
+              className="absolute -right-2 -top-1 grid size-4 place-items-center rounded-full bg-primary text-tiny-medium text-ink"
+            >
               {itemCount}
             </span>
           </Button>
@@ -197,7 +209,8 @@ export function Header() {
               className="mt-auto h-11 w-full"
               onClick={() => {
                 setMenuOpen(false)
-                if (status === 'authenticated') void navigate({ to: '/profile' })
+                if (status === 'authenticated')
+                  void navigate({ to: '/profile' })
                 else openAuthModal('login', location.pathname)
               }}
               type="button"

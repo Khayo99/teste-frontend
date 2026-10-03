@@ -13,7 +13,17 @@ import { HomePage } from '@/features/home/home-page'
 type Mode = 'login' | 'register'
 type FormValues = Record<string, string>
 
-export function AuthPage({ mode, background = true, onClose, returnTo }: { mode: Mode; background?: boolean; onClose?: () => void; returnTo?: string }) {
+export function AuthPage({
+  mode,
+  background = true,
+  onClose,
+  returnTo
+}: {
+  mode: Mode
+  background?: boolean
+  onClose?: () => void
+  returnTo?: string
+}) {
   const isRegister = mode === 'register'
   const navigate = useNavigate()
   const search = useSearch({ strict: false }) as {
@@ -30,7 +40,8 @@ export function AuthPage({ mode, background = true, onClose, returnTo }: { mode:
   const destination = returnTo ?? search.returnTo
   const close = () => {
     onClose?.()
-    if (!onClose) void navigate({ to: destination?.startsWith('/') ? destination : '/' })
+    if (!onClose)
+      void navigate({ to: destination?.startsWith('/') ? destination : '/' })
   }
 
   useEffect(() => {
@@ -61,8 +72,10 @@ export function AuthPage({ mode, background = true, onClose, returnTo }: { mode:
       setSession(session)
       if (onClose) {
         onClose()
-        if (destination && destination !== window.location.pathname) void navigate({ to: destination })
-      } else void navigate({ to: destination?.startsWith('/') ? destination : '/' })
+        if (destination && destination !== window.location.pathname)
+          void navigate({ to: destination })
+      } else
+        void navigate({ to: destination?.startsWith('/') ? destination : '/' })
     },
     onError: error => {
       if (error.message === 'validation') return
@@ -104,14 +117,14 @@ export function AuthPage({ mode, background = true, onClose, returnTo }: { mode:
             </Button>
           )}
           <div className="auth-header shrink-0 text-center">
-            <p className="auth-logo" aria-label="Kurio">KURIO</p>
+            <p className="auth-logo" aria-label="Kurio">
+              KURIO
+            </p>
             <h1 id="auth-title" className="sr-only">
               {isRegister ? 'Criar conta' : 'Entrar'}
             </h1>
             <p className="auth-heading">
-              {isRegister
-                ? 'Criar perfil de colecionador'
-                : 'Entrar'}
+              {isRegister ? 'Criar perfil de colecionador' : 'Entrar'}
             </p>
           </div>
           <form
@@ -123,10 +136,7 @@ export function AuthPage({ mode, background = true, onClose, returnTo }: { mode:
             noValidate
           >
             {errors.form && (
-              <div
-                role="alert"
-                className="auth-error"
-              >
+              <div role="alert" className="auth-error">
                 {errors.form}
               </div>
             )}
@@ -191,9 +201,7 @@ export function AuthPage({ mode, background = true, onClose, returnTo }: { mode:
           <div className="auth-socials">
             <div className="auth-divider">
               <span />
-              <p>
-                Ou continue com
-              </p>
+              <p>Ou continue com</p>
               <span />
             </div>
             <div className="auth-social-buttons">
@@ -203,7 +211,10 @@ export function AuthPage({ mode, background = true, onClose, returnTo }: { mode:
           </div>
           <p className="auth-switch">
             {isRegister ? 'Já tem uma conta? ' : 'Novo na Kurio? '}
-            <Link to={isRegister ? '/login' : '/register'} search={{ returnTo: search.returnTo }}>
+            <Link
+              to={isRegister ? '/login' : '/register'}
+              search={{ returnTo: search.returnTo }}
+            >
               {isRegister ? 'Entre' : 'Crie uma conta'}
             </Link>
           </p>
@@ -284,10 +295,22 @@ function SocialButton({ provider }: { provider: 'Google' | 'Facebook' }) {
 function GoogleIcon() {
   return (
     <svg aria-hidden="true" className="size-5" viewBox="0 0 48 48">
-      <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6L40.1 6.2C35.93 2.3 30.42 0 24 0 14.62 0 6.51 5.38 2.56 13.22l8.01 6.22C12.46 13.72 17.78 9.5 24 9.5Z" />
-      <path fill="#4285F4" d="M46.98 24.55c0-1.64-.15-3.22-.42-4.73H24v9.2h12.91c-.58 2.96-2.26 5.47-4.8 7.15l7.73 6c4.51-4.18 7.14-10.36 7.14-17.62Z" />
-      <path fill="#FBBC05" d="M10.57 28.56A14.45 14.45 0 0 1 9.8 24c0-1.58.27-3.11.77-4.56l-8.01-6.22A23.94 23.94 0 0 0 0 24c0 3.86.92 7.53 2.56 10.78l8.01-6.22Z" />
-      <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.9-5.81l-7.73-6c-2.13 1.43-4.86 2.28-8.17 2.28-6.22 0-11.54-4.22-13.43-9.91l-8.01 6.22C6.51 42.62 14.62 48 24 48Z" />
+      <path
+        fill="#EA4335"
+        d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6L40.1 6.2C35.93 2.3 30.42 0 24 0 14.62 0 6.51 5.38 2.56 13.22l8.01 6.22C12.46 13.72 17.78 9.5 24 9.5Z"
+      />
+      <path
+        fill="#4285F4"
+        d="M46.98 24.55c0-1.64-.15-3.22-.42-4.73H24v9.2h12.91c-.58 2.96-2.26 5.47-4.8 7.15l7.73 6c4.51-4.18 7.14-10.36 7.14-17.62Z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M10.57 28.56A14.45 14.45 0 0 1 9.8 24c0-1.58.27-3.11.77-4.56l-8.01-6.22A23.94 23.94 0 0 0 0 24c0 3.86.92 7.53 2.56 10.78l8.01-6.22Z"
+      />
+      <path
+        fill="#34A853"
+        d="M24 48c6.48 0 11.93-2.13 15.9-5.81l-7.73-6c-2.13 1.43-4.86 2.28-8.17 2.28-6.22 0-11.54-4.22-13.43-9.91l-8.01 6.22C6.51 42.62 14.62 48 24 48Z"
+      />
     </svg>
   )
 }

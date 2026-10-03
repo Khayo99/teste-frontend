@@ -6,7 +6,11 @@ import { nftUpdateEventSchema, orderUpdateEventSchema } from './contracts'
 // The mock binding supports Socket.IO's default namespace and text frames only.
 // Keeping the application on the default namespace also makes its transport
 // compatible with a production Socket.IO server.
-export const realtimeClient = io({ path: '/realtime/socket.io', transports: ['websocket'], autoConnect: false })
+export const realtimeClient = io({
+  path: '/realtime/socket.io',
+  transports: ['websocket'],
+  autoConnect: false
+})
 const versions = new Map<string, number>()
 let installed = false
 
@@ -15,7 +19,10 @@ export function installRealtimeCacheSync(queryClient: QueryClient) {
   if (installed) return
   installed = true
   realtimeClient.on('nft.updated', payload => {
-    const parsed = nftUpdateEventSchema.safeParse({ type: 'nft.updated', ...payload })
+    const parsed = nftUpdateEventSchema.safeParse({
+      type: 'nft.updated',
+      ...payload
+    })
     if (!parsed.success) return
     const event = parsed.data
     if ((versions.get(event.nftId) ?? -1) >= event.version) return
@@ -29,20 +36,27 @@ export function installRealtimeCacheSync(queryClient: QueryClient) {
     void queryClient.invalidateQueries({ queryKey: ['cart-quote'] })
   })
   realtimeClient.on('order.updated', payload => {
-    const parsed = orderUpdateEventSchema.safeParse({ type: 'order.updated', ...payload })
+    const parsed = orderUpdateEventSchema.safeParse({
+      type: 'order.updated',
+      ...payload
+    })
     if (!parsed.success) return
     const event = parsed.data
     const versionKey = `order:${event.userId}:${event.orderId}`
     if ((versions.get(versionKey) ?? -1) >= event.version) return
     versions.set(versionKey, event.version)
-    void queryClient.invalidateQueries({ queryKey: ['private', event.userId, 'orders'] })
+    void queryClient.invalidateQueries({
+      queryKey: ['private', event.userId, 'orders']
+    })
   })
 }
 
 export function startSessionRealtime(token: string) {
   realtimeClient.auth = { token }
   realtimeClient.connect()
-  realtimeClient.once('connect', () => realtimeClient.emit('session.identify', { token }))
+  realtimeClient.once('connect', () =>
+    realtimeClient.emit('session.identify', { token })
+  )
 }
 // Resource hooks unregister their own listeners on unmount. Keeping the cache
 // synchronizer installed makes a subsequent login safe without duplicating it.

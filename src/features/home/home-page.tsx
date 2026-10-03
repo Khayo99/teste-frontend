@@ -1,6 +1,6 @@
-import { HomeCatalog } from "./components/home-catalog";
-import { HomeDiscovery } from "./components/home-discovery";
-import { HomeHero } from "./components/home-hero";
+import { HomeCatalog } from './components/home-catalog'
+import { HomeDiscovery } from './components/home-discovery'
+import { HomeHero } from './components/home-hero'
 import { Link } from '@tanstack/react-router'
 import tabBarShape from '@/assets/home/mobile-tabbar-shape.svg'
 import tabBarOrb from '@/assets/home/mobile-tabbar-orb.svg'
@@ -24,24 +24,85 @@ export function HomePage() {
       </div>
       <MobileBottomNavigation />
     </>
-  );
+  )
 }
 
 function MobileBottomNavigation() {
   return (
-    <nav aria-label="Navegação principal" className="fixed inset-x-0 bottom-0 z-40 h-[126px] overflow-hidden md:hidden">
-      <img alt="" aria-hidden="true" className="absolute left-1/2 top-[-9px] max-w-none -translate-x-1/2" src={tabBarShape} />
-      <Link aria-label="Início" className="absolute left-[8.7%] top-[71px] grid size-5 place-items-center" to="/"><img alt="" src={tabBarHome} /></Link>
-      <Link aria-label="Favoritos" className="absolute left-[26.09%] top-[72px] grid size-5 place-items-center" to="/favorites"><img alt="" src={tabBarHeart} /></Link>
-      <Link aria-label="Carrinho" className="absolute left-[70.53%] top-[71px] grid size-5 place-items-center" to="/cart"><img alt="" src={tabBarShop} /></Link>
-      <Link aria-label="Perfil" className="absolute left-[85.51%] top-[71px] grid size-5 place-items-center" to="/profile"><img alt="" src={tabBarUser} /></Link>
-      <a aria-label="Explorar NFTs" className="absolute left-1/2 top-0 block size-[65px] -translate-x-1/2" href="#mercado">
+    <nav
+      aria-label="Navegação principal"
+      className="fixed inset-x-0 bottom-0 z-40 h-[126px] overflow-hidden md:hidden"
+    >
+      <img
+        alt=""
+        aria-hidden="true"
+        className="absolute left-1/2 top-[-9px] max-w-none -translate-x-1/2"
+        src={tabBarShape}
+      />
+      <Link
+        aria-label="Início"
+        className="absolute left-[8.7%] top-[71px] grid size-5 place-items-center"
+        to="/"
+      >
+        <img alt="" src={tabBarHome} />
+      </Link>
+      <Link
+        aria-label="Favoritos"
+        className="absolute left-[26.09%] top-[72px] grid size-5 place-items-center"
+        to="/favorites"
+      >
+        <img alt="" src={tabBarHeart} />
+      </Link>
+      <Link
+        aria-label="Carrinho"
+        className="absolute left-[70.53%] top-[71px] grid size-5 place-items-center"
+        to="/cart"
+      >
+        <img alt="" src={tabBarShop} />
+      </Link>
+      <Link
+        aria-label="Perfil"
+        className="absolute left-[85.51%] top-[71px] grid size-5 place-items-center"
+        to="/profile"
+      >
+        <img alt="" src={tabBarUser} />
+      </Link>
+      <a
+        aria-label="Explorar NFTs"
+        className="absolute left-1/2 top-0 block size-[65px] -translate-x-1/2"
+        href="#mercado"
+      >
         <img alt="" aria-hidden="true" src={tabBarOrb} />
-        <img alt="" aria-hidden="true" className="absolute left-[19px] top-[32px]" src={centerOne} />
-        <img alt="" aria-hidden="true" className="absolute left-[20px] top-[35px]" src={centerTwo} />
-        <img alt="" aria-hidden="true" className="absolute left-[34px] top-[21px]" src={centerThree} />
-        <img alt="" aria-hidden="true" className="absolute left-[34px] top-[35px]" src={centerFour} />
-        <img alt="" aria-hidden="true" className="absolute left-[20px] top-[21px]" src={centerFive} />
+        <img
+          alt=""
+          aria-hidden="true"
+          className="absolute left-[19px] top-[32px]"
+          src={centerOne}
+        />
+        <img
+          alt=""
+          aria-hidden="true"
+          className="absolute left-[20px] top-[35px]"
+          src={centerTwo}
+        />
+        <img
+          alt=""
+          aria-hidden="true"
+          className="absolute left-[34px] top-[21px]"
+          src={centerThree}
+        />
+        <img
+          alt=""
+          aria-hidden="true"
+          className="absolute left-[34px] top-[35px]"
+          src={centerFour}
+        />
+        <img
+          alt=""
+          aria-hidden="true"
+          className="absolute left-[20px] top-[21px]"
+          src={centerFive}
+        />
       </a>
     </nav>
   )

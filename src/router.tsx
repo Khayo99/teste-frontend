@@ -178,8 +178,32 @@ const routeTree = rootRoute.addChildren([
     )
   }),
 
-  createRoute({ getParentRoute: () => rootRoute, path: '/checkout', beforeLoad: () => { if (!localStorage.getItem('kurio.auth.session')) throw redirect({ to: '/login', search: { returnTo: '/checkout' } }) }, component: () => <AuthenticatedRoute><CheckoutPage /></AuthenticatedRoute> }),
-  createRoute({ getParentRoute: () => rootRoute, path: '/orders', beforeLoad: () => { if (!localStorage.getItem('kurio.auth.session')) throw redirect({ to: '/login', search: { returnTo: '/orders' } }) }, component: () => <AuthenticatedRoute><OrdersPage /></AuthenticatedRoute> })
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/checkout',
+    beforeLoad: () => {
+      if (!localStorage.getItem('kurio.auth.session'))
+        throw redirect({ to: '/login', search: { returnTo: '/checkout' } })
+    },
+    component: () => (
+      <AuthenticatedRoute>
+        <CheckoutPage />
+      </AuthenticatedRoute>
+    )
+  }),
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/orders',
+    beforeLoad: () => {
+      if (!localStorage.getItem('kurio.auth.session'))
+        throw redirect({ to: '/login', search: { returnTo: '/orders' } })
+    },
+    component: () => (
+      <AuthenticatedRoute>
+        <OrdersPage />
+      </AuthenticatedRoute>
+    )
+  })
 ])
 
 export const router = createRouter({ routeTree })

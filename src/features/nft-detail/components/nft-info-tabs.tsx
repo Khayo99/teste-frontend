@@ -1,11 +1,11 @@
-import { useState } from "react";
-import { Star } from "lucide-react";
-import type { NftDetail } from "@/@types/nft-detail";
+import { useState } from 'react'
+import { Star } from 'lucide-react'
+import type { NftDetail } from '@/@types/nft-detail'
 
-type Tab = "details" | "reviews";
+type Tab = 'details' | 'reviews'
 
 export function NftInfoTabs({ nft }: { nft: NftDetail }) {
-  const [activeTab, setActiveTab] = useState<Tab>("details");
+  const [activeTab, setActiveTab] = useState<Tab>('details')
 
   return (
     <section className="flex flex-col gap-7 border-t border-border pt-7">
@@ -15,26 +15,26 @@ export function NftInfoTabs({ nft }: { nft: NftDetail }) {
         aria-label="Informações do NFT"
       >
         <button
-          aria-selected={activeTab === "details"}
+          aria-selected={activeTab === 'details'}
           className={`relative pb-2 text-body-15-medium ${
-            activeTab === "details"
-              ? "text-text-accent after:absolute after:inset-x-0 after:-bottom-[9px] after:h-0.5 after:bg-text-accent"
-              : "text-text-secondary hover:text-text-primary"
+            activeTab === 'details'
+              ? 'text-text-accent after:absolute after:inset-x-0 after:-bottom-[9px] after:h-0.5 after:bg-text-accent'
+              : 'text-text-secondary hover:text-text-primary'
           }`}
-          onClick={() => setActiveTab("details")}
+          onClick={() => setActiveTab('details')}
           role="tab"
           type="button"
         >
           Detalhes do NFT
         </button>
         <button
-          aria-selected={activeTab === "reviews"}
+          aria-selected={activeTab === 'reviews'}
           className={`relative pb-2 text-body-15-medium ${
-            activeTab === "reviews"
-              ? "text-text-accent after:absolute after:inset-x-0 after:-bottom-[9px] after:h-0.5 after:bg-text-accent"
-              : "text-text-secondary hover:text-text-primary"
+            activeTab === 'reviews'
+              ? 'text-text-accent after:absolute after:inset-x-0 after:-bottom-[9px] after:h-0.5 after:bg-text-accent'
+              : 'text-text-secondary hover:text-text-primary'
           }`}
-          onClick={() => setActiveTab("reviews")}
+          onClick={() => setActiveTab('reviews')}
           role="tab"
           type="button"
         >
@@ -42,7 +42,7 @@ export function NftInfoTabs({ nft }: { nft: NftDetail }) {
         </button>
       </div>
 
-      {activeTab === "details" ? (
+      {activeTab === 'details' ? (
         <div className="flex flex-col gap-6" role="tabpanel">
           <p className="text-body-14-relaxed text-text-secondary">
             {nft.description}
@@ -73,7 +73,7 @@ export function NftInfoTabs({ nft }: { nft: NftDetail }) {
               Ainda não há avaliações para este NFT.
             </li>
           ) : (
-            nft.reviewsList.map((review) => (
+            nft.reviewsList.map(review => (
               <li
                 className="flex flex-col gap-2 border-b border-border pb-6 last:border-none"
                 key={review.id}
@@ -87,8 +87,8 @@ export function NftInfoTabs({ nft }: { nft: NftDetail }) {
                       <Star
                         className={`size-icon-sm ${
                           index < review.rating
-                            ? "fill-text-accent text-text-accent"
-                            : "fill-transparent text-text-secondary"
+                            ? 'fill-text-accent text-text-accent'
+                            : 'fill-transparent text-text-secondary'
                         }`}
                         key={index}
                       />
@@ -104,5 +104,5 @@ export function NftInfoTabs({ nft }: { nft: NftDetail }) {
         </ul>
       )}
     </section>
-  );
+  )
 }

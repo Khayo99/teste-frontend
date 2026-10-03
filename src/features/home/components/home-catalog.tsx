@@ -41,7 +41,8 @@ export function HomeCatalog() {
   useEffect(() => {
     const openFilters = () => setFiltersOpen(true)
     window.addEventListener('kurio:open-catalog-filters', openFilters)
-    return () => window.removeEventListener('kurio:open-catalog-filters', openFilters)
+    return () =>
+      window.removeEventListener('kurio:open-catalog-filters', openFilters)
   }, [])
   const query = useMemo<CatalogQuery>(
     () => ({
@@ -201,41 +202,46 @@ export function HomeCatalog() {
               type="button"
               variant="outline"
             >
-              <SlidersHorizontal aria-hidden="true" className="size-4" /> Filtros
+              <SlidersHorizontal aria-hidden="true" className="size-4" />{' '}
+              Filtros
             </Button>
-          <div className="relative h-[18px] min-w-0 flex-1 text-body-15 text-foreground">
-            <label className="absolute left-0 top-0" htmlFor="catalog-sort">
-              Ordenar por:
-            </label>
-            <Select
-              className="absolute left-[110px] top-0 w-[calc(100%-110px)] appearance-none truncate bg-transparent pl-0 pr-5 text-left text-foreground outline-none"
-              id="catalog-sort"
-              onChange={event =>
-                handleQueryChange({
-                  ...query,
-                  sort: event.target.value as CatalogSort
-                })
-              }
-              value={query.sort}
-            >
-              <option className="bg-surface-card" value="recent">
-                Listados recentemente
-              </option>
-              <option className="bg-surface-card" value="price-asc">
-                Menor preço
-              </option>
-              <option className="bg-surface-card" value="price-desc">
-                Maior preço
-              </option>
-            </Select>
-            <span className="pointer-events-none absolute right-0 top-[2px] flex size-4 items-center justify-center">
-              <ChevronDown aria-hidden="true" size={11} strokeWidth={1.5} />
-            </span>
-          </div>
+            <div className="relative h-[18px] min-w-0 flex-1 text-body-15 text-foreground">
+              <label className="absolute left-0 top-0" htmlFor="catalog-sort">
+                Ordenar por:
+              </label>
+              <Select
+                className="absolute left-[110px] top-0 w-[calc(100%-110px)] appearance-none truncate bg-transparent pl-0 pr-5 text-left text-foreground outline-none"
+                id="catalog-sort"
+                onChange={event =>
+                  handleQueryChange({
+                    ...query,
+                    sort: event.target.value as CatalogSort
+                  })
+                }
+                value={query.sort}
+              >
+                <option className="bg-surface-card" value="recent">
+                  Listados recentemente
+                </option>
+                <option className="bg-surface-card" value="price-asc">
+                  Menor preço
+                </option>
+                <option className="bg-surface-card" value="price-desc">
+                  Maior preço
+                </option>
+              </Select>
+              <span className="pointer-events-none absolute right-0 top-[2px] flex size-4 items-center justify-center">
+                <ChevronDown aria-hidden="true" size={11} strokeWidth={1.5} />
+              </span>
+            </div>
           </div>
         </div>
         {isLoading && !isRetrying ? (
-          <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3" aria-label="Carregando NFTs" role="status">
+          <div
+            className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3"
+            aria-label="Carregando NFTs"
+            role="status"
+          >
             {Array.from({ length: 9 }, (_, index) => (
               <div
                 className="skeleton h-[200px] rounded-2xl sm:h-card-visual-height"
@@ -263,7 +269,11 @@ export function HomeCatalog() {
         ) : tabbedNfts.length > 0 ? (
           <div className="home-catalog-grid grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-2 sm:gap-x-8 sm:gap-y-catalog-row-gap lg:grid-cols-catalog lg:justify-between">
             {paginatedNfts.map((nft, index) => (
-              <NftCard key={nft.id} mobileImage={mobileArtwork[index % mobileArtwork.length]} nft={nft} />
+              <NftCard
+                key={nft.id}
+                mobileImage={mobileArtwork[index % mobileArtwork.length]}
+                nft={nft}
+              />
             ))}
           </div>
         ) : (
@@ -281,10 +291,34 @@ export function HomeCatalog() {
         </div>
       </div>
       {filtersOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 p-4 lg:hidden" onMouseDown={event => { if (event.target === event.currentTarget) setFiltersOpen(false) }}>
-          <aside aria-label="Filtros do catálogo" aria-modal="true" className="ml-auto h-full max-w-[310px] overflow-y-auto bg-surface-card shadow-2xl" role="dialog">
-            <div className="flex justify-end p-3"><Button aria-label="Fechar filtros" className="size-9 p-0" onClick={() => setFiltersOpen(false)} type="button" variant="ghost"><X className="size-5" /></Button></div>
-            <CatalogFilters categoryCounts={categoryCounts} onChange={handleQueryChange} query={query} />
+        <div
+          className="fixed inset-0 z-50 bg-black/60 p-4 lg:hidden"
+          onMouseDown={event => {
+            if (event.target === event.currentTarget) setFiltersOpen(false)
+          }}
+        >
+          <aside
+            aria-label="Filtros do catálogo"
+            aria-modal="true"
+            className="ml-auto h-full max-w-[310px] overflow-y-auto bg-surface-card shadow-2xl"
+            role="dialog"
+          >
+            <div className="flex justify-end p-3">
+              <Button
+                aria-label="Fechar filtros"
+                className="size-9 p-0"
+                onClick={() => setFiltersOpen(false)}
+                type="button"
+                variant="ghost"
+              >
+                <X className="size-5" />
+              </Button>
+            </div>
+            <CatalogFilters
+              categoryCounts={categoryCounts}
+              onChange={handleQueryChange}
+              query={query}
+            />
           </aside>
         </div>
       )}

@@ -1,31 +1,31 @@
-import { useRef, useState } from "react";
-import { Link } from "@tanstack/react-router";
-import type { RelatedNft } from "@/@types/nft-detail";
+import { useRef, useState } from 'react'
+import { Link } from '@tanstack/react-router'
+import type { RelatedNft } from '@/@types/nft-detail'
 
 export function RelatedNftsCarousel({
-  relatedNfts,
+  relatedNfts
 }: {
-  relatedNfts: RelatedNft[];
+  relatedNfts: RelatedNft[]
 }) {
-  const scrollerRef = useRef<HTMLUListElement>(null);
-  const [activeDot, setActiveDot] = useState(0);
+  const scrollerRef = useRef<HTMLUListElement>(null)
+  const [activeDot, setActiveDot] = useState(0)
 
-  if (relatedNfts.length === 0) return null;
+  if (relatedNfts.length === 0) return null
 
   const handleScroll = () => {
-    const scroller = scrollerRef.current;
-    if (!scroller) return;
-    const itemWidth = scroller.scrollWidth / relatedNfts.length;
-    const index = Math.round(scroller.scrollLeft / itemWidth);
-    setActiveDot(Math.min(index, relatedNfts.length - 1));
-  };
+    const scroller = scrollerRef.current
+    if (!scroller) return
+    const itemWidth = scroller.scrollWidth / relatedNfts.length
+    const index = Math.round(scroller.scrollLeft / itemWidth)
+    setActiveDot(Math.min(index, relatedNfts.length - 1))
+  }
 
   const scrollToIndex = (index: number) => {
-    const scroller = scrollerRef.current;
-    if (!scroller) return;
-    const itemWidth = scroller.scrollWidth / relatedNfts.length;
-    scroller.scrollTo({ left: itemWidth * index, behavior: "smooth" });
-  };
+    const scroller = scrollerRef.current
+    if (!scroller) return
+    const itemWidth = scroller.scrollWidth / relatedNfts.length
+    scroller.scrollTo({ left: itemWidth * index, behavior: 'smooth' })
+  }
 
   return (
     <section className="flex flex-col gap-7 border-t border-border pt-7">
@@ -37,7 +37,7 @@ export function RelatedNftsCarousel({
         onScroll={handleScroll}
         ref={scrollerRef}
       >
-        {relatedNfts.map((relatedNft) => (
+        {relatedNfts.map(relatedNft => (
           <li className="w-[219px] shrink-0 snap-start" key={relatedNft.id}>
             <Link
               className="group flex flex-col gap-3"
@@ -74,7 +74,7 @@ export function RelatedNftsCarousel({
               aria-label={`Ir para ${relatedNft.name}`}
               aria-selected={activeDot === index}
               className={`size-3 rounded-full transition-colors ${
-                activeDot === index ? "bg-text-accent" : "bg-surface-card"
+                activeDot === index ? 'bg-text-accent' : 'bg-surface-card'
               }`}
               key={relatedNft.id}
               onClick={() => scrollToIndex(index)}
@@ -85,5 +85,5 @@ export function RelatedNftsCarousel({
         </div>
       )}
     </section>
-  );
+  )
 }

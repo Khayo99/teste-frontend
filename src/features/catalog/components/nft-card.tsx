@@ -1,27 +1,29 @@
-import { Heart, Search, ShoppingCart } from "lucide-react";
-import { Link, useNavigate } from "@tanstack/react-router";
-import type { NftCardProps } from "@/@types/catalog";
-import { Button } from "@/components/ui/button";
+import { Heart, Search, ShoppingCart } from 'lucide-react'
+import { Link, useNavigate } from '@tanstack/react-router'
+import type { NftCardProps } from '@/@types/catalog'
+import { Button } from '@/components/ui/button'
 
 export function NftCard({ mobileImage, nft }: NftCardProps) {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
   const goToDetail = () =>
-    void navigate({ to: "/nft/$nftId", params: { nftId: nft.id } });
+    void navigate({ to: '/nft/$nftId', params: { nftId: nft.id } })
 
   return (
     <article className="group min-w-0">
       <div
         className="relative flex h-[200px] cursor-pointer items-center justify-center overflow-hidden rounded-2xl bg-surface-card sm:h-card-visual-height"
         onClick={goToDetail}
-        onKeyDown={(event) => {
-          if (event.key === "Enter" || event.key === " ") goToDetail();
+        onKeyDown={event => {
+          if (event.key === 'Enter' || event.key === ' ') goToDetail()
         }}
         role="link"
         tabIndex={0}
         aria-label={`Ver ${nft.name} ${nft.tokenId}`}
       >
         <picture className="size-[calc(100%-8px)] sm:size-card-artwork">
-          {mobileImage && <source media="(max-width: 639px)" srcSet={mobileImage} />}
+          {mobileImage && (
+            <source media="(max-width: 639px)" srcSet={mobileImage} />
+          )}
           <img
             alt={`NFT ${nft.name} ${nft.tokenId}`}
             className="size-full rounded-2xl object-cover transition duration-300 group-hover:scale-card-hover"
@@ -37,7 +39,7 @@ export function NftCard({ mobileImage, nft }: NftCardProps) {
           <Button
             aria-label={`Adicionar ${nft.name} ao carrinho`}
             className="rounded-sm border border-text-secondary p-1 text-text-primary"
-            onClick={(event) => event.stopPropagation()}
+            onClick={event => event.stopPropagation()}
             variant="ghost"
             type="button"
           >
@@ -46,7 +48,7 @@ export function NftCard({ mobileImage, nft }: NftCardProps) {
           <Button
             aria-label={`Favoritar ${nft.name}`}
             className="rounded-sm border border-text-secondary p-1 text-text-primary"
-            onClick={(event) => event.stopPropagation()}
+            onClick={event => event.stopPropagation()}
             variant="ghost"
             type="button"
           >
@@ -55,9 +57,9 @@ export function NftCard({ mobileImage, nft }: NftCardProps) {
           <Button
             aria-label={`Ver ${nft.name}`}
             className="rounded-sm border border-text-secondary p-1 text-text-primary"
-            onClick={(event) => {
-              event.stopPropagation();
-              goToDetail();
+            onClick={event => {
+              event.stopPropagation()
+              goToDetail()
             }}
             variant="ghost"
             type="button"
@@ -77,5 +79,5 @@ export function NftCard({ mobileImage, nft }: NftCardProps) {
         {nft.priceEth} ETH
       </p>
     </article>
-  );
+  )
 }

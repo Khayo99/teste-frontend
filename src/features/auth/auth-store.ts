@@ -48,13 +48,21 @@ export const useAuthStore = create<AuthState>(set => ({
   closeAuthModal: () =>
     set({ authModal: { open: false, mode: 'login', returnTo: null } }),
 
-  updateUser: user => set(state => {
-    if (state.token) {
-      const saved = storedSession()
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ token: state.token, user, expiresAt: saved?.expiresAt }))
-    }
-    return { user }
-  }),
+  updateUser: user =>
+    set(state => {
+      if (state.token) {
+        const saved = storedSession()
+        localStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify({
+            token: state.token,
+            user,
+            expiresAt: saved?.expiresAt
+          })
+        )
+      }
+      return { user }
+    }),
 
   clear: () => {
     localStorage.removeItem(STORAGE_KEY)
