@@ -37,6 +37,19 @@ test.describe('jornadas críticas do marketplace', () => {
     ).toBeVisible()
   })
 
+  test('executa carrinho e favorito pelo overlay do card', async ({ page }) => {
+    await login(page)
+    await page.goto('/')
+    const card = page.locator('#mercado article').filter({ hasText: 'Emerald Ape #042' })
+    await card.hover()
+
+    await card.getByRole('button', { name: /Adicionar Emerald Ape/ }).click()
+    await expect(page.getByLabel('1 itens no carrinho')).toBeVisible()
+    const favorite = card.locator('button[aria-pressed]')
+    await favorite.click()
+    await expect(favorite).toHaveAttribute('aria-pressed', 'true')
+  })
+
   test('mantém carrinho, quantidades, cupom e itens após refresh e login', async ({
     page
   }) => {

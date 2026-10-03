@@ -41,8 +41,20 @@ const FavoritesPage = lazy(async () => ({
   default: (await import('@/features/nft-detail/favorites-page')).FavoritesPage
 }))
 
-function DeferredPage({ children }: { children: ReactNode }) {
-  return <Suspense fallback={<div aria-label="Carregando página" role="status" />}>{children}</Suspense>
+function DeferredPage({ children, fallback }: { children: ReactNode; fallback?: ReactNode }) {
+  return <Suspense fallback={fallback ?? <PageSkeleton />}>{children}</Suspense>
+}
+
+function PageSkeleton() {
+  return <div aria-busy="true" aria-label="Carregando página" className="space-y-6" role="status"><span className="sr-only">Carregando página</span><div className="skeleton h-5 w-40 rounded" /><div className="skeleton h-80 rounded-2xl" /><div className="skeleton h-6 w-2/3 rounded" /><div className="skeleton h-5 w-full rounded" /></div>
+}
+
+function DetailRouteSkeleton() {
+  return <div aria-busy="true" aria-label="Carregando NFT" role="status"><span className="sr-only">Carregando NFT</span><div className="md:hidden"><div className="-mb-value-114 h-value-506 bg-nft-gallery-mobile p-7 pt-value-23"><div className="skeleton size-value-35 rounded-full" /><div className="skeleton mt-2 h-value-356 rounded-value-24" /></div><div className="min-h-value-504 rounded-t-value-31 bg-surface-card px-6 pt-8"><div className="skeleton h-5 w-3/5 rounded" /><div className="skeleton mt-5 h-4 w-full rounded" /><div className="skeleton mt-2 h-4 w-4/5 rounded" /></div></div><div className="hidden space-y-7 md:block"><div className="skeleton h-4 w-40 rounded" /><div className="grid gap-12 lg:grid-cols-2"><div className="skeleton aspect-square rounded-2xl" /><div className="space-y-6"><div className="skeleton h-9 w-2/3 rounded" /><div className="skeleton h-5 w-full rounded" /><div className="skeleton h-5 w-4/5 rounded" /><div className="skeleton h-10 w-full rounded" /></div></div></div></div>
+}
+
+function CartRouteSkeleton() {
+  return <div aria-busy="true" aria-label="Carregando carrinho" role="status"><span className="sr-only">Carregando carrinho</span><div className="space-y-5 sm:hidden"><div className="skeleton h-6 w-48 rounded" /><div className="skeleton h-value-100 rounded-value-14" /><div className="skeleton h-value-100 rounded-value-14" /><div className="skeleton h-5 w-full rounded" /><div className="skeleton h-5 w-full rounded" /></div><div className="-mt-16 hidden grid gap-10 xl:grid-cols-cart-layout sm:grid"><div className="space-y-3"><div className="skeleton h-7 w-full rounded" /><div className="skeleton h-value-70 w-full rounded" /><div className="skeleton h-value-70 w-full rounded" /></div><div className="space-y-4"><div className="skeleton h-7 w-full rounded" /><div className="skeleton h-10 w-full rounded" /><div className="skeleton h-5 w-full rounded" /><div className="skeleton h-5 w-full rounded" /><div className="skeleton h-10 w-full rounded" /></div></div></div>
 }
 
 const categories: CatalogCategory[] = [
@@ -124,7 +136,7 @@ const indexRoute = createRoute({
 const nftDetailRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/nft/$nftId',
-  component: () => <DeferredPage><NftDetailPage /></DeferredPage>
+  component: () => <DeferredPage fallback={<DetailRouteSkeleton />}><NftDetailPage /></DeferredPage>
 })
 
 const loginRoute = createRoute({
@@ -151,7 +163,7 @@ const routeTree = rootRoute.addChildren([
   createRoute({
     getParentRoute: () => rootRoute,
     path: '/cart',
-    component: () => <DeferredPage><CartPage /></DeferredPage>
+    component: () => <DeferredPage fallback={<CartRouteSkeleton />}><CartPage /></DeferredPage>
   }),
 
   loginRoute,

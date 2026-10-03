@@ -235,15 +235,17 @@ export function HomeCatalog() {
         </div>
         {isLoading && !isRetrying ? (
           <div
-            className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3"
+            aria-busy="true"
             aria-label="Carregando NFTs"
+            className="home-catalog-grid grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-2 sm:gap-x-8 sm:gap-y-catalog-row-gap lg:grid-cols-catalog lg:justify-between"
             role="status"
           >
             {Array.from({ length: 9 }, (_, index) => (
-              <div
-                className="skeleton h-value-200 rounded-2xl sm:h-card-visual-height"
-                key={index}
-              />
+              <article className="min-w-0" key={index}>
+                <div className="skeleton h-value-200 rounded-2xl sm:h-card-visual-height" />
+                <div className="skeleton mt-2 ml-2 h-4 w-3/4 rounded sm:mt-3 sm:ml-0" />
+                <div className="skeleton mt-1 ml-2 h-4 w-2/5 rounded sm:mt-3 sm:ml-0" />
+              </article>
             ))}
           </div>
         ) : isError || isRetrying ? (

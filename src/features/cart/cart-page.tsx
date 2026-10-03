@@ -39,6 +39,38 @@ const mobileImages: Record<string, string> = {
   'golden-beat-207': mobileGoldenBeat
 }
 
+function CartSummarySkeleton({ mobile = false }: { mobile?: boolean }) {
+  const spacing = mobile ? 'mt-7' : 'mt-6'
+  const rowGap = mobile ? 'space-y-4' : 'space-y-3'
+
+  return (
+    <div aria-busy="true" aria-label="Carregando resumo do carrinho" className={spacing} role="status">
+      <span className="sr-only">Carregando resumo do carrinho</span>
+      <div className={rowGap}>
+        {Array.from({ length: 3 }, (_, index) => (
+          <div className="flex h-5 justify-between" key={index}>
+            <div className="skeleton h-full w-2/5 rounded" />
+            <div className="skeleton h-full w-1/4 rounded" />
+          </div>
+        ))}
+        {!mobile && <div className="skeleton ml-auto h-3 w-20 rounded" />}
+      </div>
+      <div className={`${mobile ? 'mt-7 text-value-18 leading-6' : 'mt-6 text-body-15-bold-compact'} flex justify-between font-bold text-foreground`}>
+        <div className="skeleton h-6 w-16 rounded" />
+        <div className="skeleton h-6 w-24 rounded" />
+      </div>
+      {mobile ? (
+        <div className="skeleton mt-4 h-5 w-40 rounded" />
+      ) : (
+        <>
+          <div className="skeleton mt-6 h-10 w-full rounded" />
+          <div className="skeleton mt-3 h-5 w-40 rounded" />
+        </>
+      )}
+    </div>
+  )
+}
+
 function MobileCart({
   couponText,
   couponMutation,
@@ -104,7 +136,7 @@ function MobileCart({
       </div>
       {couponFeedback && <p className={couponMutation.isError ? 'mt-2 text-value-12 text-error' : 'mt-2 text-value-12 text-success'} role="status">{couponFeedback}</p>}
       {quote.isError && <p className="mt-2 text-value-12 text-error" role="alert">Não foi possível atualizar a cotação.</p>}
-      {isQuoteLoading ? <div aria-label="Carregando resumo do carrinho" className="mt-7 space-y-4" role="status"><div className="skeleton h-5 rounded" /><div className="skeleton h-5 rounded" /><div className="skeleton h-5 rounded" /><div className="skeleton mt-7 h-6 rounded" /></div> : <><dl className="mt-7 space-y-4 text-value-15 leading-5 text-foreground"><div className="flex justify-between"><dt>Subtotal</dt><dd>{totals ? formatEth(totals.subtotalEth) : '—'}</dd></div><div className="flex justify-between"><dt>Desconto do lançamento</dt><dd>{totals ? `(-) ${formatEth(totals.discountEth)}` : '—'}</dd></div><div className="flex justify-between"><dt>Taxa de rede</dt><dd>{totals ? formatEth(totals.networkFeeEth) : '—'}</dd></div></dl><div className="mt-7 flex justify-between text-value-18 font-bold leading-6 text-foreground"><span>Total</span><span className="text-text-accent">{totals ? formatEth(totals.totalEth) : '—'}</span></div><Link className="mt-4 block text-center text-value-14 text-text-accent" to="/">Continuar explorando</Link></>}
+      {isQuoteLoading ? <CartSummarySkeleton mobile /> : <><dl className="mt-7 space-y-4 text-value-15 leading-5 text-foreground"><div className="flex justify-between"><dt>Subtotal</dt><dd>{totals ? formatEth(totals.subtotalEth) : '—'}</dd></div><div className="flex justify-between"><dt>Desconto do lançamento</dt><dd>{totals ? `(-) ${formatEth(totals.discountEth)}` : '—'}</dd></div><div className="flex justify-between"><dt>Taxa de rede</dt><dd>{totals ? formatEth(totals.networkFeeEth) : '—'}</dd></div></dl><div className="mt-7 flex justify-between text-value-18 font-bold leading-6 text-foreground"><span>Total</span><span className="text-text-accent">{totals ? formatEth(totals.totalEth) : '—'}</span></div><Link className="mt-4 block text-center text-value-14 text-text-accent" to="/">Continuar explorando</Link></>}
       {coupon && <Button aria-label="Remover cupom" className="mt-2 h-auto p-0 text-value-12 text-secondary hover:text-foreground" onClick={() => { removeCoupon(); setCouponFeedback('Cupom removido.') }} type="button" variant="ghost">Remover cupom</Button>}
       <footer className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-surface-card/95 px-6 py-4 backdrop-blur sm:hidden">
         <Button className="h-value-50 w-full rounded-full text-value-15 font-bold" disabled={!items.length || !totals || quote.isFetching || items.some(item => item.quantity <= 0)} onClick={() => void navigate({ to: '/checkout' })} type="button">Conectar e finalizar</Button>
@@ -192,7 +224,7 @@ export function CartPage() {
           {coupon && <div className="mt-2 flex items-center justify-between text-value-10 text-success"><span>{coupon} aplicado</span><Button aria-label="Remover cupom" className="size-4 p-0 text-secondary hover:text-foreground" onClick={() => { clearCoupon(); setCouponFeedback('Cupom removido.') }} type="button" variant="ghost"><X className="size-3" /></Button></div>}
           {couponFeedback && <p className={couponMutation.isError ? 'mt-1 text-value-9 text-error' : 'mt-1 text-value-9 text-success'} role="status">{couponFeedback}</p>}
           {quote.isError && <p className="mt-2 text-value-10 text-error" role="alert">Não foi possível atualizar a cotação. Revise os valores antes de finalizar.</p>}
-          {isQuoteLoading ? <div aria-label="Carregando resumo do carrinho" className="mt-6 space-y-3" role="status"><div className="skeleton h-5 rounded" /><div className="skeleton h-5 rounded" /><div className="skeleton h-5 rounded" /><div className="skeleton mt-6 h-6 rounded" /><div className="skeleton mt-6 h-10 rounded" /></div> : <><dl className="mt-6 space-y-3 text-body-14-compact text-foreground"><div className="flex h-5 justify-between"><dt>Subtotal</dt><dd>{totals ? formatEth(totals.subtotalEth) : '—'}</dd></div><div className="flex h-5 justify-between"><dt>Desconto do lançamento</dt><dd>{totals ? `(-) ${formatEth(totals.discountEth)}` : '—'}</dd></div><div><div className="flex h-5 justify-between"><dt>Taxa de rede</dt><dd>{totals ? formatEth(totals.networkFeeEth) : '—'}</dd></div><div className="mt-3 text-right text-value-10 text-text-accent">Cotação da API</div></div></dl>
+          {isQuoteLoading ? <CartSummarySkeleton /> : <><dl className="mt-6 space-y-3 text-body-14-compact text-foreground"><div className="flex h-5 justify-between"><dt>Subtotal</dt><dd>{totals ? formatEth(totals.subtotalEth) : '—'}</dd></div><div className="flex h-5 justify-between"><dt>Desconto do lançamento</dt><dd>{totals ? `(-) ${formatEth(totals.discountEth)}` : '—'}</dd></div><div><div className="flex h-5 justify-between"><dt>Taxa de rede</dt><dd>{totals ? formatEth(totals.networkFeeEth) : '—'}</dd></div><div className="mt-3 text-right text-value-10 text-text-accent">Cotação da API</div></div></dl>
           <div className="mt-6 flex justify-between text-body-15-bold-compact text-foreground"><span>Total</span><span className="text-text-accent">{totals ? formatEth(totals.totalEth) : '—'}</span></div><Button className="mt-6 h-10 w-full text-body-14-bold-compact" disabled={!items.length || !totals || quote.isFetching || items.some(item => item.quantity <= 0)} onClick={() => void navigate({ to: '/checkout' })} type="button">Conectar e finalizar</Button><Link className="mt-3 block text-center text-body-14-compact text-text-accent hover:text-primary" to="/">Continuar explorando</Link></>}
         </aside>
       </div>

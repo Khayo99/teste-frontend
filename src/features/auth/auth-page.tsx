@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import { Link, useNavigate, useSearch } from '@tanstack/react-router'
-import { EyeOff, X } from 'lucide-react'
+import { Eye, EyeOff, X } from 'lucide-react'
 import { useEffect, useRef, useState, type RefObject } from 'react'
 import { login, register, type AuthApiError } from './api/auth-api'
 import { useAuthStore } from './auth-store'
@@ -17,11 +17,13 @@ export function AuthPage({
   mode,
   background = true,
   onClose,
+  onModeChange,
   returnTo
 }: {
   mode: Mode
   background?: boolean
   onClose?: () => void
+  onModeChange?: (mode: Mode) => void
   returnTo?: string
 }) {
   const isRegister = mode === 'register'
@@ -221,12 +223,22 @@ export function AuthPage({
           </div>
           <p className="auth-switch">
             {isRegister ? 'Já tem uma conta? ' : 'Novo na Kurio? '}
-            <Link
-              to={isRegister ? '/login' : '/register'}
-              search={{ returnTo: search.returnTo }}
-            >
-              {isRegister ? 'Entre' : 'Crie uma conta'}
-            </Link>
+            {onModeChange ? (
+              <button
+                className="text-text-accent underline"
+                type="button"
+                onClick={() => onModeChange(isRegister ? 'login' : 'register')}
+              >
+                {isRegister ? 'Entre' : 'Crie uma conta'}
+              </button>
+            ) : (
+              <Link
+                to={isRegister ? '/login' : '/register'}
+                search={{ returnTo: search.returnTo }}
+              >
+                {isRegister ? 'Entre' : 'Crie uma conta'}
+              </Link>
+            )}
           </p>
         </section>
       </div>
@@ -254,6 +266,8 @@ function Field({
   inputRef?: RefObject<HTMLInputElement | null>
 }) {
   const errorId = `${id}-error`
+  const isPassword = type === 'password'
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false)
   return (
     <div>
       <label className="sr-only" htmlFor={id}>
@@ -261,10 +275,10 @@ function Field({
       </label>
       <div className="relative">
         <Input
-          className="auth-input"
+          className={`auth-input ${isPassword ? 'pr-10' : ''}`}
           id={id}
           name={id}
-          type={type}
+          type={isPassword && isPasswordVisible ? 'text' : type}
           placeholder={placeholder ?? label}
           value={value}
           aria-invalid={Boolean(error)}
@@ -272,11 +286,16 @@ function Field({
           onChange={event => onChange(id, event.target.value)}
           ref={inputRef}
         />
-        {type === 'password' && (
-          <EyeOff
-            aria-hidden="true"
-            className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-secondary"
-          />
+        {isPassword && (
+          <button
+            aria-label={isPasswordVisible ? `Ocultar ${label.toLowerCase()}` : `Visualizar ${label.toLowerCase()}`}
+            aria-pressed={isPasswordVisible}
+            className="absolute right-2 top-1/2 grid size-7 -translate-y-1/2 place-items-center rounded text-secondary hover:text-foreground focus-visible:outline-2 focus-visible:outline-primary"
+            onClick={() => setIsPasswordVisible(current => !current)}
+            type="button"
+          >
+            {isPasswordVisible ? <EyeOff aria-hidden="true" className="size-4" /> : <Eye aria-hidden="true" className="size-4" />}
+          </button>
         )}
       </div>
       {error && (

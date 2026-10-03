@@ -1,8 +1,5 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import emeraldApe from '@/assets/cart/emerald-ape.png'
-import violetNomad from '@/assets/cart/violet-nomad.png'
-import ivoryBaron from '@/assets/cart/ivory-baron.png'
 import type { CartQuoteItem } from '@/features/cart/cart-api'
 import type { NftUpdateEvent } from '@/lib/contracts'
 
@@ -18,41 +15,7 @@ export type CartItem = {
   tokenId: string
 }
 
-const initialItems: CartItem[] = [
-  {
-    id: 'emerald-ape-042',
-    image: emeraldApe,
-    name: 'Emerald Ape',
-    tokenId: '#0042',
-    editionId: '1/10',
-    editionLabel: '1/10',
-    priceEth: '1.19',
-    quantity: 2,
-    stock: 2
-  },
-  {
-    id: 'violet-nomad-314',
-    image: violetNomad,
-    name: 'Violet Nomad',
-    tokenId: '#0009',
-    editionId: '1/50',
-    editionLabel: '1/50',
-    priceEth: '1.39',
-    quantity: 6,
-    stock: 6
-  },
-  {
-    id: 'ivory-baron-088',
-    image: ivoryBaron,
-    name: 'Ivory Baron',
-    tokenId: '#0552',
-    editionId: 'ABERTA',
-    editionLabel: 'ABERTA',
-    priceEth: '1.79',
-    quantity: 9,
-    stock: 9
-  }
-]
+const initialItems: CartItem[] = []
 
 type CartStore = {
   coupon: string | null
@@ -187,6 +150,6 @@ export const useCartStore = create<CartStore>()(
           )
         }))
     }),
-    { name: 'kurio.cart.v2', version: 2 }
+    { name: 'kurio.cart.v3', version: 3 }
   )
 )

@@ -41,7 +41,7 @@ const PROFILES_STORAGE_KEY = 'kurio.mock.profiles'
 const WALLETS_STORAGE_KEY = 'kurio.mock.wallets'
 const ORDERS_STORAGE_KEY = 'kurio.mock.orders'
 const CATALOG_STORAGE_KEY = 'kurio.mock.catalog'
-const CARTS_STORAGE_KEY = 'kurio.mock.carts'
+const CARTS_STORAGE_KEY = 'kurio.mock.carts.v2'
 const SESSIONS_STORAGE_KEY = 'kurio.mock.sessions'
 type MockCartLine = { lineId: string; id: string; editionId: string; editionLabel: string; quantity: number; stock: number }
 type MockCart = { items: MockCartLine[]; coupon: string | null; revision: number }
@@ -422,11 +422,7 @@ function initialCart(): MockCart {
   return {
     coupon: null,
     revision: 1,
-    items: [
-      { lineId: 'emerald-ape-042:1/10', id: 'emerald-ape-042', editionId: '1/10', editionLabel: '1/10', quantity: 2, stock: 2 },
-      { lineId: 'violet-nomad-314:1/50', id: 'violet-nomad-314', editionId: '1/50', editionLabel: '1/50', quantity: 6, stock: 6 },
-      { lineId: 'ivory-baron-088:ABERTA', id: 'ivory-baron-088', editionId: 'ABERTA', editionLabel: 'ABERTA', quantity: 9, stock: 9 }
-    ]
+    items: []
   }
 }
 function readCart(scope: string) {

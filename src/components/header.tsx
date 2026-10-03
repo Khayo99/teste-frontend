@@ -76,7 +76,7 @@ export function Header() {
                 ? 'h-header-height border-b-2 border-text-accent font-bold text-text-accent'
                 : 'transition-colors hover:text-text-accent'
             }
-            href="#mercado"
+            href="/#mercado"
           >
             Mercado
           </a>

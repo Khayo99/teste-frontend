@@ -32,6 +32,20 @@ test('faz login e mantém a sessão após refresh', async ({ page }) => {
   ).toBeAttached()
 })
 
+test('permite visualizar e ocultar a senha', async ({ page }) => {
+  await page.goto('/login')
+  const password = page.getByLabel('Senha', { exact: true })
+  const toggle = page.getByRole('button', { name: 'Visualizar senha' })
+
+  await expect(password).toHaveAttribute('type', 'password')
+  await toggle.click()
+  await expect(password).toHaveAttribute('type', 'text')
+  const hidePassword = page.getByRole('button', { name: 'Ocultar senha' })
+  await expect(hidePassword).toBeVisible()
+  await hidePassword.click()
+  await expect(password).toHaveAttribute('type', 'password')
+})
+
 test('protege checkout e retorna ao destino após autenticar', async ({
   page
 }) => {
